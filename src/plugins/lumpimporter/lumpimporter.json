@@ -1,0 +1,7 @@
+{
+  "Name" : "LumpImporter",
+  "Version" : "1.0",
+  "Description" : "Import Binary Lumps",
+  "Url" : "",
+  "LoadOrder": 101
+}

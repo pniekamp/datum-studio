@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/skyboxplugin">
+        <file>reset.png</file>
+        <file>icon.png</file>
+    </qresource>
+</RCC>

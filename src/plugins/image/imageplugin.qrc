@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/imgplugin">
+        <file>reset.png</file>
+    </qresource>
+</RCC>

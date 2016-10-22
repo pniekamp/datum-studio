@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/editplugin">
+        <file>edit.png</file>
+        <file>edit-selected.png</file>
+        <file>collapse.png</file>
+        <file>expand.png</file>
+        <file>close.png</file>
+        <file>file.png</file>
+    </qresource>
+</RCC>

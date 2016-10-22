@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/projectplugin">
+        <file>filenew.png</file>
+        <file>fileopen.png</file>
+        <file>filesave.png</file>
+        <file>filesaveas.png</file>
+    </qresource>
+</RCC>

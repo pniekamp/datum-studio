@@ -1,0 +1,286 @@
+//
+// Pack Plugin
+//
+
+//
+// Copyright (C) 2016 Peter Niekamp
+//
+
+#include "packplugin.h"
+#include "projectapi.h"
+#include "build.h"
+#include "dialogfactory.h"
+#include <QWidgetAction>
+#include <QSettings>
+#include <QtPlugin>
+#include <QDir>
+#include <QMessageBox>
+#include <QFileDialog>
+
+#include <QDebug>
+
+using namespace std;
+
+//|---------------------- PackPlugin ----------------------------------------
+//|--------------------------------------------------------------------------
+
+///////////////////////// PackPlugin::Constructor ///////////////////////////
+PackPlugin::PackPlugin()
+{
+}
+
+
+///////////////////////// PackPlugin::Destructor ////////////////////////////
+PackPlugin::~PackPlugin()
+{
+  shutdown();
+}
+
+
+///////////////////////// PackPlugin::initialise ////////////////////////////
+bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
+{
+  auto actionmanager = Studio::Core::instance()->find_object<Studio::ActionManager>();
+
+  QIcon icon;
+  icon.addFile(":/packplugin/pack.png", QSize(), QIcon::Normal, QIcon::Off);
+  icon.addFile(":/packplugin/pack-selected.png", QSize(), QIcon::Normal, QIcon::On);
+
+  m_metamode = new QAction(icon, "Pack", this);
+  m_metamode->setToolTip("Switch to Pack\nctrl-2");
+  m_metamode->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_2));
+  m_metamode->setEnabled(false);
+
+  auto metamode = actionmanager->register_action("Pack.MetaMode", m_metamode);
+
+  auto modemanager = Studio::Core::instance()->find_object<Studio::ModeManager>();
+
+  modemanager->add_metamode(2, metamode);
+
+  connect(modemanager, &Studio::ModeManager::metamode_changed, this, &PackPlugin::on_metamode_changed);
+
+  m_build = new QAction(QIcon(":/packplugin/build.png"), "Build", this);
+  m_build->setToolTip("Build Pack\nctrl-b");
+  m_build->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+  m_build->setEnabled(false);
+
+  auto build = actionmanager->register_action("Pack.Build", m_build);
+
+  actionmanager->container("Studio.Meta.Box")->add_back(build);
+
+  connect(m_build, &QAction::triggered, this, &PackPlugin::build);
+
+  m_pack = new PackModel(this);
+
+  m_container = new QWidget;
+
+  ui.setupUi(m_container);
+
+  m_container->addAction(ui.Delete);
+
+  ui.Splitter->setStretchFactor(0, 1);
+  ui.Splitter->setStretchFactor(1, 12);
+
+  ui.Navigator->set_model(m_pack);
+
+  connect(ui.Delete, &QAction::triggered, this, &PackPlugin::on_Delete_triggered);
+  connect(ui.Navigator, &TreeView::selection_changed, ui.Viewport, &FileView::set_asset);
+  connect(ui.Navigator, &TreeView::item_triggered, this, &PackPlugin::on_item_triggered);
+  connect(ui.Navigator, &TreeView::customContextMenuRequested, this, &PackPlugin::on_contextmenu_requested);
+
+  modemanager->container()->addWidget(m_container);
+
+  auto projectmanager = Studio::Core::instance()->find_object<Studio::ProjectManager>();
+
+  connect(projectmanager, &Studio::ProjectManager::project_changed, this, &PackPlugin::on_project_changed);
+  connect(projectmanager, &Studio::ProjectManager::project_saving, this, &PackPlugin::on_project_saving);
+  connect(projectmanager, &Studio::ProjectManager::project_closing, this, &PackPlugin::on_project_closing);
+  connect(projectmanager, &Studio::ProjectManager::project_closed, this, &PackPlugin::on_project_closed);
+
+  QSettings settings;
+  ui.Splitter->restoreState(settings.value("packplugin/splitter", QByteArray()).toByteArray());
+
+  return true;
+}
+
+
+///////////////////////// PackPlugin::shutdown //////////////////////////////
+void PackPlugin::shutdown()
+{
+  QSettings settings;
+
+  settings.setValue("packplugin/splitter", ui.Splitter->saveState());
+}
+
+
+///////////////////////// PackPlugin::build /////////////////////////////////
+void PackPlugin::build()
+{
+  m_build->setEnabled(false);
+
+  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
+
+  auto projectmanager = Studio::Core::instance()->find_object<Studio::ProjectManager>();
+
+  DialogFactory<Ui::Build> dlg(mainwindow->handle());
+
+  connect(dlg.ui.Export, &QPushButton::clicked, this, &PackPlugin::build_export);
+
+  dlg.show();
+
+  try
+  {
+    Pack::build(m_pack, QDir(projectmanager->basepath()).filePath("Build/asset.pack"), &dlg.ui);
+  }
+  catch(exception &e)
+  {
+    qDebug() << "Build Error:" << e.what();
+
+    dlg.ui.Message->setText(QString("Build Failed: %1").arg(e.what()));
+    dlg.ui.Close->setText("Close");
+  }
+
+  dlg.exec();
+
+  m_build->setEnabled(true);
+}
+
+
+///////////////////////// PackPlugin::build_export //////////////////////////
+void PackPlugin::build_export()
+{
+  QString basepath = QSettings().value("packplugin/exportpath").toString();
+
+  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
+
+  auto projectmanager = Studio::Core::instance()->find_object<Studio::ProjectManager>();
+
+  QString exportfile = QFileDialog::getSaveFileName(mainwindow->handle(), "Export Build", basepath, "Asset Pack (*.pack)");
+
+  if (exportfile != "")
+  {
+    try
+    {
+      QProgressDialog progress("Export Build", "Abort", 0, 100, mainwindow->handle());
+
+      QFile::remove(exportfile);
+      QFile::copy(QDir(projectmanager->basepath()).filePath("Build/asset.pack"), exportfile);
+    }
+    catch(exception &e)
+    {
+      QMessageBox::information(mainwindow->handle(), "Export Error", e.what());
+    }
+
+    QSettings().setValue("packplugin/exportpath", QFileInfo(exportfile).path());
+  }
+}
+
+///////////////////////// PackPlugin::project_changed ///////////////////////
+void PackPlugin::on_project_changed(QString const &projectfile)
+{
+  m_pack->load(projectfile.toStdString());
+
+  m_metamode->setEnabled(true);
+
+  m_build->setEnabled(true);
+}
+
+
+///////////////////////// PackPlugin::project_saving ////////////////////////
+void PackPlugin::on_project_saving(QString const &projectfile)
+{
+  m_pack->save(projectfile.toStdString());
+}
+
+
+///////////////////////// PackPlugin::project_closing ///////////////////////
+void PackPlugin::on_project_closing(bool *cancel)
+{
+  if (*cancel)
+    return;
+
+  if (m_pack->modified())
+  {
+    auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
+
+    QString msg = QString("Project has been modified...\n\nSave Changes ?\n");
+
+    int reply = QMessageBox::question(mainwindow->handle(), "Close", msg, QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+
+    if (reply == QMessageBox::Save)
+    {
+      auto projectmanager = Studio::Core::instance()->find_object<Studio::ProjectManager>();
+
+      try
+      {
+        QProgressDialog progress("Save Project", "Abort", 0, 100, mainwindow->handle());
+
+        projectmanager->save_project(&progress);
+      }
+      catch(exception &e)
+      {
+        QMessageBox::information(mainwindow->handle(), "Project Error", e.what());
+      }
+    }
+
+    if (reply == QMessageBox::Cancel)
+    {
+      *cancel = true;
+    }
+  }
+}
+
+
+///////////////////////// PackPlugin::on_project_closed /////////////////////
+void PackPlugin::on_project_closed()
+{
+  m_pack->clear();
+}
+
+
+///////////////////////// PackPlugin::metamode_changed //////////////////////
+void PackPlugin::on_metamode_changed(QString const &mode)
+{
+  if (mode == "Pack")
+  {
+    auto modemanager = Studio::Core::instance()->find_object<Studio::ModeManager>();
+
+    modemanager->container()->setCurrentWidget(m_container);
+  }
+}
+
+
+///////////////////////// PackPlugin::on_item_triggered /////////////////////
+void PackPlugin::on_item_triggered(PackModel::Asset *asset)
+{
+//  auto editormanager = Studio::Core::instance()->find_object<Studio::EditorManager>();
+
+//  editormanager->open_editor(asset->document()->metadata("type", QString("Binary")), asset->path());
+}
+
+
+///////////////////////// PackPlugin::contextmenu_requested ////////////////
+void PackPlugin::on_contextmenu_requested(QPoint pos)
+{
+  QMenu menu;
+
+  menu.addAction(ui.Delete);
+
+  menu.exec(QCursor::pos());
+}
+
+
+///////////////////////// PackPlugin::Delete ////////////////////////////////
+void PackPlugin::on_Delete_triggered()
+{
+  if (QMessageBox::question(m_container, "Remove Asset", "Remove Selected Asset\n\nSure ?", QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok)
+  {
+    if (m_container->focusWidget() == ui.Navigator)
+    {
+      if (ui.Navigator->currentItem() && ui.Navigator->currentItem()->parent() == nullptr)
+      {
+        m_pack->erase_asset(ui.Navigator->currentIndex().row());
+      }
+    }
+  }
+}

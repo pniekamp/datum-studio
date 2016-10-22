@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/homeplugin">
+        <file>logo.png</file>
+        <file>logo-selected.png</file>
+        <file>plus.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,268 @@
+
+QMenuBar
+{
+  background: qlineargradient(x1:0 y1:0, x2:0 y2:1, stop:0 #d5d5d5, stop:1 #c0c0c0);
+}
+
+QMenuBar::item
+{
+  padding: 4px 8px 2px 8px;
+}
+
+QMenuBar::item::selected
+{
+  color: white;
+  background-color: #4f4f4f;
+  border: 1px solid #bbbbbb;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+
+QMenu
+{
+  background: #f0f0f0;
+}
+
+QMenu::item
+{
+  min-width: 7em;
+  height: 1.6em;
+  margin: 1px;
+  padding-left: 2em;
+  padding-right: 5px;
+}
+
+QMenu::item::selected
+{
+  color: black;
+  background: #90c8f6;
+}
+
+QMenu::icon
+{
+  position: absolute;
+  top: 2px;
+  left: 5px;
+}
+
+MetaBar
+{
+  border-top: 1px solid #141414;
+  border-bottom: 1px solid #363636;
+}
+
+MetaBar QToolButton
+{
+  color: #b7b9ba;
+  border: 1px solid transparent;
+  padding: 4px 16px 4px 16px;
+  font: bold 10px;
+}
+
+MetaBar QToolButton:hover
+{
+  background-color: #313131;
+}
+
+MetaBar QToolButton:checked
+{
+  background-color: #141414;
+}
+
+MetaBar QToolButton:disabled
+{
+  color: #515151;
+}
+
+MetaBox
+{
+  border-top: 1px solid #8b8b8b;
+}
+
+MetaBox QToolButton
+{
+  color: #b7b9ba;
+  border: 1px solid transparent;
+  padding: 4px 16px 4px 16px;
+  font: bold 10px;
+}
+
+MetaBox QToolButton:hover
+{
+  background-color: #313131;
+}
+
+MetaBox QToolButton:checked
+{
+  background-color: #141414;
+}
+
+MetaBox QToolButton:disabled
+{
+  color: #515151;
+}
+
+CommandBar
+{
+  border: none;
+  background-color: #222222;
+  min-height: 1.8em;
+  padding: 0;
+  margin: 0;
+}
+
+CommandBar::separator
+{
+  border-right: 1px solid #4f4f4f;
+  margin: 4px 4px 4px 0px;
+  width: 4px;
+}
+
+CommandBar QLabel
+{
+  color: white;
+  padding: 0px 2px 0px 2px;
+}
+
+CommandBar QToolButton
+{
+  color: white;
+  border: 1px solid transparent;
+  padding: 0px 2px 0px 2px;
+}
+
+CommandBar QToolButton:hover
+{
+  background-color: #313131;
+}
+
+CommandBar QToolButton:checked
+{
+  background-color: #141414;
+}
+
+CommandBar QToolButton::menu-button
+{
+  subcontrol-position: center bottom;
+  border: 1px solid transparent;
+  width: 20px;
+}
+
+CommandBar QToolButton::menu-arrow
+{
+  subcontrol-position: center bottom;
+  width: 2px;
+}
+
+CommandBar QPushButton
+{
+  color: white;
+  background-color: #222222;
+}
+
+CommandBar QComboBox
+{
+  color: white;
+  background-color: #222222;
+  padding: 0px 4px 0px 4px;
+}
+
+CommandBar QComboBox QListView
+{
+  color: black;
+  background-color: white;
+}
+
+StatusBar
+{
+  border-top: 1px solid #515151;
+  border-bottom: none;
+  background-color: #222222;
+}
+
+StatusBar QToolButton
+{
+  color: white;
+  border: none;
+  background-color: #222222;
+  padding: 0px 2px 0px 2px;
+}
+
+StatusBar QToolButton:hover
+{
+  background-color: #313131;
+}
+
+StatusBar QToolButton:checked
+{
+  color: white;
+  background-color: #141414;
+}
+
+StatusBar QToolButton:disabled
+{
+  color: #515151;
+}
+
+StatusBox
+{
+  border-top: 1px solid #515151;
+  border-bottom: none;
+  background-color: #222222;
+}
+
+StatusReport
+{
+  border-top: 1px solid #515151;
+  border-bottom: none;
+  background-color: #222222;
+}
+
+QSplitter::handle
+{
+  border: none;
+  background: black;  
+}
+
+QDockWidget
+{
+  color: white;
+}
+
+QDockWidget::title
+{
+  text-align: left;
+  background: #222222;
+  padding-left: 0px;
+}
+
+QDockWidget QLabel[class="header"]
+{
+  color: black;
+  text-align: left;
+  background: #bbbbbb;
+  padding: 2px 2px 2px 2px;
+}
+
+QMainWindow::separator
+{
+  width: 1px;
+  height: 1px;
+}
+
+#SideBar
+{
+  background-color: #222222;
+}
+
+#Container
+{
+  border: 1px solid #363636;
+  border-bottom: none;
+}
+
+#MainStatusView
+{
+  border: 1px solid #363636;
+  border-bottom: none;
+}

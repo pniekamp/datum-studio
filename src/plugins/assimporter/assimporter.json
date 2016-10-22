@@ -1,0 +1,7 @@
+{
+  "Name" : "AssImporter",
+  "Version" : "1.0",
+  "Description" : "Import AssImp Files",
+  "Url" : "",
+  "LoadOrder": 98
+}

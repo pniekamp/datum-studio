@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icons"/>
+    <qresource prefix="/images">
+        <file>loader.gif</file>
+    </qresource>
+    <qresource prefix="/cursors"/>
+</RCC>

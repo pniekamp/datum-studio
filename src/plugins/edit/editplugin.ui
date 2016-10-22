@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EditPlugin</class>
+ <widget class="QWidget" name="EditPlugin">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>499</width>
+    <height>335</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="Splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="handleWidth">
+      <number>0</number>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="EditorView" name="Editor1" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>128</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+     </widget>
+     <widget class="EditorView" name="Editor2" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>128</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+  <action name="Expand">
+   <property name="icon">
+    <iconset resource="editplugin.qrc">
+     <normaloff>:/editplugin/expand.png</normaloff>:/editplugin/expand.png</iconset>
+   </property>
+   <property name="text">
+    <string>Expand</string>
+   </property>
+   <property name="toolTip">
+    <string>Expand Editor</string>
+   </property>
+  </action>
+  <action name="Collapse">
+   <property name="icon">
+    <iconset resource="editplugin.qrc">
+     <normaloff>:/editplugin/collapse.png</normaloff>:/editplugin/collapse.png</iconset>
+   </property>
+   <property name="text">
+    <string>Collapse</string>
+   </property>
+   <property name="toolTip">
+    <string>Collapse Editor</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EditorView</class>
+   <extends>QWidget</extends>
+   <header>editorview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="editplugin.qrc"/>
+ </resources>
+ <connections/>
+</ui>

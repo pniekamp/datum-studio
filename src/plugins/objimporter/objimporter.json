@@ -1,0 +1,7 @@
+{
+  "Name" : "ObjImporter",
+  "Version" : "1.0",
+  "Description" : "Import Obj Files",
+  "Url" : "",
+  "LoadOrder": 99
+}

@@ -1,0 +1,267 @@
+
+QcRibbon
+{
+  background-color: palette(base);
+  spacing: 0px;
+}
+
+QcRibbon::tab, QcRibbon::item
+{
+  color: palette(buttontext);
+  background-color: transparent;
+  padding: 3px;
+  margin: 0px;
+  padding-right: 16px;
+  padding-left: 16px;
+  margin-bottom: 0px;
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid #BBBBBB;
+  height: 1.2em;
+}
+
+QcRibbon::tab:disabled
+{
+  color: gray;
+}
+
+QcRibbon::tab:first
+{
+  color: rgb(255, 255, 255);
+  background-color: rgb(21, 121, 202);
+}
+
+QcRibbon::tab:first:disabled
+{
+  color: gray;
+  background-color: palette(base);
+}
+
+QcRibbon::tab:first:selected
+{
+  color: rgb(255, 255, 255);
+  background-color: rgb(21, 121, 202);
+  border-top: none;
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid #BBBBBB;
+}
+
+QcRibbon::tab:selected
+{
+  color: palette(buttontext);
+  background-color: rgba(164,164,192,32);
+  border: 1px solid #BBBBBB;
+  border-bottom: 1px solid transparent;
+  margin-bottom: -1px;
+}
+
+QcRibbon::tab:selected:disabled
+{
+  color: gray;
+  background-color: palette(base);
+  border-bottom: 1px solid #BBBBBB;
+}
+
+QcRibbon::tab:first:hover:!selected
+{
+  background-color: rgb(41, 140, 255);
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+}
+
+QcRibbon::tab:hover:!selected
+{
+  background-color: rgba(184,184,200,16);
+  border-left: 1px solid #CCCCCC;
+  border-right: 1px solid #CCCCCC;
+}
+
+QcRibbon > #RibbonCollapseButon
+{
+  max-width: 1.6em;
+  max-height: 1.6em;
+  border: none;
+  background-color: "transparent";
+}
+
+QcRibbon > #RibbonCollapseButon:hover
+{
+  background-color: rgba(164,164,192,32);
+  border: 1px solid rgb(168, 210, 253);
+}
+
+QcRibbonMenu
+{
+  background-color: palette(base);
+  border: 1px solid #888888;
+}
+
+QcRibbonMenu::item
+{
+  min-width: 7em;
+  height: 2em;
+  margin: 1px;
+  padding-left: 2em;
+  padding-right: 5px;
+}
+
+QcRibbonMenu::item:selected
+{
+  background-color: rgba(164,164,192,32);
+  color : palette(buttontext);
+  margin: 0px;
+  border: 1px solid rgb(168, 210, 253);
+  padding-left: 2em;
+  padding-right: 5px;
+}
+
+QcRibbonMenu::icon
+{
+  position: absolute;
+  top: 2px;
+  left: 5px;
+}
+
+QcRibbonMenu::indicator
+{
+  position: relative;
+  left: 5px;
+}
+
+QcRibbonTab
+{
+  height: 5.5em;
+  color: palette(buttontext);
+  background-color: rgba(164,164,192,32);
+  border-bottom: 1px solid #BBBBBB;
+}
+
+QcRibbonGroup
+{
+  width: 32px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  background-color: transparent;
+  border: none;
+  border-right: 1px solid #DDDDDD;
+}
+
+QcRibbonGroup::title
+{
+  subcontrol-origin: margin;
+  subcontrol-position: bottom center;
+  color: rgb(146, 146, 146);
+  padding-bottom: 4px;
+  font-size: 6px;
+}
+
+QcRibbonGroup > QToolButton
+{
+  margin: 0;
+  padding: 1px;
+  padding-right: 3px;
+  border: 1px solid transparent;
+  margin-right: 2px;
+}
+
+QcRibbonGroup > QcRibbonLargeButton
+{
+  padding-bottom: -4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+QcRibbonGroup > QcRibbonDropButton
+{
+  padding-bottom: -4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+QcRibbonGroup > QToolButton:hover
+{
+  background-color: rgba(160,168,224,32);
+  border: 1px solid rgb(164, 206, 249);
+}
+
+QcRibbonGroup > QToolButton:checked
+{
+  background-color: rgba(150,184,238,48);
+  border: 1px solid rgb(164, 206, 249);
+}
+
+QcRibbonGroup > QToolButton:checked:!hover
+{
+  background-color: rgba(150,184,238,96);
+  border: 1px solid rgb(164, 206, 249);
+}
+
+QcRibbonGroup > QToolButton:pressed
+{
+  background-color: rgba(150,184,238,96);
+  border: 1px solid rgb(164, 206, 249);
+}
+
+QcRibbonGroup > QToolButton::menu-indicator
+{
+  width: 6px;
+}
+
+QcRibbonGroup > QcRibbonLargeButton::menu-indicator
+{
+  subcontrol-position: center bottom;
+  top: 6px;
+  width: 6px;
+}
+
+QcRibbonGroup > QToolButton::menu-button
+{
+  subcontrol-position: center bottom;
+  border: 1px solid transparent;
+  width: 36px;
+  height: 28px;
+}
+
+QcRibbonGroup > QToolButton::menu-button:hover
+{
+  background-color: rgba(150,184,238,96);
+  border-top: 1px solid rgb(164, 206, 249);
+}
+
+QcRibbonGroup > QToolButton::menu-arrow
+{
+  subcontrol-position: center bottom;
+  top: 6px;
+  width: 6px;
+}
+
+QcRibbonGroup > QCheckBox
+{
+  margin: 0;
+  padding: 1px;
+  padding-right: 3px;
+  border: 1px solid transparent;
+  margin-right: 2px;
+}
+
+QMainWindow > .QToolBar
+{
+  background-color: palette(base);
+  border-bottom: 1px solid #BBBBBB;
+}
+
+QMainWindow > .QToolBar QToolButton
+{
+  background-color: palette(base);
+}
+
+QMainWindow > .QStatusBar
+{
+  background-color: palette(base);
+}
+
+QMainWindow > .QStatusBar QWidget
+{
+  background-color: rgba(164,164,192,32);
+}

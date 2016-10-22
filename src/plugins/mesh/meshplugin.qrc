@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/meshplugin">
+        <file>reset.png</file>
+    </qresource>
+</RCC>

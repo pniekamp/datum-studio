@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/fontplugin">
+        <file>reset.png</file>
+        <file>icon.png</file>
+    </qresource>
+</RCC>

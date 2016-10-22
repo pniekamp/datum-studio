@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/contentplugin">
+        <file>content.png</file>
+        <file>folder.png</file>
+        <file>icon.png</file>
+    </qresource>
+</RCC>
