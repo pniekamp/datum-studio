@@ -570,6 +570,8 @@ MaterialDocument::MaterialDocument(MaterialDocument const &document)
 ///////////////////////// MaterialDocument::Assignment //////////////////////
 MaterialDocument MaterialDocument::operator =(MaterialDocument const &document)
 {
+  disconnect();
+
   attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document));
 
   return *this;

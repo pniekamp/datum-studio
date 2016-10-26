@@ -62,6 +62,8 @@ ImageDocument::ImageDocument(ImageDocument const &document)
 ///////////////////////// ImageDocument::Assignment /////////////////////////
 ImageDocument ImageDocument::operator =(ImageDocument const &document)
 {
+  disconnect();
+
   attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document));
 
   return *this;

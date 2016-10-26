@@ -276,6 +276,8 @@ SkyboxDocument::SkyboxDocument(SkyboxDocument const &document)
 ///////////////////////// SkyboxDocument::Assignment ////////////////////////
 SkyboxDocument SkyboxDocument::operator =(SkyboxDocument const &document)
 {
+  disconnect();
+
   attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document));
 
   return *this;

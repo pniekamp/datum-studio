@@ -133,6 +133,8 @@ MeshDocument::MeshDocument(MeshDocument const &document)
 ///////////////////////// MeshDocument::Assignment //////////////////////////
 MeshDocument MeshDocument::operator =(MeshDocument const &document)
 {
+  disconnect();
+
   attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document));
 
   return *this;

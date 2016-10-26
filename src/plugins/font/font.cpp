@@ -214,6 +214,8 @@ FontDocument::FontDocument(FontDocument const &document)
 ///////////////////////// FontDocument::Assignment //////////////////////////
 FontDocument FontDocument::operator =(FontDocument const &document)
 {
+  disconnect();
+
   attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document));
 
   return *this;
