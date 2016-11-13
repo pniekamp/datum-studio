@@ -37,6 +37,10 @@ bool ImagePlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   viewfactory->register_factory("Image", this);
 
+  auto packmanager = Studio::Core::instance()->find_object<Studio::PackManager>();
+
+  packmanager->register_packer("Image", this);
+
   return true;
 }
 
@@ -51,4 +55,13 @@ void ImagePlugin::shutdown()
 QWidget *ImagePlugin::create_view(QString const &type)
 {
   return new ImageViewer;
+}
+
+
+///////////////////////// ImagePlugin::pack /////////////////////////////////
+bool ImagePlugin::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  ImageDocument::pack(asset, fout);
+
+  return true;
 }

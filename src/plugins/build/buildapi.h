@@ -37,7 +37,13 @@ namespace Studio
         request_build(document, receiver, [=](Document *document, QString const &path) { (receiver->*notify)(document, path); });
       }
 
-      virtual void request_build(Document *document, QObject *receiver, std::function<void (Document *, QString const &)> const &notify) = 0;
+      template<typename Object>
+      void request_build(Document *document, Object *receiver, void (Object::*notify)(Document *, QString const &), void (Object::*failure)(Document *))
+      {
+        request_build(document, receiver, [=](Document *document, QString const &path) { (receiver->*notify)(document, path); }, [=](Document *document) { (receiver->*failure)(document); });
+      }
+
+      virtual void request_build(Document *document, QObject *receiver, std::function<void (Document *, QString const &)> const &notify, std::function<void (Document *)> const &failure = nullptr) = 0;
 
       virtual void register_builder(QString const &type, QObject *builder) = 0;
 

@@ -20,8 +20,7 @@ using namespace lml;
 
 ///////////////////////// ImageProperties::Constructor //////////////////////
 ImageProperties::ImageProperties(QWidget *parent)
-  : QDockWidget(parent),
-    m_document(nullptr)
+  : QDockWidget(parent)
 {
   ui.setupUi(this);
 
@@ -40,7 +39,7 @@ void ImageProperties::edit(Studio::Document *document)
 {
   m_document = document;
 
-  connect(m_document, &Studio::Document::document_changed, this, &ImageProperties::refresh);
+  connect(&m_document, &ImageDocument::document_changed, this, &ImageProperties::refresh);
 
   refresh();
 }

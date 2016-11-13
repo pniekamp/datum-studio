@@ -23,6 +23,8 @@ class BinEditor : public QAbstractScrollArea
     BinEditor(QWidget *parent = nullptr);
     virtual ~BinEditor();
 
+    static constexpr int BytesPerLine = 16;
+
   public slots:
 
     QToolBar *toolbar() const;

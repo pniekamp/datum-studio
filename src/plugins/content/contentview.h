@@ -20,13 +20,17 @@ class ContentView : public QListWidget
   public:
     ContentView(QWidget *parent = 0);
 
+  public:
+
     QStringList selected_paths() const;
 
   public slots:
 
     void set_path(QString const &path);
 
-    void trigger_rename(QString const &path);
+    void select_path(QString const &path);
+
+    void trigger_rename(QListWidgetItem *item);
 
     void update(QString const &path);
 
@@ -40,12 +44,12 @@ class ContentView : public QListWidget
 
   protected:
 
-    void on_item_changed(QListWidgetItem *item);
+    void commitData(QWidget *editor);
 
-    void on_item_triggered(QListWidgetItem *item);
+    void itemDoubleClicked(QListWidgetItem *item);
 
     QStringList mimeTypes() const;
-    QMimeData *mimeData(const QList<QListWidgetItem *> items) const;
+    QMimeData *mimeData(QList<QListWidgetItem *> const items) const;
     Qt::DropActions supportedDropActions() const;
     void dropEvent(QDropEvent *event);
 

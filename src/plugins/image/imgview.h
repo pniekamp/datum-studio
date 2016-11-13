@@ -8,8 +8,8 @@
 
 #pragma once
 
+#include "image.h"
 #include "viewport.h"
-#include "documentapi.h"
 #include <QAbstractScrollArea>
 
 //-------------------------- ImageView --------------------------------------
@@ -72,5 +72,5 @@ class ImageView : public QAbstractScrollArea
 
     unique_resource<Texture> m_image;
 
-    Studio::Document *m_document;
+    ImageDocument m_document;
 };

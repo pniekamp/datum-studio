@@ -23,7 +23,7 @@ class BuildStatus : public QWidget
   public:
     BuildStatus();
 
-  protected slots:
+  protected:
 
     void on_build_started(Studio::Document *document);
     void on_build_completed(Studio::Document *document);

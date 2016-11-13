@@ -10,7 +10,7 @@
 
 #include "api.h"
 #include "ui_packplugin.h"
-#include "packmodel.h"
+#include "pack.h"
 
 //-------------------------- PackPlugin -------------------------------------
 //---------------------------------------------------------------------------
@@ -47,15 +47,21 @@ class PackPlugin : public Studio::Plugin
 
     void on_metamode_changed(QString const &mode);
 
-    void on_item_triggered(PackModel::Asset *asset);
+    void on_item_triggered(PackModel::Node *node);
+
+    void on_item_renamed(PackModel::Node *node, QString const &str);
 
     void on_contextmenu_requested(QPoint pos);
 
   protected slots:
 
+    void on_CreateFolder_triggered();
+    void on_Rename_triggered();
     void on_Delete_triggered();
 
   private:
+
+    PackManager *m_manager;
 
     PackModel *m_pack;
 

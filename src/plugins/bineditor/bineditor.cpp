@@ -18,8 +18,6 @@
 
 using namespace std;
 
-const int BytesPerLine = 16;
-
 //|---------------------- BinEditor -----------------------------------------
 //|--------------------------------------------------------------------------
 
@@ -183,7 +181,7 @@ void BinEditor::paintEvent(QPaintEvent *event)
 
       painter.drawLine(x + 10 * m_charwidth + m_charmargin, cy, x + 10 * m_charwidth + m_charmargin, cy + (chunk.linecount - 3) * m_lineheight);
 
-      for(int i = 2; i < 2*BytesPerLine; i += 4)
+      for(size_t i = 2; i < 2*BytesPerLine; i += 4)
       {
         QRect rect(x + 11 * m_charwidth + i * (m_charwidth + m_charmargin), cy, 2*(m_charwidth + m_charmargin), (chunk.linecount - 3) * m_lineheight);
 
@@ -214,7 +212,7 @@ void BinEditor::paintEvent(QPaintEvent *event)
         }
 
         QString ascii = "";
-        for(int i = 0; i < min(BytesPerLine, (int)(chunk.filepos + chunk.datasize - filepos)); ++i)
+        for(size_t i = 0; i < min(size_t(BytesPerLine), chunk.filepos + chunk.datasize - filepos); ++i)
         {
           auto data = buffer[filepos + i - bufferpos];
 

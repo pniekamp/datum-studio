@@ -8,12 +8,97 @@
 
 
 #include "viewport.h"
+#include "assetfile.h"
 
 #include <QtDebug>
 
 using namespace std;
 using namespace lml;
-using namespace Vulkan;
+
+///////////////////////// Resource::load_mesh ///////////////////////////////
+template<>
+unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *document, size_t index)
+{
+  unique_resource<Mesh> mesh;
+
+  document->lock();
+
+  PackMeshHeader mhdr;
+
+  if (read_asset_header(document, index, &mhdr))
+  {
+    mesh = create<Mesh>(mhdr.vertexcount, mhdr.indexcount);
+
+    if (auto lump = acquire_lump(mesh->vertexbuffer.size))
+    {
+      uint64_t position = mhdr.dataoffset + sizeof(PackChunk);
+
+      position += document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.verticiesoffset, mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
+      position += document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.indicesoffset, mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
+
+      update<Mesh>(mesh, lump);
+
+      release_lump(lump);
+    }
+  }
+
+  document->unlock();
+
+  return mesh;
+}
+
+
+///////////////////////// Resource::load_texture ////////////////////////////
+template<>
+unique_resource<Texture> Viewport::ResourceProxy::load<Texture>(istream &fin, size_t index, Texture::Format format)
+{
+  unique_resource<Texture> texture;
+
+  PackImageHeader imag;
+
+  if (read_asset_header(fin, index, &imag))
+  {
+    texture = create<Texture>(imag.width, imag.height, imag.layers, imag.levels, format);
+
+    if (auto lump = acquire_lump(imag.datasize))
+    {
+      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
+
+      update<Texture>(texture, lump);
+
+      release_lump(lump);
+    }
+  }
+
+  return texture;
+}
+
+
+///////////////////////// Resource::load_skybox /////////////////////////////
+template<>
+unique_resource<SkyBox> Viewport::ResourceProxy::load<SkyBox>(istream &fin, size_t index)
+{
+  unique_resource<SkyBox> skybox;
+
+  PackImageHeader imag;
+
+  if (read_asset_header(fin, index, &imag))
+  {
+    skybox = create<SkyBox>(imag.width, imag.height, EnvMap::Format::RGBE);
+
+    if (auto lump = acquire_lump(imag.datasize))
+    {
+      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
+
+      update<SkyBox>(skybox, lump);
+
+      release_lump(lump);
+    }
+  }
+
+  return skybox;
+}
+
 
 //|---------------------- Viewport ------------------------------------------
 //|--------------------------------------------------------------------------
@@ -127,7 +212,7 @@ bool Viewport::prepare()
     if (vkCreateSwapchainKHR(vulkan.device, &swapchaininfo, nullptr, &newswapchain) != VK_SUCCESS)
       throw runtime_error("Vulkan vkCreateSwapchainKHR failed");
 
-    swapchain = Swapchain(newswapchain, { vulkan.device });
+    swapchain = Vulkan::Swapchain(newswapchain, { vulkan.device });
 
     uint32_t imagescount = 0;
     vkGetSwapchainImagesKHR(vulkan.device, swapchain, &imagescount, nullptr);

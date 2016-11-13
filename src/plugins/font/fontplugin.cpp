@@ -56,6 +56,11 @@ bool FontPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   buildmanager->register_builder("Font", this);
 
+  auto packmanager = Studio::Core::instance()->find_object<Studio::PackManager>();
+
+  packmanager->register_packer("Font", this);
+  packmanager->register_packer("Font.Atlas", this);
+
   return true;
 }
 
@@ -95,6 +100,15 @@ bool FontPlugin::hash(Studio::Document *document, size_t *key)
 bool FontPlugin::build(Studio::Document *document, QString const &path)
 {
   FontDocument::build(document, path.toStdString());
+
+  return true;
+}
+
+
+///////////////////////// FontPlugin::pack /////////////////////////////////
+bool FontPlugin::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  FontDocument::pack(asset, fout);
 
   return true;
 }

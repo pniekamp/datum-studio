@@ -47,7 +47,7 @@ add_library(imgviewer SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
 
 set_target_properties(imgviewer PROPERTIES COMPILE_DEFINITIONS "IMGVIEWERPLUGIN")
 
-target_link_libraries(imgviewer datumstudio document content datum leap vulkan Qt5::Core Qt5::Widgets)
+target_link_libraries(imgviewer datumstudio document content pack build datum leap vulkan Qt5::Core Qt5::Widgets)
 
 if(WIN32)
   SET(CMAKE_SHARED_LIBRARY_PREFIX "")

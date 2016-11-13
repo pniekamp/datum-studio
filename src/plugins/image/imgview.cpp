@@ -22,8 +22,7 @@ using namespace lml;
 
 ///////////////////////// ImageView::Constructor ////////////////////////////
 ImageView::ImageView(QWidget *parent)
-  : QAbstractScrollArea(parent),
-    m_document(nullptr)
+  : QAbstractScrollArea(parent)
 {
   m_layer = 0;
   m_scale = 1.0f;
@@ -36,6 +35,8 @@ ImageView::ImageView(QWidget *parent)
   viewport()->renderparams.ssaoscale = 0;
   viewport()->renderparams.ssrstrength = 0;
   viewport()->renderparams.bloomstrength = 0;
+
+  m_image = viewport()->resources.create<Texture>(1, 1, 1, 1, Texture::Format::SRGBA);
 }
 
 
@@ -44,7 +45,7 @@ void ImageView::view(Studio::Document *document)
 {
   m_document = document;
 
-  connect(m_document, &Studio::Document::document_changed, this, &ImageView::refresh);
+  connect(&m_document, &ImageDocument::document_changed, this, &ImageView::refresh);
 
   refresh();
 }
@@ -215,9 +216,6 @@ void ImageView::resizeEvent(QResizeEvent *event)
 ///////////////////////// ImageView::paintEvent /////////////////////////////
 void ImageView::paintEvent(QPaintEvent *event)
 {
-  if (!m_image)
-    return;
-
   int x = -horizontalScrollBar()->value();
   int y = -verticalScrollBar()->value();
 

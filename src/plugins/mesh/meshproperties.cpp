@@ -68,12 +68,12 @@ void MeshProperties::refresh()
 
     for(size_t i = 0; i < modl.meshcount; ++i)
     {
-      PackMeshHeader mhdr;
+      PackMeshHeader mesh;
 
-      if (read_asset_header(m_document, 1 + meshtable[i].mesh, &mhdr))
+      if (read_asset_header(m_document, 1 + meshtable[i].mesh, &mesh))
       {
-        vertices += mhdr.vertexcount;
-        triangles += mhdr.indexcount / 3;
+        vertices += mesh.vertexcount;
+        triangles += mesh.indexcount / 3;
       }
     }
   }

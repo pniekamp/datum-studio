@@ -33,12 +33,9 @@ namespace
   {
     size_t key = 0;
 
-    if (path != "")
+    if (auto document = ImageDocument(path))
     {
-      if (auto document = ImageDocument(path))
-      {
-        ImageDocument::hash(document, &key);
-      }
+      ImageDocument::hash(document, &key);
     }
 
     return key;
@@ -48,12 +45,9 @@ namespace
   {
     HDRImage image = {};
 
-    if (path != "")
+    if (auto document = ImageDocument(path))
     {
-      if (auto document = ImageDocument(path))
-      {
-        image = document.data();
-      }
+      image = document.data();
     }
 
     return image;
@@ -194,7 +188,7 @@ void SkyboxDocument::build(Studio::Document *document, string const &path)
   int width = definition["width"].toInt(512);
   int height = definition["height"].toInt(512);
 
-  if (image_maxlevels(width, height) < 8)
+  if (width == 0 || height == 0 || image_maxlevels(width, height) < 8)
     throw runtime_error("Skybox build failed - too small");
 
   ofstream fout(path, ios::binary | ios::trunc);
@@ -207,12 +201,12 @@ void SkyboxDocument::build(Studio::Document *document, string const &path)
   {
     case 0: // Faces Images
     {
-      HDRImage front = image_data(fullpath(document, definition["front"].toString()));
-      HDRImage left = image_data(fullpath(document, definition["left"].toString()));
-      HDRImage right = image_data(fullpath(document, definition["right"].toString()));
-      HDRImage back = image_data(fullpath(document, definition["back"].toString()));
-      HDRImage top = image_data(fullpath(document, definition["top"].toString()));
-      HDRImage bottom = image_data(fullpath(document, definition["bottom"].toString()));
+      auto front = image_data(fullpath(document, definition["front"].toString()));
+      auto left = image_data(fullpath(document, definition["left"].toString()));
+      auto right = image_data(fullpath(document, definition["right"].toString()));
+      auto back = image_data(fullpath(document, definition["back"].toString()));
+      auto top = image_data(fullpath(document, definition["top"].toString()));
+      auto bottom = image_data(fullpath(document, definition["bottom"].toString()));
 
       write_skybox(fout, 1, width, height, { right, left, bottom, top, front, back });
 
@@ -221,7 +215,7 @@ void SkyboxDocument::build(Studio::Document *document, string const &path)
 
     case 1: // Spherical Map
     {
-      HDRImage envmap = image_data(fullpath(document, definition["envmap"].toString()));
+      auto envmap = image_data(fullpath(document, definition["envmap"].toString()));
 
       write_skybox(fout, 1, width, height, envmap);
 
@@ -232,6 +226,27 @@ void SkyboxDocument::build(Studio::Document *document, string const &path)
   write_chunk(fout, "HEND", 0, nullptr);
 
   fout.close();
+}
+
+
+///////////////////////// pack //////////////////////////////////////////////
+void SkyboxDocument::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  ifstream fin(asset.buildpath, ios::binary);
+
+  if (!fin)
+    throw runtime_error("Skybox Pack failed - no build file");
+
+  PackImageHeader imag;
+
+  if (read_asset_header(fin, 1, &imag))
+  {
+    vector<char> payload(pack_payload_size(imag));
+
+    read_asset_payload(fin, imag.dataoffset, payload.data(), payload.size());
+
+    write_imag_asset(fout, asset.id, imag.width, imag.height, imag.layers, imag.levels, imag.format, payload.data());
+  }
 }
 
 
@@ -251,7 +266,10 @@ SkyboxDocument::SkyboxDocument()
 SkyboxDocument::SkyboxDocument(QString const &path)
   : SkyboxDocument()
 {
-  attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  if (path != "")
+  {
+    attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  }
 }
 
 

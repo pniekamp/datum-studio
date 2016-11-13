@@ -9,6 +9,7 @@
 #pragma once
 
 #include "api.h"
+#include "packapi.h"
 
 //-------------------------- ImagePlugin ------------------------------------
 //---------------------------------------------------------------------------
@@ -30,5 +31,7 @@ class ImagePlugin : public Studio::Plugin
   public slots:
 
     QWidget *create_view(QString const &type);
+
+    bool pack(Studio::PackerState &asset, std::ofstream &fout);
 };
 

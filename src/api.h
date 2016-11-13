@@ -197,7 +197,7 @@ namespace Studio
       {
         QList<T*> result;
 
-        foreach(QObject *obj, objects())
+        for(auto &obj : objects())
         {
           if (qobject_cast<T*>(obj))
             result.push_back(qobject_cast<T*>(obj));
@@ -209,7 +209,7 @@ namespace Studio
       template <typename T>
       T *find_object() const
       {
-        foreach(QObject *obj, objects())
+        for(auto &obj : objects())
         {
           if (qobject_cast<T*>(obj))
             return qobject_cast<T*>(obj);

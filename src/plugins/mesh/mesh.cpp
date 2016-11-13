@@ -23,42 +23,33 @@ void MeshDocument::hash(Studio::Document *document, size_t *key)
 }
 
 
-///////////////////////// build /////////////////////////////////////////////
-void MeshDocument::build(Studio::Document *document, string const &path)
+///////////////////////// pack //////////////////////////////////////////////
+void MeshDocument::pack(Studio::PackerState &asset, ofstream &fout)
 {
-  vector<PackVertex> vertices;
-  vector<uint32_t> indices;
-
-  document->lock();
-
-  PackModelHeader modl;
-
-  if (read_asset_header(document, 1, &modl))
+  if (asset.index == 0)
   {
-    vector<char> payload(pack_payload_size(modl));
+    vector<PackVertex> vertices;
+    vector<uint32_t> indices;
 
-    read_asset_payload(document, modl.dataoffset, payload.data(), payload.size());
+    asset.document->lock();
 
-    auto meshtable = PackModelPayload::meshtable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
-    auto instancetable = PackModelPayload::instancetable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
-
-    for(size_t i = 0; i < modl.instancecount; ++i)
+    for(auto &instance : MeshDocument(asset.document).instances())
     {
-      PackMeshHeader mhdr;
+      PackMeshHeader mesh;
 
-      if (read_asset_header(document, 1 + meshtable[instancetable[i].mesh].mesh, &mhdr))
+      if (read_asset_header(asset.document, instance.index, &mesh))
       {
-        uint64_t position = mhdr.dataoffset + sizeof(PackChunk);
+        uint64_t position = mesh.dataoffset + sizeof(PackChunk);
 
-        vector<PackVertex> vertextable(mhdr.vertexcount);
+        vector<PackVertex> vertextable(mesh.vertexcount);
 
-        position += document->read(position, vertextable.data(), vertextable.size() * sizeof(PackVertex));
+        position += asset.document->read(position, vertextable.data(), vertextable.size() * sizeof(PackVertex));
 
-        vector<uint32_t> indextable(mhdr.indexcount);
+        vector<uint32_t> indextable(mesh.indexcount);
 
-        position += document->read(position, indextable.data(), indextable.size() * sizeof(uint32_t));
+        position += asset.document->read(position, indextable.data(), indextable.size() * sizeof(uint32_t));
 
-        auto transform = Transform{ { instancetable[i].transform[0], instancetable[i].transform[1], instancetable[i].transform[2], instancetable[i].transform[3] }, { instancetable[i].transform[4], instancetable[i].transform[5], instancetable[i].transform[6], instancetable[i].transform[7] } };
+        auto transform = instance.transform;
 
         uint32_t base = vertices.size();
 
@@ -77,21 +68,29 @@ void MeshDocument::build(Studio::Document *document, string const &path)
         }
       }
     }
+
+    asset.document->unlock();
+
+    write_mesh_asset(fout, asset.id, vertices, indices);
   }
 
-  document->unlock();
+  if (asset.index > 0)
+  {
+    asset.document->lock();
 
-  ofstream fout(path, ios::binary | ios::trunc);
+    PackMeshHeader mesh;
 
-  write_header(fout);
+    if (read_asset_header(asset.document, asset.index, &mesh))
+    {
+      vector<char> payload(pack_payload_size(mesh));
 
-  write_catl_asset(fout, 0);
+      read_asset_payload(asset.document, mesh.dataoffset, payload.data(), payload.size());
 
-  write_mesh_asset(fout, 1, vertices, indices);
+      write_mesh_asset(fout, asset.id, mesh.vertexcount, mesh.indexcount, Bound3(Vec3(mesh.mincorner[0], mesh.mincorner[1], mesh.mincorner[2]), Vec3(mesh.maxcorner[0], mesh.maxcorner[1], mesh.maxcorner[2])), payload.data());
+    }
 
-  write_chunk(fout, "HEND", 0, nullptr);
-
-  fout.close();
+    asset.document->unlock();
+  }
 }
 
 
@@ -108,7 +107,10 @@ MeshDocument::MeshDocument()
 MeshDocument::MeshDocument(QString const &path)
   : MeshDocument()
 {
-  attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  if (path != "")
+  {
+    attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  }
 }
 
 
@@ -138,6 +140,82 @@ MeshDocument MeshDocument::operator =(MeshDocument const &document)
   attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document));
 
   return *this;
+}
+
+
+///////////////////////// MeshDocument::meshcount ///////////////////////////
+int MeshDocument::meshcount() const
+{
+  int meshes = 0;
+
+  m_document->lock();
+
+  PackModelHeader modl;
+
+  if (read_asset_header(m_document, 1, &modl))
+  {
+    meshes = modl.meshcount;
+  }
+
+  m_document->unlock();
+
+  return meshes;
+}
+
+
+///////////////////////// MeshDocument::materialcount ///////////////////////
+int MeshDocument::materialcount() const
+{
+  int meshes = 0;
+
+  m_document->lock();
+
+  PackModelHeader modl;
+
+  if (read_asset_header(m_document, 1, &modl))
+  {
+    meshes = modl.materialcount;
+  }
+
+  m_document->unlock();
+
+  return meshes;
+}
+
+
+///////////////////////// MeshDocument::instances ///////////////////////////
+vector<MeshDocument::Instance> MeshDocument::instances() const
+{
+  vector<Instance> instances;
+
+  m_document->lock();
+
+  PackModelHeader modl;
+
+  if (read_asset_header(m_document, 1, &modl))
+  {
+    vector<char> payload(pack_payload_size(modl));
+
+    read_asset_payload(m_document, modl.dataoffset, payload.data(), payload.size());
+
+    auto meshtable = PackModelPayload::meshtable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
+    auto instancetable = PackModelPayload::instancetable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
+
+    for(size_t i = 0; i < modl.instancecount; ++i)
+    {
+      Instance instance;
+
+      instance.index = 1 + meshtable[instancetable[i].mesh].mesh;
+      instance.material = instancetable[i].material;
+      instance.transform = Transform{ { instancetable[i].transform[0], instancetable[i].transform[1], instancetable[i].transform[2], instancetable[i].transform[3] }, { instancetable[i].transform[4], instancetable[i].transform[5], instancetable[i].transform[6], instancetable[i].transform[7] } };
+
+      instances.push_back(instance);
+    }
+  }
+
+  m_document->unlock();
+
+  return instances;
 }
 
 

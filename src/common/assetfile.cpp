@@ -16,7 +16,7 @@
 
 using namespace std;
 
-const int MetaDataBlockSize = 8192;
+static constexpr int MetaDataBlockSize = 8192;
 
 
 ///////////////////////// encode_icon ///////////////////////////////////////
@@ -233,17 +233,7 @@ void write_asset_header(ostream &fout, QJsonObject const &metadata)
 ///////////////////////// write_asset_text //////////////////////////////////
 void write_asset_text(ostream &fout, uint32_t id, uint32_t length, void const *data)
 {
-  PackAssetHeader aset = { id };
-
-  write_chunk(fout, "ASET", sizeof(aset), &aset);
-
-  PackTextHeader shdr = { length, (size_t)fout.tellp() + sizeof(shdr) + sizeof(PackChunk) + sizeof(uint32_t) };
-
-  write_chunk(fout, "TEXT", sizeof(shdr), &shdr);
-
-  write_chunk(fout, "DATA", length, data);
-
-  write_chunk(fout, "AEND", 0, nullptr);
+  write_text_asset(fout, id, length, data);
 }
 
 
@@ -448,5 +438,5 @@ QString fullpath(Studio::Document *document, QString const &file)
 
   auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
 
-  return QFileInfo(documentmanager->path(document)).dir().absoluteFilePath(file);
+  return QDir::cleanPath(QFileInfo(documentmanager->path(document)).dir().absoluteFilePath(file));
 }

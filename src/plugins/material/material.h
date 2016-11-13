@@ -10,6 +10,7 @@
 
 #include "documentapi.h"
 #include "datum/math.h"
+#include "packapi.h"
 #include <string>
 
 //-------------------------- MaterialDocument -------------------------------
@@ -25,9 +26,11 @@ class MaterialDocument : public QObject
 
     static void hash(Studio::Document *document, size_t *key);
 
-    static void hash_part(Studio::Document *document, size_t *key);
+    static void build_hash(Studio::Document *document, size_t *key);
 
     static void build(Studio::Document *document, std::string const &path);
+
+    static void pack(Studio::PackerState &asset, std::ofstream &fout);
 
   public:
     MaterialDocument();
@@ -85,8 +88,8 @@ class MaterialDocument : public QObject
     float reflectivity() const { return m_definition["reflectivity"].toDouble(0.5); }
     float emissive() const { return m_definition["emissive"].toDouble(0); }
 
-    Studio::Document const *image(int image) { return m_images[image]; }
-    Studio::Document const *image(Image image) { return m_images[static_cast<int>(image)]; }
+    Studio::Document const *image(int image) const { return m_images[image]; }
+    Studio::Document const *image(Image image) const { return m_images[static_cast<int>(image)]; }
 
     AlbedoOutput albedooutput() const { return static_cast<AlbedoOutput>(m_definition["albedooutput"].toInt(0)); }
     MetalnessOutput metalnessoutput() const { return static_cast<MetalnessOutput>(m_definition["metalnessoutput"].toInt(0)); }

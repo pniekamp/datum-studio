@@ -57,6 +57,13 @@ bool MaterialPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   buildmanager->register_builder("Material", this);
 
+  auto packmanager = Studio::Core::instance()->find_object<Studio::PackManager>();
+
+  packmanager->register_packer("Material", this);
+  packmanager->register_packer("Material.AlbedoMap", this);
+  packmanager->register_packer("Material.SpecularMap", this);
+  packmanager->register_packer("Material.NormalMap", this);
+
   return true;
 }
 
@@ -86,7 +93,7 @@ bool MaterialPlugin::create(QString const &type, QString const &path, QJsonObjec
 ///////////////////////// MaterialPlugin::hash //////////////////////////////
 bool MaterialPlugin::hash(Studio::Document *document, size_t *key)
 {
-  MaterialDocument::hash_part(document, key);
+  MaterialDocument::build_hash(document, key);
 
   return true;
 }
@@ -96,6 +103,15 @@ bool MaterialPlugin::hash(Studio::Document *document, size_t *key)
 bool MaterialPlugin::build(Studio::Document *document, QString const &path)
 {
   MaterialDocument::build(document, path.toStdString());
+
+  return true;
+}
+
+
+///////////////////////// MaterialPlugin::pack //////////////////////////////
+bool MaterialPlugin::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  MaterialDocument::pack(asset, fout);
 
   return true;
 }

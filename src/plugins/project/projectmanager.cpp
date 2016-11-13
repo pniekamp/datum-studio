@@ -93,9 +93,9 @@ void ProjectManager::save_project(QProgressDialog *progress)
 {
   ofstream fout(m_projectfile.toUtf8());
 
-  fout << "[Datum Studio]" << "\n";
-  fout << "version = 1.0" << "\n";
-  fout << "\n";
+  fout << "[Datum Studio]" << '\n';
+  fout << "version = 1.0" << '\n';
+  fout << '\n';
 
   fout.close();
 

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "documentapi.h"
+#include "image.h"
 #include "ui_imgproperties.h"
 #include <QDockWidget>
 
@@ -36,5 +36,5 @@ class ImageProperties : public QDockWidget
 
     Ui::Properties ui;
 
-    Studio::Document *m_document;
+    ImageDocument m_document;
 };

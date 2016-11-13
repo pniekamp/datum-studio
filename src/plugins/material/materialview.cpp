@@ -34,7 +34,6 @@ MaterialView::MaterialView(QWidget *parent)
 
   renderparams.ssaoscale = 0;
   renderparams.ssrstrength = 0;
-  renderparams.bloomstrength = 0;
 
   camera.lookat(Vec3(0, 1, 2), m_focuspoint, Vec3(0, 1, 0));
 
@@ -87,6 +86,61 @@ void MaterialView::view(Studio::Document *document)
 }
 
 
+///////////////////////// MaterialView::invalidate //////////////////////////
+void MaterialView::invalidate()
+{
+  update();
+}
+
+
+///////////////////////// MaterialView::refresh /////////////////////////////
+void MaterialView::refresh()
+{
+  auto color = m_document.color();
+  auto metalness = m_document.metalness();
+  auto roughness = m_document.roughness();
+  auto reflectivity = m_document.reflectivity();
+  auto emissive = m_document.emissive();
+
+  resources.update<Material>(*m_material, color, metalness, roughness, reflectivity, emissive);
+
+  size_t hash;
+  MaterialDocument::build_hash(m_document, &hash);
+
+  if (m_buildhash != hash)
+  {
+    auto buildmanager = Studio::Core::instance()->find_object<Studio::BuildManager>();
+
+    buildmanager->request_build(m_document, this, &MaterialView::on_material_build_complete);
+
+    m_buildhash = hash;
+  }
+
+  invalidate();
+}
+
+
+///////////////////////// MaterialView::material_build_complete /////////////
+void MaterialView::on_material_build_complete(Studio::Document *document, QString const &path)
+{
+  ifstream fin(path.toUtf8(), ios::binary);
+
+  auto color = m_document.color();
+  auto metalness = m_document.metalness();
+  auto roughness = m_document.roughness();
+  auto reflectivity = m_document.reflectivity();
+  auto emissive = m_document.emissive();
+
+  m_albedomap = resources.load<Texture>(fin, 1, Texture::Format::SRGBA);
+  m_specularmap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
+  m_normalmap = resources.load<Texture>(fin, 3, Texture::Format::RGBA);
+
+  resources.update<Material>(m_material, color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_specularmap, *m_normalmap);
+
+  invalidate();
+}
+
+
 ///////////////////////// MaterialView::set_mesh ////////////////////////////
 void MaterialView::set_mesh(QString const &path)
 {
@@ -94,47 +148,10 @@ void MaterialView::set_mesh(QString const &path)
 
   if (m_meshdocument = MeshDocument(path))
   {
-    m_meshdocument->lock();
-
-    PackModelHeader modl;
-
-    if (read_asset_header(m_meshdocument, 1, &modl))
+    for(auto &instance : m_meshdocument.instances())
     {
-      vector<char> payload(pack_payload_size(modl));
-
-      read_asset_payload(m_meshdocument, modl.dataoffset, payload.data(), payload.size());
-
-      auto meshtable = PackModelPayload::meshtable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
-      auto instancetable = PackModelPayload::instancetable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
-
-      for(size_t i = 0; i < modl.instancecount; ++i)
-      {
-        PackMeshHeader mhdr;
-
-        if (read_asset_header(m_meshdocument, 1 + meshtable[instancetable[i].mesh].mesh, &mhdr))
-        {
-          auto mesh = resources.create<Mesh>(mhdr.vertexcount, mhdr.indexcount);
-
-          if (auto lump = resources.acquire_lump(mesh->vertexbuffer.size))
-          {
-            uint64_t position = mhdr.dataoffset + sizeof(PackChunk);
-
-            position += m_meshdocument->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.verticiesoffset, mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
-            position += m_meshdocument->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.indicesoffset, mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
-
-            resources.update<Mesh>(mesh, lump);
-
-            resources.release_lump(lump);
-          }
-
-          auto transform = Transform{ { instancetable[i].transform[0], instancetable[i].transform[1], instancetable[i].transform[2], instancetable[i].transform[3] }, { instancetable[i].transform[4], instancetable[i].transform[5], instancetable[i].transform[6], instancetable[i].transform[7] } };
-
-          m_meshes.push_back({ transform, std::move(mesh) });
-        }
-      }
+      m_meshes.push_back({ instance.transform, resources.load<Mesh>(m_meshdocument, instance.index) });
     }
-
-    m_meshdocument->unlock();
 
     connect(&m_meshdocument, &MeshDocument::document_changed, [=]() { set_mesh(path); });
   }
@@ -169,113 +186,9 @@ void MaterialView::on_skybox_build_complete(Studio::Document *document, QString 
 {
   ifstream fin(path.toUtf8(), ios::binary);
 
-  PackImageHeader imag;
+  m_skybox = resources.load<SkyBox>(fin, 1);
 
-  if (read_asset_header(fin, 1, &imag))
-  {
-    m_skybox = resources.create<SkyBox>(imag.width, imag.height, EnvMap::Format::RGBE);
-
-    if (auto lump = resources.acquire_lump(imag.datasize))
-    {
-      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
-
-      resources.update<SkyBox>(m_skybox, lump);
-
-      resources.release_lump(lump);
-    }
-
-    renderparams.skybox = m_skybox;
-  }
-
-  invalidate();
-}
-
-
-///////////////////////// MaterialView::invalidate //////////////////////////
-void MaterialView::invalidate()
-{
-  update();
-}
-
-
-///////////////////////// MaterialView::refresh /////////////////////////////
-void MaterialView::refresh()
-{
-  auto buildmanager = Studio::Core::instance()->find_object<Studio::BuildManager>();
-
-  buildmanager->request_build(m_document, this, &MaterialView::on_build_complete);
-}
-
-
-///////////////////////// MaterialView::build_complete //////////////////////
-void MaterialView::on_build_complete(Studio::Document *document, QString const &path)
-{
-  auto color = m_document.color();
-  auto metalness = m_document.metalness();
-  auto roughness = m_document.roughness();
-  auto reflectivity = m_document.reflectivity();
-  auto emissive = m_document.emissive();
-
-  if (m_buildpath != path)
-  {
-    ifstream fin(path.toUtf8(), ios::binary);
-
-    PackImageHeader imag;
-
-    m_albedomap = {};
-
-    if (read_asset_header(fin, 1, &imag))
-    {
-      m_albedomap = resources.create<Texture>(imag.width, imag.height, imag.layers, imag.levels, Texture::Format::SRGBA);
-
-      if (auto lump = resources.acquire_lump(imag.datasize))
-      {
-        read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
-
-        resources.update<Texture>(m_albedomap, lump);
-
-        resources.release_lump(lump);
-      }
-    }
-
-    m_specularmap = {};
-
-    if (read_asset_header(fin, 2, &imag))
-    {
-      m_specularmap = resources.create<Texture>(imag.width, imag.height, imag.layers, imag.levels, Texture::Format::RGBA);
-
-      if (auto lump = resources.acquire_lump(imag.datasize))
-      {
-        read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
-
-        resources.update<Texture>(m_specularmap, lump);
-
-        resources.release_lump(lump);
-      }
-    }
-
-    m_normalmap = {};
-
-    if (read_asset_header(fin, 3, &imag))
-    {
-      m_normalmap = resources.create<Texture>(imag.width, imag.height, imag.layers, imag.levels, Texture::Format::RGBA);
-
-      if (auto lump = resources.acquire_lump(imag.datasize))
-      {
-        read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
-
-        resources.update<Texture>(m_normalmap, lump);
-
-        resources.release_lump(lump);
-      }
-    }
-
-    m_material = resources.create<Material>(color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_specularmap, *m_normalmap);
-
-    m_buildpath = path;
-  }
-
-  resources.update<Material>(*m_material, color, metalness, roughness, reflectivity, emissive);
+  renderparams.skybox = m_skybox;
 
   invalidate();
 }
@@ -410,7 +323,7 @@ void MaterialView::dropEvent(QDropEvent *event)
 {
   auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
 
-  foreach(QUrl url, event->mimeData()->urls())
+  for(auto &url : event->mimeData()->urls())
   {
     if (auto document = documentmanager->open(url.toLocalFile()))
     {

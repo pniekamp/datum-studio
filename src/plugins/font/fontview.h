@@ -36,13 +36,13 @@ class FontView : public QAbstractScrollArea
 
     void refresh();
 
-    void on_build_complete(Studio::Document *document, QString const &path);
-
     void set_scale(float scale, QPoint const &focus);
 
   protected:
 
     void invalidate();
+
+    void on_font_build_complete(Studio::Document *document, QString const &path);
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

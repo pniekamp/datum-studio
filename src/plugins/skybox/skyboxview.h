@@ -37,11 +37,11 @@ class SkyboxView : public Viewport
 
     void refresh();
 
-    void on_build_complete(Studio::Document *document, QString const &path);
-
   protected:
 
     void invalidate();
+
+    void on_skybox_build_complete(Studio::Document *document, QString const &path);
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

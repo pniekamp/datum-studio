@@ -9,12 +9,12 @@
 #pragma once
 
 #include "packmodel.h"
-#include <QTreeWidget>
+#include <QTreeView>
 
 //-------------------------- TreeView ---------------------------------------
 //---------------------------------------------------------------------------
 
-class TreeView : public QTreeWidget
+class TreeView : public QTreeView
 {
   Q_OBJECT
 
@@ -25,34 +25,31 @@ class TreeView : public QTreeWidget
 
     QSize sizeHint() const { return QSize(190, 256); }
 
+  public:
+
+    PackModel::Node *current_node() const;
+
+    QList<PackModel::Node*> selected_nodes() const;
+
+  public slots:
+
+    void trigger_rename(QModelIndex const &index);
+
   signals:
 
-    void selection_changed(PackModel::Asset *asset);
+    void current_changed(PackModel::Node *node);
 
-    void item_triggered(PackModel::Asset *asset);
+    void item_triggered(PackModel::Node *node);
 
-  protected:
-
-    void on_model_reset();
-    void on_model_added(size_t index, PackModel::Asset *asset);
-    void on_model_changed(size_t index, PackModel::Asset *asset);
-    void on_model_removed(size_t index, PackModel::Asset *asset);
+    void item_renamed(PackModel::Node *node, QString const &str);
 
   protected:
 
-    void on_selection_changed();
+    void currentChanged(QModelIndex const &current, QModelIndex const &previous);
 
-    void on_item_triggered(QTreeWidgetItem *item, int column);
+    void commitData(QWidget *editor);
 
-  protected:
+    void itemTriggered(QModelIndex const &index);
 
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(QList<QTreeWidgetItem *> const items) const;
-    Qt::DropActions supportedDropActions() const;
     void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
-
-  private:
-
-    PackModel *m_model;
 };

@@ -18,8 +18,6 @@ using namespace std;
 using namespace leap;
 using namespace leap::threadlib;
 
-const int MaxCacheBlocks = 64;
-
 //|---------------------- Document ------------------------------------------
 //|--------------------------------------------------------------------------
 

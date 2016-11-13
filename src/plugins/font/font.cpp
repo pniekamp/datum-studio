@@ -57,24 +57,24 @@ namespace
     vector<uint16_t> y(count);
     vector<uint16_t> width(count);
     vector<uint16_t> height(count);
-    vector<uint16_t> offsetx(count);
-    vector<uint16_t> offsety(count);
+    vector<int16_t> offsetx(count);
+    vector<int16_t> offsety(count);
     vector<uint8_t> advance(count*count);
 
     AtlasPacker packer(atlaswidth, atlasheight);
 
     for(int codepoint = 33; codepoint < count; ++codepoint)
     {
-      auto position = packer.insert(codepoint, tm.width(QChar(codepoint))+2, tm.height()+2);
+      auto position = packer.insert(codepoint, tm.width(QString(codepoint)) - tm.leftBearing(codepoint) - tm.rightBearing(codepoint) + 4, tm.height() + 4);
 
       if (!position)
-        throw runtime_error("Font pack failed");
+        throw runtime_error("Font build failed - layout full");
 
       x[codepoint] = position->x;
       y[codepoint] = position->y;
-      width[codepoint] = position->width;
-      height[codepoint] = position->height;
-      offsetx[codepoint] = 1;
+      width[codepoint] = position->width - 1;
+      height[codepoint] = position->height - 1;
+      offsetx[codepoint] = 1 - tm.leftBearing(codepoint);
       offsety[codepoint] = 1 + tm.ascent();
     }
 
@@ -84,7 +84,7 @@ namespace
 
       for(int othercodepoint = 1; othercodepoint < count; ++othercodepoint)
       {
-        advance[othercodepoint * count + codepoint] = tm.width(QString(QChar(othercodepoint)) + QString(QChar(codepoint))) - tm.width(QChar(codepoint));
+        advance[othercodepoint * count + codepoint] = tm.width(QString(othercodepoint) + QString(codepoint)) - tm.width(QString(codepoint));
       }
     }
 
@@ -102,7 +102,7 @@ namespace
 
       painter.setFont(font);
       painter.setPen(Qt::white);
-      painter.drawText(QRectF(position->x + 1, position->y + 1, position->width - 2, position->height - 2), QString(QChar(codepoint)));
+      painter.drawText(position->x + offsetx[codepoint] + 1, position->y + offsety[codepoint] + 1, QString(codepoint));
     }
 
     write_font_atlas(fout, id + 1, atlas);
@@ -184,13 +184,56 @@ void FontDocument::build(Studio::Document *document, string const &path)
 }
 
 
+///////////////////////// pack //////////////////////////////////////////////
+void FontDocument::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  ifstream fin(asset.buildpath, ios::binary);
+
+  if (!fin)
+    throw runtime_error("Font Pack failed - no build file");
+
+  if (asset.type == "Font")
+  {
+    PackFontHeader font;
+
+    if (read_asset_header(fin, 1, &font))
+    {
+      vector<char> payload(pack_payload_size(font));
+
+      read_asset_payload(fin, font.dataoffset, payload.data(), payload.size());
+
+      reinterpret_cast<PackFontPayload*>(payload.data())->glyphatlas = asset.add_dependant(asset.document, "Font.Atlas");
+
+      write_font_asset(fout, asset.id, font.ascent, font.descent, font.leading, font.glyphcount, payload.data());
+    }
+  }
+
+  if (asset.type == "Font.Atlas")
+  {
+    PackImageHeader imag;
+
+    if (read_asset_header(fin, 2, &imag))
+    {
+      vector<char> payload(pack_payload_size(imag));
+
+      read_asset_payload(fin, imag.dataoffset, payload.data(), payload.size());
+
+      write_imag_asset(fout, asset.id, imag.width, imag.height, imag.layers, imag.levels, imag.format, payload.data());
+    }
+  }
+}
+
+
 //|---------------------- FontDocument --------------------------------------
 //|--------------------------------------------------------------------------
 
 ///////////////////////// FontDocument::Constructor /////////////////////////
 FontDocument::FontDocument(QString const &path)
 {
-  attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  if (path != "")
+  {
+    attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  }
 }
 
 

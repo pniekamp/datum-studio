@@ -8,7 +8,9 @@
 
 #include "packplugin.h"
 #include "projectapi.h"
-#include "build.h"
+#include "editorapi.h"
+#include "contentapi.h"
+#include "pack.h"
 #include "dialogfactory.h"
 #include <QWidgetAction>
 #include <QSettings>
@@ -40,6 +42,10 @@ PackPlugin::~PackPlugin()
 ///////////////////////// PackPlugin::initialise ////////////////////////////
 bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
 {
+  m_manager = new PackManager;
+
+  Studio::Core::instance()->add_object(m_manager);
+
   auto actionmanager = Studio::Core::instance()->find_object<Studio::ActionManager>();
 
   QIcon icon;
@@ -76,6 +82,8 @@ bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   ui.setupUi(m_container);
 
+  m_container->addAction(ui.CreateFolder);
+  m_container->addAction(ui.Rename);
   m_container->addAction(ui.Delete);
 
   ui.Splitter->setStretchFactor(0, 1);
@@ -83,9 +91,12 @@ bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   ui.Navigator->set_model(m_pack);
 
+  connect(ui.CreateFolder, &QAction::triggered, this, &PackPlugin::on_CreateFolder_triggered);
+  connect(ui.Rename, &QAction::triggered, this, &PackPlugin::on_Rename_triggered);
   connect(ui.Delete, &QAction::triggered, this, &PackPlugin::on_Delete_triggered);
-  connect(ui.Navigator, &TreeView::selection_changed, ui.Viewport, &FileView::set_asset);
+  connect(ui.Navigator, &TreeView::current_changed, ui.Viewport, &FileView::set_asset);
   connect(ui.Navigator, &TreeView::item_triggered, this, &PackPlugin::on_item_triggered);
+  connect(ui.Navigator, &TreeView::item_renamed, this, &PackPlugin::on_item_renamed);
   connect(ui.Navigator, &TreeView::customContextMenuRequested, this, &PackPlugin::on_contextmenu_requested);
 
   modemanager->container()->addWidget(m_container);
@@ -130,7 +141,7 @@ void PackPlugin::build()
 
   try
   {
-    Pack::build(m_pack, QDir(projectmanager->basepath()).filePath("Build/asset.pack"), &dlg.ui);
+    m_manager->build(m_pack, QDir(projectmanager->basepath()).filePath("Build/asset.pack"), &dlg.ui);
   }
   catch(exception &e)
   {
@@ -234,7 +245,9 @@ void PackPlugin::on_project_closing(bool *cancel)
 ///////////////////////// PackPlugin::on_project_closed /////////////////////
 void PackPlugin::on_project_closed()
 {
-  m_pack->clear();
+  ui.Viewport->set_asset(nullptr);
+
+  m_pack->clear();  
 }
 
 
@@ -250,12 +263,38 @@ void PackPlugin::on_metamode_changed(QString const &mode)
 }
 
 
-///////////////////////// PackPlugin::on_item_triggered /////////////////////
-void PackPlugin::on_item_triggered(PackModel::Asset *asset)
+///////////////////////// PackPlugin::item_triggered ////////////////////////
+void PackPlugin::on_item_triggered(PackModel::Node *node)
 {
-//  auto editormanager = Studio::Core::instance()->find_object<Studio::EditorManager>();
+  if (auto asset = node_cast<PackModel::Asset>(node))
+  {
+    if (asset->document())
+    {
+      auto editormanager = Studio::Core::instance()->find_object<Studio::EditorManager>();
 
-//  editormanager->open_editor(asset->document()->metadata("type", QString("Binary")), asset->path());
+      editormanager->open_editor(asset->document()->metadata("type", QString("Binary")), asset->path());
+    }
+  }
+}
+
+
+///////////////////////// PackPlugin::item_renamed ////////////////////////
+void PackPlugin::on_item_renamed(PackModel::Node *node, QString const &str)
+{
+  if (auto group = node_cast<PackModel::Group>(node))
+  {
+    m_pack->set_data(group, PackModel::DataRole::Name, str);
+  }
+
+  if (auto asset = node_cast<PackModel::Asset>(node))
+  {
+    auto contentmanager = Studio::Core::instance()->find_object<Studio::ContentManager>();
+
+    QString src = asset->path();
+    QString dst = QFileInfo(src).dir().absolutePath() + "/" + str + "." + QFileInfo(src).suffix();
+
+    contentmanager->rename_content(src, dst);
+  }
 }
 
 
@@ -264,9 +303,47 @@ void PackPlugin::on_contextmenu_requested(QPoint pos)
 {
   QMenu menu;
 
-  menu.addAction(ui.Delete);
+  if (m_container->focusWidget() == ui.Navigator)
+  {
+    if (ui.Navigator->indexAt(pos) != ui.Navigator->currentIndex())
+      ui.Navigator->setCurrentIndex(QModelIndex());
+
+    if (!ui.Navigator->current_node() || node_cast<PackModel::Group>(ui.Navigator->current_node()))
+    {
+      menu.addAction(ui.CreateFolder);
+      menu.addSeparator();
+    }
+
+    if (ui.Navigator->current_node())
+    {
+      menu.addAction(ui.Rename);
+      menu.addAction(ui.Delete);
+    }
+  }
 
   menu.exec(QCursor::pos());
+}
+
+
+///////////////////////// PackPlugin::CreateFolder //////////////////////////
+void PackPlugin::on_CreateFolder_triggered()
+{
+  auto group = ui.Navigator->current_node() ? ui.Navigator->current_node() : m_pack->root();
+
+  m_pack->add_group(group, group->children(), "New Folder");
+}
+
+
+///////////////////////// PackPlugin::Rename ////////////////////////////////
+void PackPlugin::on_Rename_triggered()
+{
+  if (m_container->focusWidget() == ui.Navigator)
+  {
+    if (ui.Navigator->currentIndex().isValid())
+    {
+      ui.Navigator->trigger_rename(ui.Navigator->currentIndex());
+    }
+  }
 }
 
 
@@ -277,9 +354,9 @@ void PackPlugin::on_Delete_triggered()
   {
     if (m_container->focusWidget() == ui.Navigator)
     {
-      if (ui.Navigator->currentItem() && ui.Navigator->currentItem()->parent() == nullptr)
+      while (ui.Navigator->selectionModel()->hasSelection())
       {
-        m_pack->erase_asset(ui.Navigator->currentIndex().row());
+        m_pack->erase(ui.Navigator->selected_nodes().front());
       }
     }
   }

@@ -40,13 +40,13 @@ class MaterialView : public Viewport
 
     void refresh();
 
-    void on_build_complete(Studio::Document *document, QString const &path);
-
-    void on_skybox_build_complete(Studio::Document *document, QString const &path);
-
   protected:
 
     void invalidate();
+
+    void on_material_build_complete(Studio::Document *document, QString const &path);
+
+    void on_skybox_build_complete(Studio::Document *document, QString const &path);
 
     void keyPressEvent(QKeyEvent *event);
 
@@ -86,7 +86,7 @@ class MaterialView : public Viewport
 
     QPoint m_mousepresspos, m_mousemovepos;
 
-    QString m_buildpath;
+    size_t m_buildhash;
 
     unique_resource<Texture> m_albedomap;
     unique_resource<Texture> m_specularmap;

@@ -9,6 +9,8 @@
 #pragma once
 
 #include "documentapi.h"
+#include "datum/math.h"
+#include "packapi.h"
 #include <string>
 
 //-------------------------- MeshDocument -----------------------------------
@@ -22,7 +24,7 @@ class MeshDocument : public QObject
 
     static void hash(Studio::Document *document, size_t *key);
 
-    static void build(Studio::Document *document, std::string const &path);
+    static void pack(Studio::PackerState &asset, std::ofstream &fout);
 
   public:
     MeshDocument();
@@ -35,6 +37,21 @@ class MeshDocument : public QObject
 
     Studio::Document *operator *() const { return m_document; }
     Studio::Document *operator ->() const { return m_document; }
+
+  public:
+
+    int meshcount() const;
+    int materialcount() const;
+
+    struct Instance
+    {
+      size_t index;
+      size_t material;
+
+      lml::Transform transform;
+    };
+
+    std::vector<Instance> instances() const;
 
   signals:
 

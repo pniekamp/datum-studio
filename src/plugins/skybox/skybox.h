@@ -9,6 +9,7 @@
 #pragma once
 
 #include "documentapi.h"
+#include "packapi.h"
 #include <string>
 
 //-------------------------- SkyboxDocument ---------------------------------
@@ -25,6 +26,8 @@ class SkyboxDocument : public QObject
     static void hash(Studio::Document *document, size_t *key);
 
     static void build(Studio::Document *document, std::string const &path);
+
+    static void pack(Studio::PackerState &asset, std::ofstream &fout);
 
   public:
     SkyboxDocument();
@@ -62,8 +65,8 @@ class SkyboxDocument : public QObject
     int width() const { return m_definition["width"].toInt(); }
     int height() const { return m_definition["height"].toInt(); }
 
-    Studio::Document const *image(int image) { return m_images[image]; }
-    Studio::Document const *image(Image image) { return m_images[static_cast<int>(image)]; }
+    Studio::Document const *image(int image) const { return m_images[image]; }
+    Studio::Document const *image(Image image) const { return m_images[static_cast<int>(image)]; }
 
   public:
 

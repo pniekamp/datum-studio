@@ -49,7 +49,7 @@ add_library(skybox SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
 
 set_target_properties(skybox PROPERTIES COMPILE_DEFINITIONS "SKYBOXPLUGIN")
 
-target_link_libraries(skybox datumstudio document content build datum leap vulkan Qt5::Core Qt5::Widgets)
+target_link_libraries(skybox datumstudio document content pack build datum leap vulkan Qt5::Core Qt5::Widgets)
 
 if(WIN32)
   SET(CMAKE_SHARED_LIBRARY_PREFIX "")

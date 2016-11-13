@@ -41,6 +41,10 @@ void Builder::run()
   {
     emit build_complete(m_document, path);
   }
+  else
+  {
+    emit build_failure(m_document);
+  }
 }
 
 
@@ -123,14 +127,14 @@ void BuildManager::on_project_closing(bool *cancel)
 
   ofstream fout(m_path.filePath("Build/buildstate.dat").toUtf8());
 
-  fout << "[Builds]" << "\n";
+  fout << "[Builds]" << '\n';
 
   for(auto &build : m_builds)
   {
-    fout << build.id.toString().toStdString() << " " << build.hash << " " << m_path.relativeFilePath(build.doc).toStdString() << "\n";
+    fout << build.id.toString().toStdString() << " " << build.hash << " " << m_path.relativeFilePath(build.doc).toStdString() << '\n';
   }
 
-  fout << "\n";
+  fout << '\n';
 }
 
 
@@ -150,13 +154,18 @@ void BuildManager::on_document_renamed(Studio::Document *document, QString const
 
 
 ///////////////////////// BuildManager::request_build ///////////////////////
-void BuildManager::request_build(Studio::Document *document, QObject *receiver, std::function<void (Studio::Document *, QString const &)> const &notify)
+void BuildManager::request_build(Studio::Document *document, QObject *receiver, std::function<void (Studio::Document *, QString const &)> const &notify, std::function<void (Studio::Document *)> const &failure)
 {
   SyncLock lock(m_mutex);
 
   auto builder = new Builder(this, document);
 
   connect(builder, &Builder::build_complete, receiver, notify);
+
+  if (failure)
+  {
+    connect(builder, &Builder::build_failure, receiver, failure);
+  }
 
   QThreadPool::globalInstance()->start(builder);
 }

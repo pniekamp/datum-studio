@@ -22,15 +22,17 @@ class FolderView : public QTreeWidget
 
     QSize sizeHint() const { return QSize(190, 256); }
 
+    void set_base(QString const &basepath);
+
+  public:
+
     QString selected_path() const;
 
   public slots:
 
-    void set_basepath(QString const &basepath);
-
     void select_path(QString const &path);
 
-    void trigger_rename(QString const &path);
+    void trigger_rename(QTreeWidgetItem *item);
 
     void update(QString const &path);
 
@@ -44,9 +46,9 @@ class FolderView : public QTreeWidget
 
   protected:
 
-    void on_selection_changed();
+    void itemSelectionChanged();
 
-    void on_item_changed(QTreeWidgetItem *item, int column);
+    void commitData(QWidget *editor);
 
     QStringList mimeTypes() const;
     QMimeData *mimeData(QList<QTreeWidgetItem *> const items) const;

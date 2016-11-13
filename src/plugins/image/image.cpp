@@ -6,9 +6,8 @@
 // Copyright (C) 2016 Peter Niekamp
 //
 
-#include "Image.h"
+#include "image.h"
 #include "assetfile.h"
-#include "atlaspacker.h"
 #include <functional>
 #include <cassert>
 
@@ -21,6 +20,26 @@ using namespace lml;
 void ImageDocument::hash(Studio::Document *document, size_t *key)
 {
   *key = std::hash<double>{}(document->metadata("build", 0.0));
+}
+
+
+///////////////////////// pack //////////////////////////////////////////////
+void ImageDocument::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  asset.document->lock();
+
+  PackImageHeader imag;
+
+  if (read_asset_header(asset.document, 1, &imag))
+  {
+    vector<char> payload(pack_payload_size(imag));
+
+    read_asset_payload(asset.document, imag.dataoffset, payload.data(), payload.size());
+
+    write_imag_asset(fout, asset.id, imag.width, imag.height, imag.layers, imag.levels, imag.format, payload.data());
+  }
+
+  asset.document->unlock();
 }
 
 
@@ -37,7 +56,10 @@ ImageDocument::ImageDocument()
 ImageDocument::ImageDocument(QString const &path)
   : ImageDocument()
 {
-  attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  if (path != "")
+  {
+    attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  }
 }
 
 

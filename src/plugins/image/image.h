@@ -9,6 +9,7 @@
 #pragma once
 
 #include "documentapi.h"
+#include "packapi.h"
 #include "hdr.h"
 #include <string>
 
@@ -22,6 +23,8 @@ class ImageDocument : public QObject
   public:
 
     static void hash(Studio::Document *document, size_t *key);
+
+    static void pack(Studio::PackerState &asset, std::ofstream &fout);
 
   public:
     ImageDocument();

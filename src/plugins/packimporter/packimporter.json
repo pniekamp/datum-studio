@@ -1,0 +1,7 @@
+{
+  "Name" : "PackImporter",
+  "Version" : "1.0",
+  "Description" : "Import Asset Packs",
+  "Url" : "",
+  "LoadOrder": 100
+}

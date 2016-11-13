@@ -9,7 +9,6 @@
 #include "material.h"
 #include "image.h"
 #include "assetfile.h"
-#include "hdr.h"
 #include <QPainter>
 #include <QJsonDocument>
 #include <functional>
@@ -33,12 +32,9 @@ namespace
   {
     size_t key = 0;
 
-    if (path != "")
+    if (auto document = ImageDocument(path))
     {
-      if (auto document = ImageDocument(path))
-      {
-        ImageDocument::hash(document, &key);
-      }
+      ImageDocument::hash(document, &key);
     }
 
     return key;
@@ -48,12 +44,9 @@ namespace
   {
     HDRImage image = {};
 
-    if (path != "")
+    if (auto document = ImageDocument(path))
     {
-      if (auto document = ImageDocument(path))
-      {
-        image = document.data();
-      }
+      image = document.data();
     }
 
     return image;
@@ -63,12 +56,9 @@ namespace
   {
     HDRImage image = {};
 
-    if (path != "")
+    if (auto document = ImageDocument(path))
     {
-      if (auto document = ImageDocument(path))
-      {
-        image = document.data(ImageDocument::raw);
-      }
+      image = document.data(ImageDocument::raw);
     }
 
     return image;
@@ -260,7 +250,7 @@ void MaterialDocument::hash(Studio::Document *document, size_t *key)
 
 
 ///////////////////////// hash //////////////////////////////////////////////
-void MaterialDocument::hash_part(Studio::Document *document, size_t *key)
+void MaterialDocument::build_hash(Studio::Document *document, size_t *key)
 {
   QJsonObject definition;
 
@@ -497,7 +487,6 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
       }
     }
 
-
     write_specularmap(fout, 2, specularmap);
   }
 
@@ -529,6 +518,87 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
 }
 
 
+///////////////////////// pack //////////////////////////////////////////////
+void MaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  ifstream fin(asset.buildpath, ios::binary);
+
+  if (!fin)
+    throw runtime_error("Material Pack failed - no build file");
+
+  if (asset.type == "Material")
+  {
+    MaterialDocument materialdocument(asset.document);
+
+    auto color = materialdocument.color();
+    auto metalness = materialdocument.metalness();
+    auto roughness = materialdocument.roughness();
+    auto reflectivity = materialdocument.reflectivity();
+    auto emissive = materialdocument.emissive();
+
+    auto albedomap = 0;
+    if (materialdocument.image(MaterialDocument::Image::AlbedoMap))
+      albedomap = asset.add_dependant(asset.document, "Material.AlbedoMap");
+
+    auto specularmap = 0;
+    if (materialdocument.image(MaterialDocument::Image::MetalnessMap) || materialdocument.image(MaterialDocument::Image::RoughnessMap) || materialdocument.image(MaterialDocument::Image::ReflectivityMap))
+      specularmap = asset.add_dependant(asset.document, "Material.SpecularMap");
+
+    auto normalmap = 0;
+    if (materialdocument.image(MaterialDocument::Image::NormalMap))
+      normalmap = asset.add_dependant(asset.document, "Material.NormalMap");
+
+    write_matl_asset(fout, asset.id, color, metalness, roughness, reflectivity, emissive, albedomap, specularmap, normalmap);
+  }
+
+  if (asset.type == "Material.AlbedoMap")
+  {
+    PackImageHeader imag;
+
+    if (read_asset_header(fin, 1, &imag))
+    {
+      vector<char> payload(pack_payload_size(imag));
+
+      read_asset_payload(fin, imag.dataoffset, payload.data(), payload.size());
+
+      image_compress_bc3(imag.width, imag.height, imag.layers, imag.levels, payload.data());
+
+      write_imag_asset(fout, asset.id, imag.width, imag.height, imag.layers, imag.levels, PackImageHeader::rgba_bc3, payload.data());
+    }
+  }
+
+  if (asset.type == "Material.SpecularMap")
+  {
+    PackImageHeader imag;
+
+    if (read_asset_header(fin, 2, &imag))
+    {
+      vector<char> payload(pack_payload_size(imag));
+
+      read_asset_payload(fin, imag.dataoffset, payload.data(), payload.size());
+
+      image_compress_bc3(imag.width, imag.height, imag.layers, imag.levels, payload.data());
+
+      write_imag_asset(fout, asset.id, imag.width, imag.height, imag.layers, imag.levels, PackImageHeader::rgba_bc3, payload.data());
+    }
+  }
+
+  if (asset.type == "Material.NormalMap")
+  {
+    PackImageHeader imag;
+
+    if (read_asset_header(fin, 3, &imag))
+    {
+      vector<char> payload(pack_payload_size(imag));
+
+      read_asset_payload(fin, imag.dataoffset, payload.data(), payload.size());
+
+      write_imag_asset(fout, asset.id, imag.width, imag.height, imag.layers, imag.levels, imag.format, payload.data());
+    }
+  }
+}
+
+
 //|---------------------- MaterialDocument ----------------------------------
 //|--------------------------------------------------------------------------
 
@@ -545,7 +615,10 @@ MaterialDocument::MaterialDocument()
 MaterialDocument::MaterialDocument(QString const &path)
   : MaterialDocument()
 {
-  attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  if (path != "")
+  {
+    attach(Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path));
+  }
 }
 
 

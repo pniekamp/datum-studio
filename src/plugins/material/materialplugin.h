@@ -9,7 +9,7 @@
 #pragma once
 
 #include "api.h"
-#include "documentapi.h"
+#include "packapi.h"
 
 //-------------------------- MaterialPlugin ---------------------------------
 //---------------------------------------------------------------------------
@@ -37,5 +37,7 @@ class MaterialPlugin : public Studio::Plugin
     bool hash(Studio::Document *document, size_t *key);
 
     bool build(Studio::Document *document, QString const &path);
+
+    bool pack(Studio::PackerState &asset, std::ofstream &fout);
 };
 

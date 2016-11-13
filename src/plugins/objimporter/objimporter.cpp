@@ -261,8 +261,8 @@ bool ObjImporter::try_import(QString const &src, QString const &dst, QJsonObject
 
   metadata["src"] = src;
   metadata["type"] = "Mesh";
-  metadata["build"] = buildtime();
   metadata["icon"] = encode_icon(QIcon(":/objimporter/icon.png"));
+  metadata["build"] = buildtime();
 
   float scale = metadata["importscale"].toDouble(1.0);
 

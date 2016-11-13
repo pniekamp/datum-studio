@@ -56,6 +56,10 @@ bool SkyboxPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   buildmanager->register_builder("SkyBox", this);
 
+  auto packmanager = Studio::Core::instance()->find_object<Studio::PackManager>();
+
+  packmanager->register_packer("SkyBox", this);
+
   return true;
 }
 
@@ -95,6 +99,15 @@ bool SkyboxPlugin::hash(Studio::Document *document, size_t *key)
 bool SkyboxPlugin::build(Studio::Document *document, QString const &path)
 {
   SkyboxDocument::build(document, path.toStdString());
+
+  return true;
+}
+
+
+///////////////////////// SkyboxPlugin::pack /////////////////////////////////
+bool SkyboxPlugin::pack(Studio::PackerState &asset, ofstream &fout)
+{
+  SkyboxDocument::pack(asset, fout);
 
   return true;
 }

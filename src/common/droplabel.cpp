@@ -108,7 +108,7 @@ void DropLabel::dragEnterEvent(QDragEnterEvent *event)
 ////////////////////// DropLabel::dropEvent ////////////////////////////////
 void DropLabel::dropEvent(QDropEvent *event)
 {
-  foreach(QUrl url, event->mimeData()->urls())
+  for(auto &url : event->mimeData()->urls())
   {
     emit itemDropped(url.toLocalFile());
   }

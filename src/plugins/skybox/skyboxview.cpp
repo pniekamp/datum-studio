@@ -54,32 +54,18 @@ void SkyboxView::refresh()
 {
   auto buildmanager = Studio::Core::instance()->find_object<Studio::BuildManager>();
 
-  buildmanager->request_build(m_document, this, &SkyboxView::on_build_complete);
+  buildmanager->request_build(m_document, this, &SkyboxView::on_skybox_build_complete);
 }
 
 
-///////////////////////// SkyboxView::build_complete ////////////////////////
-void SkyboxView::on_build_complete(Studio::Document *document, QString const &path)
+///////////////////////// SkyboxView::skybox_build_complete /////////////////
+void SkyboxView::on_skybox_build_complete(Studio::Document *document, QString const &path)
 {
   ifstream fin(path.toUtf8(), ios::binary);
 
-  PackImageHeader imag;
+  m_skybox = resources.load<SkyBox>(fin, 1);
 
-  if (read_asset_header(fin, 1, &imag))
-  {   
-    m_skybox = resources.create<SkyBox>(imag.width, imag.height, EnvMap::Format::RGBE);
-
-    if (auto lump = resources.acquire_lump(imag.datasize))
-    {
-      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
-
-      resources.update<SkyBox>(m_skybox, lump);
-
-      resources.release_lump(lump);
-    }
-
-    renderparams.skybox = m_skybox;
-  }
+  renderparams.skybox = m_skybox;
 
   invalidate();
 }

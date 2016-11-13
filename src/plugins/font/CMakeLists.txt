@@ -44,7 +44,7 @@ add_library(font SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
 
 set_target_properties(font PROPERTIES COMPILE_DEFINITIONS "FONTPLUGIN")
 
-target_link_libraries(font datumstudio document content build leap Qt5::Core Qt5::Widgets)
+target_link_libraries(font datumstudio document content pack build leap Qt5::Core Qt5::Widgets)
 
 if(WIN32)
   SET(CMAKE_SHARED_LIBRARY_PREFIX "")

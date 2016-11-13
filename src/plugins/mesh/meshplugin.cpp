@@ -39,9 +39,9 @@ bool MeshPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   viewfactory->register_factory("Mesh", this);
 
-  auto buildmanager = Studio::Core::instance()->find_object<Studio::BuildManager>();
+  auto packmanager = Studio::Core::instance()->find_object<Studio::PackManager>();
 
-  buildmanager->register_builder("Mesh", this);
+  packmanager->register_packer("Mesh", this);
 
   return true;
 }
@@ -69,10 +69,10 @@ bool MeshPlugin::hash(Studio::Document *document, size_t *key)
 }
 
 
-///////////////////////// MeshPlugin::build /////////////////////////////////
-bool MeshPlugin::build(Studio::Document *document, QString const &path)
+///////////////////////// MeshPlugin::pack //////////////////////////////////
+bool MeshPlugin::pack(Studio::PackerState &asset, ofstream &fout)
 {
-  MeshDocument::build(document, path.toStdString());
+  MeshDocument::pack(asset, fout);
 
   return true;
 }

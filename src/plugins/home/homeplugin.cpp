@@ -85,7 +85,7 @@ void HomePlugin::on_metamode_changed(QString const &mode)
 
     QString txt;
 
-    foreach(QString recentproject, QSettings().value("project/recent").toStringList())
+    for(auto &recentproject : QSettings().value("project/recent").toStringList())
     {
       QString title = QFileInfo(recentproject).completeBaseName().toHtmlEscaped();
       QString path = recentproject.toHtmlEscaped();

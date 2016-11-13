@@ -9,6 +9,7 @@
 #pragma once
 
 #include "documentapi.h"
+#include "packapi.h"
 #include <string>
 #include <QFont>
 
@@ -26,6 +27,8 @@ class FontDocument : public QObject
     static void hash(Studio::Document *document, size_t *key);
 
     static void build(Studio::Document *document, std::string const &path);
+
+    static void pack(Studio::PackerState &asset, std::ofstream &fout);
 
   public:
     FontDocument() = default;

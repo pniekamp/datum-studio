@@ -35,7 +35,7 @@ QStringList select_plugins(QDir pluginpath)
   QStringList plugins;
   QVector<int> ordering;
 
-  foreach(QString plugin, pluginpath.entryList(QDir::Files))
+  for(auto &plugin : pluginpath.entryList(QDir::Files))
   {
     QPluginLoader loader(pluginpath.absoluteFilePath(plugin));
 
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 
     QDir plugins(leap::pathstring("plugins/datumstudio").c_str());
 
-    foreach(QString plugin, select_plugins(plugins))
+    for(auto &plugin :select_plugins(plugins))
     {
       QPluginLoader loader(plugins.absoluteFilePath(plugin));
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 
     app.exec();
 
-    foreach(Studio::Plugin *plugin, Studio::Core::instance()->find_objects<Studio::Plugin>())
+    for(auto &plugin : Studio::Core::instance()->find_objects<Studio::Plugin>())
     {
       plugin->shutdown();
 

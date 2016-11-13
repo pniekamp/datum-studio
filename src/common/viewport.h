@@ -10,6 +10,7 @@
 
 #include "datum.h"
 #include "platform.h"
+#include "documentapi.h"
 #include <QWidget>
 
 //-------------------------- Viewport ---------------------------------------
@@ -35,6 +36,12 @@ class Viewport : public QWidget
 
         template<typename Resource, typename ...Args>
         void update(Resource const *resource, Args... args) { m_manager->update(resource, std::forward<Args>(args)...); }
+
+        template<typename Resource, typename ...Args>
+        unique_resource<Resource> load(std::istream &fin, size_t index, Args... args);
+
+        template<typename Resource, typename ...Args>
+        unique_resource<Resource> load(Studio::Document *document, size_t index, Args... args);
 
       public:
 
@@ -91,4 +98,3 @@ class Viewport : public QWidget
 
     VkImage presentimages[2];
 };
-

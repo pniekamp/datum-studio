@@ -36,7 +36,7 @@ add_library(texteditor SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
 
 set_target_properties(texteditor PROPERTIES COMPILE_DEFINITIONS "TEXTEDITORPLUGIN")
 
-target_link_libraries(texteditor datumstudio document leap Qt5::Core Qt5::Widgets)
+target_link_libraries(texteditor datumstudio document pack content leap Qt5::Core Qt5::Widgets)
 
 if(WIN32)
   SET(CMAKE_SHARED_LIBRARY_PREFIX "")

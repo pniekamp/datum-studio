@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QDragMoveEvent>
 #include <QMimeData>
+#include <QLineEdit>
 
 #include <QtDebug>
 
@@ -49,6 +50,8 @@ namespace
       if (!QDir(root->child(i)->data(0, PathRole).toString()).exists())
         delete root->child(i);
     }
+
+    root->sortChildren(0, Qt::AscendingOrder);
   }
 
 }
@@ -64,19 +67,18 @@ FolderView::FolderView(QWidget *parent)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
 
-  connect(this, &QTreeWidget::itemChanged, this, &FolderView::on_item_changed);
-  connect(this, &QTreeWidget::itemSelectionChanged, this, &FolderView::on_selection_changed);
+  connect(this, &QTreeWidget::itemSelectionChanged, this, &FolderView::itemSelectionChanged);
 }
 
 
-///////////////////////// FolderView::set_basepath //////////////////////////
-void FolderView::set_basepath(QString const &basepath)
+///////////////////////// FolderView::set_base //////////////////////////////
+void FolderView::set_base(QString const &basepath)
 {
   m_basepath = basepath;
 
   clear();
 
-  auto root = new QTreeWidgetItem(this, QStringList() << "Content");
+  auto root = new QTreeWidgetItem(this, { "Content" });
 
   root->setData(0, PathRole, m_basepath);
 
@@ -97,10 +99,10 @@ QString FolderView::selected_path() const
 }
 
 
-///////////////////////// FolderView::selecte_path //////////////////////////
+///////////////////////// FolderView::select_path ///////////////////////////
 void FolderView::select_path(QString const &path)
 {
-  foreach(QTreeWidgetItem *item, findItems(QFileInfo(path).fileName(), Qt::MatchExactly | Qt::MatchRecursive))
+  for(auto &item : findItems(QFileInfo(path).fileName(), Qt::MatchExactly | Qt::MatchRecursive))
   {
     if (item->data(0, PathRole).toString() == path)
     {
@@ -110,50 +112,37 @@ void FolderView::select_path(QString const &path)
 }
 
 
-///////////////////////// FolderView::selection_changed /////////////////////
-void FolderView::on_selection_changed()
+///////////////////////// FolderView::itemSelectionChanged //////////////////
+void FolderView::itemSelectionChanged()
 {
   emit selection_changed(selected_path());
 }
 
 
 ///////////////////////// FolderView::trigger_rename ////////////////////////
-void FolderView::trigger_rename(QString const &path)
+void FolderView::trigger_rename(QTreeWidgetItem *item)
 {
   setFocus();
 
-  foreach(QTreeWidgetItem *item, findItems(QFileInfo(path).fileName(), Qt::MatchExactly | Qt::MatchRecursive))
-  {
-    if (item->data(0, PathRole).toString() == path)
-    {
-      editItem(item);
-    }
-  }
+  setCurrentItem(item);
+
+  editItem(item);
 }
 
 
-///////////////////////// FolderView::item_changed //////////////////////////
-void FolderView::on_item_changed(QTreeWidgetItem *item, int column)
+///////////////////////// FolderView::renamed ///////////////////////////////
+void FolderView::commitData(QWidget *editor)
 {
-  if (column == 0)
+  QString src = currentItem()->data(0, PathRole).toString();
+  QString dst = QFileInfo(src).dir().absolutePath() + "/" + qobject_cast<QLineEdit*>(editor)->text();
+
+  if (src != dst)
   {
-    if (item->text(0) == "")
-    {
-      item->setText(0, QFileInfo(item->data(0, PathRole).toString()).fileName());
-    }
+    closePersistentEditor(currentItem());
 
-    if (item->data(0, Qt::DisplayRole).isValid())
-    {
-      QString src = item->data(0, PathRole).toString();
-      QString dst = QFileInfo(src).dir().absolutePath() + "/" + item->text(0);
+    emit item_renamed(src, dst);
 
-      if (src != dst)
-      {
-        emit item_renamed(src, dst);
-
-        emit selection_changed(selected_path());
-      }
-    }
+    emit selection_changed(selected_path());
   }
 }
 
@@ -172,7 +161,7 @@ QMimeData *FolderView::mimeData(QList<QTreeWidgetItem *> const items) const
 
   QList<QUrl> urls;
 
-  foreach(QTreeWidgetItem *item, items)
+  for(auto &item : items)
   {
     urls.append(QUrl::fromLocalFile(item->data(0, PathRole).toString()));
   }
@@ -199,7 +188,7 @@ void FolderView::dropEvent(QDropEvent *event)
 
   QString dst = item ? item->data(0, PathRole).toString() : m_basepath;
 
-  foreach(QUrl url, event->mimeData()->urls())
+  for(auto &url : event->mimeData()->urls())
   {
     QString src = url.toLocalFile();
 

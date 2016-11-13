@@ -6,5 +6,6 @@
         <file>warning.png</file>
         <file>asset.png</file>
         <file>build.png</file>
+        <file>folder.png</file>
     </qresource>
 </RCC>

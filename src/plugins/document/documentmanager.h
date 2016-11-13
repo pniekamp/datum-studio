@@ -63,11 +63,13 @@ class Document : public Studio::Document
 
   private:
 
+    bool m_modified;
+
     QJsonObject m_metadata;
 
-    std::fstream m_file;
-
   private:
+
+    static constexpr int MaxCacheBlocks = 64;
 
     struct Block
     {
@@ -83,12 +85,12 @@ class Document : public Studio::Document
     std::list<Block*> m_lru;
     std::map<size_t, Block> m_blocks;
 
-    bool m_modified;
-
 #ifndef NDEBUG
     std::atomic<int> m_locked{0};
     std::atomic<int> m_exclusive{0};
 #endif
+
+    std::fstream m_file;
 
     leap::threadlib::ReadWriteLock m_lock;
 

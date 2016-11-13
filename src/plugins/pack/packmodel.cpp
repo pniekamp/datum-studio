@@ -17,6 +17,65 @@
 using namespace std;
 using namespace leap;
 
+//|---------------------- Node --------------------------------------
+//|------------------------------------------------------------------
+
+///////////////////// Node::Constructor /////////////////////////////
+PackModel::Node::Node()
+{
+  m_parent = nullptr;
+  m_nextsibling = nullptr;
+}
+
+
+///////////////////// Node::Destructor //////////////////////////////
+PackModel::Node::~Node()
+{
+  for(auto &child : m_children)
+    delete child;
+}
+
+
+///////////////////// Node::insert //////////////////////////////////
+PackModel::Node *PackModel::Node::insert(size_t index, Node *node)
+{
+  node->m_parent = this;
+  node->m_nextsibling = nullptr;
+
+  auto j = m_children.insert(m_children.begin() + index, node);
+
+  if (j != m_children.begin())
+    (*prev(j))->m_nextsibling = node;
+
+  if (next(j) != m_children.end())
+    node->m_nextsibling = *next(j);
+
+  return node;
+}
+
+
+///////////////////// Node::remove //////////////////////////////////
+PackModel::Node *PackModel::Node::remove(Node *node)
+{
+  auto j = find(m_children.begin(), m_children.end(), node);
+
+  if (j != m_children.end())
+  {
+    if (j != m_children.begin())
+      (*prev(j))->m_nextsibling = node->m_nextsibling;
+
+    node->m_parent = nullptr;
+    node->m_nextsibling = nullptr;
+
+    m_children.erase(j);
+
+    return node;
+  }
+
+  return nullptr;
+}
+
+
 //|---------------------- Asset -------------------------------------
 //|------------------------------------------------------------------
 
@@ -25,6 +84,32 @@ PackModel::Asset::Asset(QString const &path)
 {
   m_path = path;
   m_document = Studio::Core::instance()->find_object<Studio::DocumentManager>()->open(path);
+}
+
+
+///////////////////////// Asset::set_data ///////////////////////////
+void PackModel::Asset::set_data(PackModel::DataRole role, QVariant const &value)
+{
+}
+
+
+//|---------------------- Group -------------------------------------
+//|------------------------------------------------------------------
+
+///////////////////////// Group::Constructor ////////////////////////
+PackModel::Group::Group(QString const &name)
+{
+  m_name = name;
+}
+
+
+///////////////////////// Group::set_data ///////////////////////////
+void PackModel::Group::set_data(PackModel::DataRole role, QVariant const &value)
+{
+  if (role == DataRole::Name)
+  {
+    m_name = value.toString();
+  }
 }
 
 
@@ -37,6 +122,8 @@ PackModel::Asset::Asset(QString const &path)
 PackModel::PackModel(QObject *parent)
   : QObject(parent)
 {
+  clear();
+
   m_modified = false;
 
   auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
@@ -48,7 +135,7 @@ PackModel::PackModel(QObject *parent)
 ///////////////////////// PackModel::clear //////////////////////////////////
 void PackModel::clear()
 {
-  m_assets.clear();
+  m_root = unique_ptr<Group>(new Group("Root"));
 
   emit reset();
 
@@ -56,66 +143,110 @@ void PackModel::clear()
 }
 
 
+///////////////////////// PackModel::add_group //////////////////////////////
+PackModel::Node *PackModel::add_group(Node *parent, size_t index, QString const &name)
+{
+  emit adding(parent, index);
+
+  Node *node = parent->insert(index, new Group(name));
+
+  emit added(node);
+
+  m_modified = true;
+
+  return node;
+}
+
+
+
 ///////////////////////// PackModel::add_asset //////////////////////////////
-void PackModel::add_asset(size_t position, QString const &path)
+PackModel::Node *PackModel::add_asset(Node *parent, size_t index, QString const &path)
 {
-  auto i = m_assets.insert(m_assets.begin() + position, make_unique<Asset>(path));
+  emit adding(parent, index);
 
-  emit added(i - m_assets.begin(), i->get());
+  Node *node = parent->insert(index, new Asset(path));
+
+  emit added(node);
+
+  m_modified = true;
+
+  return node;
+}
+
+
+///////////////////////// PackModel::move ///////////////////////////////////
+void PackModel::move(Node *node, Node *parent, size_t index)
+{
+  auto oldparent = node->parent();
+
+  size_t oldindex = 0;
+  while (oldparent->child(oldindex) != node)
+    ++oldindex;
+
+  emit removing(oldparent, oldindex);
+
+  oldparent->remove(node);
+
+  emit removed(node);
+
+  if (parent == oldparent && oldindex < index)
+    --index;
+
+  emit adding(parent, index);
+
+  parent->insert(index, node);
+
+  emit added(node);
 
   m_modified = true;
 }
 
 
-///////////////////////// PackModel::move_asset /////////////////////////////
-void PackModel::move_asset(size_t index, size_t position)
+///////////////////////// PackModel::erase //////////////////////////////
+void PackModel::erase(Node *node)
 {
-  assert(index < m_assets.size());
+  auto parent = node->parent();
 
-  auto asset = std::move(m_assets[index]);
+  size_t index = 0;
+  while (parent->child(index) != node)
+    ++index;
 
-  m_assets.erase(m_assets.begin() + index);
+  emit removing(parent, index);
 
-  emit removed(index, asset.get());
+  parent->remove(node);
 
-  if (position > index)
-    --position;
+  emit removed(node);
 
-  auto i = m_assets.insert(m_assets.begin() + position, std::move(asset));
-
-  emit added(i - m_assets.begin(), i->get());
+  delete node;
 
   m_modified = true;
 }
 
 
-///////////////////////// PackModel::erase_asset ////////////////////////////
-void PackModel::erase_asset(size_t index)
+///////////////////////// PackModel::set_data ///////////////////////////////
+void PackModel::set_data(Node *node, DataRole role, QVariant const &value)
 {
-  assert(index < m_assets.size());
+  node->set_data(role, value);
 
-  auto asset = m_assets[index].get();
-
-  m_assets.erase(m_assets.begin() + index);
-
-  emit removed(index, asset);
-
-  m_modified = true;
+  emit changed(node, role);
 }
 
 
 ///////////////////////// PackModel::document_renamed ///////////////////////
 void PackModel::on_document_renamed(Studio::Document *document, QString const &src, QString const &dst)
 {
-  for(auto &asset: m_assets)
+  for(auto &node : nodes())
   {
-    if (asset->m_document == document)
+    if (auto asset = node_cast<Asset>(node))
     {
-      asset->m_path = dst;
+      if (asset->document() == document)
+      {
+        asset->m_path = dst;
 
-      emit changed(&asset - &m_assets.front(), asset.get());
+        emit changed(asset, DataRole::Path);
 
-      m_modified = true;
+        m_modified = true;
+      }
     }
   }
 }
@@ -140,6 +271,8 @@ void PackModel::load(string const &projectfile)
 
   QDir base = QFileInfo(projectfile.c_str()).dir();
 
+  vector<Node*> groupstack = { root() };
+
   while (getline(fin, buffer))
   {
     buffer = trim(buffer);
@@ -150,7 +283,24 @@ void PackModel::load(string const &projectfile)
     if (buffer[0] == '#' || buffer[0] == '/')
       continue;
 
-    add_asset(m_assets.size(), base.filePath(buffer.c_str()));
+    if (buffer[0] == '<' && buffer[buffer.length()-1] == '>')
+    {
+      if (buffer.substr(1, 5) == "Group")
+      {
+        auto group = add_group(groupstack.back(), groupstack.back()->children(), buffer.substr(13, buffer.length()-15).c_str());
+
+        groupstack.push_back(group);
+      }
+
+      if (buffer.substr(1, 6) == "/Group")
+      {
+        groupstack.pop_back();
+      }
+
+      continue;
+    }
+
+    add_asset(groupstack.back(), groupstack.back()->children(), base.filePath(buffer.c_str()));
   }
 
   m_modified = false;
@@ -162,16 +312,45 @@ void PackModel::save(string const &projectfile)
 {
   ofstream fout(projectfile, ios::app);
 
-  fout << "[Pack]" << "\n";
+  fout << "[Pack]" << '\n';
 
   QDir base = QFileInfo(projectfile.c_str()).dir();
 
-  for(auto &asset: m_assets)
+  vector<Node*> groupstack = { root() };
+
+  for(auto &node : nodes())
   {
-    fout << base.relativeFilePath(asset->path()).toStdString() << "\n";
+    if (node == root())
+      continue;
+
+    while (node->parent() != groupstack.back())
+    {
+      fout << "</Group>" << '\n';
+
+      groupstack.pop_back();
+    }
+
+    if (auto group = node_cast<Group>(node))
+    {
+      fout << "<Group name='" << group->name().toStdString() << "'>" << '\n';
+
+      groupstack.push_back(group);
+    }
+
+    if (auto asset = node_cast<Asset>(node))
+    {
+      fout << base.relativeFilePath(asset->path()).toStdString() << '\n';
+    }
   }
 
-  fout << "\n";
+  while (groupstack.size() > 1)
+  {
+    fout << "</Group>" << '\n';
+
+    groupstack.pop_back();
+  }
+
+  fout << '\n';
 
   m_modified = false;
 }

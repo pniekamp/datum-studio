@@ -65,12 +65,12 @@ void FontView::refresh()
 {
   auto buildmanager = Studio::Core::instance()->find_object<Studio::BuildManager>();
 
-  buildmanager->request_build(m_document, this, &FontView::on_build_complete);
+  buildmanager->request_build(m_document, this, &FontView::on_font_build_complete);
 }
 
 
-///////////////////////// FontView::build_complete //////////////////////////
-void FontView::on_build_complete(Studio::Document *document, QString const &path)
+///////////////////////// FontView::font_build_complete /////////////////////
+void FontView::on_font_build_complete(Studio::Document *document, QString const &path)
 {
   ifstream fin(path.toUtf8(), ios::binary);
 

@@ -65,47 +65,10 @@ void MeshView::refresh()
 {
   m_meshes.clear();
 
-  m_document->lock();
-
-  PackModelHeader modl;
-
-  if (read_asset_header(m_document, 1, &modl))
+  for(auto &instance : m_document.instances())
   {
-    vector<char> payload(pack_payload_size(modl));
-
-    read_asset_payload(m_document, modl.dataoffset, payload.data(), payload.size());
-
-    auto meshtable = PackModelPayload::meshtable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
-    auto instancetable = PackModelPayload::instancetable(payload.data(), modl.texturecount, modl.materialcount, modl.meshcount, modl.instancecount);
-
-    for(size_t i = 0; i < modl.instancecount; ++i)
-    {
-      PackMeshHeader mhdr;
-
-      if (read_asset_header(m_document, 1 + meshtable[instancetable[i].mesh].mesh, &mhdr))
-      {
-        auto mesh = resources.create<Mesh>(mhdr.vertexcount, mhdr.indexcount);
-
-        if (auto lump = resources.acquire_lump(mesh->vertexbuffer.size))
-        {
-          uint64_t position = mhdr.dataoffset + sizeof(PackChunk);
-
-          position += m_document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.verticiesoffset, mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
-          position += m_document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.indicesoffset, mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
-
-          resources.update<Mesh>(mesh, lump);
-
-          resources.release_lump(lump);
-        }
-
-        auto transform = Transform{ { instancetable[i].transform[0], instancetable[i].transform[1], instancetable[i].transform[2], instancetable[i].transform[3] }, { instancetable[i].transform[4], instancetable[i].transform[5], instancetable[i].transform[6], instancetable[i].transform[7] } };
-
-        m_meshes.push_back({ transform, std::move(mesh) });
-      }
-    }
+    m_meshes.push_back({ instance.transform, resources.load<Mesh>(m_document, instance.index) });
   }
-
-  m_document->unlock();
 
   invalidate();
 }

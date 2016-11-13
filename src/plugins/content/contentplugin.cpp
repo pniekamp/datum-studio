@@ -143,7 +143,7 @@ void ContentPlugin::on_project_changed(QString const &projectfile)
 
   auto contentmanager = Studio::Core::instance()->find_object<Studio::ContentManager>();
 
-  ui.Folders->set_basepath(contentmanager->basepath());
+  ui.Folders->set_base(contentmanager->basepath());
 }
 
 
@@ -200,11 +200,44 @@ void ContentPlugin::on_contextmenu_requested(QPoint pos)
 {
   QMenu menu;
 
-  menu.addMenu(m_createmenu);
-  menu.addAction(ui.Rename);
-  menu.addAction(ui.Delete);
-  menu.addSeparator();
-  menu.addAction(ui.Reimport);
+  if (m_container->focusWidget() == ui.Folders)
+  {
+    menu.addMenu(m_createmenu);
+    menu.addSeparator();
+
+    if (ui.Folders->indexAt(pos) != ui.Folders->currentIndex())
+      ui.Folders->setCurrentItem(ui.Folders->topLevelItem(0));
+
+    if (ui.Folders->currentItem() != ui.Folders->topLevelItem(0))
+    {
+      menu.addAction(ui.Rename);
+      menu.addAction(ui.Delete);
+      menu.addSeparator();
+    }
+
+    menu.addAction(ui.Reimport);
+  }
+
+  if (m_container->focusWidget() == ui.Content)
+  {
+    if (ui.Content->indexAt(pos) != ui.Content->currentIndex())
+      ui.Content->setCurrentIndex(QModelIndex());
+
+    if (!ui.Content->currentIndex().isValid())
+    {
+      menu.addMenu(m_createmenu);
+      menu.addSeparator();
+    }
+
+    if (ui.Content->currentIndex().isValid())
+    {
+      menu.addAction(ui.Rename);
+      menu.addAction(ui.Delete);
+      menu.addSeparator();
+    }
+
+    menu.addAction(ui.Reimport);
+  }
 
   menu.exec(QCursor::pos());
 }
@@ -226,9 +259,12 @@ void ContentPlugin::on_Create_triggered(QAction *action)
     path = ui.Folders->selected_path() + "/" + type + "_" + QString::number(k) + suffix;
   }
 
-  contentmanager->create(type, path);
+  if (contentmanager->create(type, path))
+  {
+    ui.Content->select_path(path);
 
-  ui.Content->trigger_rename(path);
+    ui.Content->trigger_rename(ui.Content->currentItem());
+  }
 }
 
 
@@ -258,7 +294,7 @@ void ContentPlugin::on_Reimport_triggered()
 
   if (m_container->focusWidget() == ui.Content)
   {
-    foreach(QString path, ui.Content->selected_paths())
+    for(auto &path : ui.Content->selected_paths())
     {
       contentmanager->reimport(path);
     }
@@ -271,12 +307,12 @@ void ContentPlugin::on_Rename_triggered()
 {
   if (m_container->focusWidget() == ui.Folders && ui.Folders->currentIndex().parent().isValid())
   {
-    ui.Folders->trigger_rename(ui.Folders->selected_path());
+    ui.Folders->trigger_rename(ui.Folders->currentItem());
   }
 
   if (m_container->focusWidget() == ui.Content && ui.Content->currentIndex().isValid())
   {
-    ui.Content->trigger_rename(ui.Content->selected_paths().first());
+    ui.Content->trigger_rename(ui.Content->currentItem());
   }
 }
 
@@ -295,7 +331,7 @@ void ContentPlugin::on_Delete_triggered()
 
     if (m_container->focusWidget() == ui.Content)
     {
-      foreach(QString path, ui.Content->selected_paths())
+      for(auto &path : ui.Content->selected_paths())
       {
         contentmanager->delete_content(path);
       }

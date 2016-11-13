@@ -136,7 +136,7 @@ bool ContentManager::import(QString const &src, QString const &dst)
 
   try
   {
-    foreach(QObject *importer, m_importers)
+    for(auto &importer : m_importers)
     {
       if (!result)
       {
@@ -186,7 +186,7 @@ bool ContentManager::reimport(QString const &path)
     {
       try
       {
-        foreach(QObject *importer, m_importers)
+        for(auto &importer : m_importers)
         {
           if (!result)
           {

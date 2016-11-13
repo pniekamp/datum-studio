@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QDragMoveEvent>
 #include <QMimeData>
+#include <QLineEdit>
 #include <QTimer>
 
 #include <QtDebug>
@@ -31,8 +32,7 @@ ContentView::ContentView(QWidget *parent)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
 
-  connect(this, &QListWidget::itemChanged, this, &ContentView::on_item_changed);
-  connect(this, &QListWidget::itemDoubleClicked, this, &ContentView::on_item_triggered);
+  connect(this, &QListWidget::itemDoubleClicked, this, &ContentView::itemDoubleClicked);
 }
 
 
@@ -50,7 +50,7 @@ QStringList ContentView::selected_paths() const
 {
   QStringList paths;
 
-  foreach(QListWidgetItem *item, selectedItems())
+  for(auto &item : selectedItems())
   {
     paths << item->data(PathRole).toString();
   }
@@ -59,47 +59,50 @@ QStringList ContentView::selected_paths() const
 }
 
 
+///////////////////////// ContentView::select_path //////////////////////////
+void ContentView::select_path(QString const &path)
+{
+  for(auto &item : findItems(QFileInfo(path).completeBaseName(), Qt::MatchExactly | Qt::MatchRecursive))
+  {
+    if (item->data(PathRole).toString() == path)
+    {
+      setCurrentItem(item);
+    }
+  }
+}
+
+
 ///////////////////////// ContentView::trigger_rename ///////////////////////
-void ContentView::trigger_rename(QString const &path)
+void ContentView::trigger_rename(QListWidgetItem *item)
 {
   setFocus();
 
-  for(int i = 0; i < count(); ++i)
-  {
-    if (item(i)->data(PathRole).toString() == path)
-    {
-      editItem(item(i));
-    }
-  }
+  setCurrentItem(item);
+
+  editItem(item);
 }
 
 
-///////////////////////// ContentView::item_changed /////////////////////////
-void ContentView::on_item_changed(QListWidgetItem *item)
+///////////////////////// ContentView::renamed //////////////////////////////
+void ContentView::commitData(QWidget *editor)
 {
-  if (item->text() == "")
+  QString src = currentItem()->data(PathRole).toString();
+  QString dst = m_path + "/" + qobject_cast<QLineEdit*>(editor)->text();
+
+  if (QFileInfo(src).suffix() != "")
+    dst = dst + "." + QFileInfo(src).suffix();
+
+  if (src != dst)
   {
-    item->setText(QFileInfo(item->data(PathRole).toString()).completeBaseName());
-  }
+    closePersistentEditor(currentItem());
 
-  if (item->data(Qt::DisplayRole).isValid())
-  {
-    QString src = item->data(PathRole).toString();
-    QString dst = m_path + "/" + item->text();
-
-    if (QFileInfo(src).suffix() != "")
-      dst = dst + "." + QFileInfo(src).suffix();
-
-    if (src != dst)
-    {
-      emit item_renamed(src, dst);
-    }
+    emit item_renamed(src, dst);
   }
 }
 
 
-///////////////////////// ContentView::item_triggered ///////////////////////
-void ContentView::on_item_triggered(QListWidgetItem *item)
+///////////////////////// ContentView::triggered ////////////////////////////
+void ContentView::itemDoubleClicked(QListWidgetItem *item)
 {
   emit item_triggered(item->data(PathRole).toString());
 }
@@ -119,7 +122,7 @@ QMimeData *ContentView::mimeData(QList<QListWidgetItem *> const items) const
 
   QList<QUrl> urls;
 
-  foreach(QListWidgetItem *item, items)
+  for(auto &item : items)
   {
     urls.append(QUrl::fromLocalFile(item->data(PathRole).toString()));
   }
@@ -146,7 +149,7 @@ void ContentView::dropEvent(QDropEvent *event)
 
   QString dst = item ? item->data(PathRole).toString() : m_path;
 
-  foreach(QUrl url, event->mimeData()->urls())
+  for(auto &url : event->mimeData()->urls())
   {
     QString src = url.toLocalFile();
 
@@ -183,11 +186,11 @@ void ContentView::update(QString const &path)
 
   if (pathinfo.absoluteDir() == m_path)
   {
-    auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
-
     bool found = false;
 
-    foreach(QListWidgetItem *item, findItems(pathinfo.completeBaseName(), Qt::MatchExactly | Qt::MatchRecursive))
+    auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
+
+    for(auto &item : findItems(pathinfo.completeBaseName(), Qt::MatchExactly | Qt::MatchRecursive))
     {
       if (item->data(PathRole).toString() == path)
       {

@@ -23,7 +23,7 @@ class FileView : public QWidget
 
   public slots:
 
-    void set_asset(PackModel::Asset *asset);
+    void set_asset(PackModel::Node *node);
 
   private:
 

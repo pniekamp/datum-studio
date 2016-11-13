@@ -31,6 +31,8 @@ class Builder : public QObject, public QRunnable
 
   signals:
 
+    void build_failure(Studio::Document *document);
+
     void build_complete(Studio::Document *document, QString const &path);
 
   private:
@@ -53,7 +55,7 @@ class BuildManager : public Studio::BuildManager
 
     QString basepath() const;
 
-    void request_build(Studio::Document *document, QObject *receiver, std::function<void (Studio::Document *, QString const &)> const &notify);
+    void request_build(Studio::Document *document, QObject *receiver, std::function<void (Studio::Document *, QString const &)> const &notify, std::function<void (Studio::Document *)> const &failure = nullptr);
 
     void register_builder(QString const &type, QObject *builder);
 
@@ -61,7 +63,7 @@ class BuildManager : public Studio::BuildManager
 
     bool build(Studio::Document *document, QString *path);
 
-  protected slots:
+  protected:
 
     void on_project_changed(QString const &projectfile);
 

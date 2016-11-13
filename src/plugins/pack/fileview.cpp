@@ -31,7 +31,7 @@ FileView::FileView(QWidget *parent)
 
 
 ///////////////////////// FileView::set_asset ///////////////////////////////
-void FileView::set_asset(PackModel::Asset *asset)
+void FileView::set_asset(PackModel::Node *node)
 {
   if (m_view)
   {
@@ -40,17 +40,22 @@ void FileView::set_asset(PackModel::Asset *asset)
     m_view = nullptr;
   }
 
-  if (asset && asset->document())
+  if (node)
   {
-    auto viewfactory = Studio::Core::instance()->find_object<Studio::ViewFactory>();
+    auto asset = node_cast<PackModel::Asset>(node);
 
-    m_view = viewfactory->create_view(asset->document()->metadata("type", QString("Binary")));
-
-    if (m_view)
+    if (asset && asset->document())
     {
-      layout()->addWidget(m_view);
+      auto viewfactory = Studio::Core::instance()->find_object<Studio::ViewFactory>();
 
-      QMetaObject::invokeMethod(m_view, "view", Q_ARG(Studio::Document*, asset->document()));
+      m_view = viewfactory->create_view(asset->document()->metadata("type", QString("Binary")));
+
+      if (m_view)
+      {
+        layout()->addWidget(m_view);
+
+        QMetaObject::invokeMethod(m_view, "view", Q_ARG(Studio::Document*, asset->document()));
+      }
     }
   }
 }

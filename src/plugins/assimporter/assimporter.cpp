@@ -91,14 +91,8 @@ namespace
       if (!scene->mMeshes[i]->HasPositions())
         throw runtime_error("Mesh has no positions");
 
-      if (!scene->mMeshes[i]->HasTextureCoords(0))
-        throw runtime_error("Mesh has no texcoords");
-
       if (!scene->mMeshes[i]->HasNormals())
         throw runtime_error("Mesh has no normals");
-
-      if (!scene->mMeshes[i]->HasTangentsAndBitangents())
-        throw runtime_error("Mesh has no tangents");
 
       if (!scene->mMeshes[i]->HasFaces())
         throw runtime_error("Mesh has no faces");
@@ -109,18 +103,33 @@ namespace
 
       for(size_t k = 0; k < scene->mMeshes[i]->mNumVertices; ++k)
       {
-        mesh.vertices[k].position[0] = scene->mMeshes[i]->mVertices[k].x * scale;
-        mesh.vertices[k].position[1] = scene->mMeshes[i]->mVertices[k].y * scale;
-        mesh.vertices[k].position[2] = scene->mMeshes[i]->mVertices[k].z * scale;
-        mesh.vertices[k].texcoord[0] = scene->mMeshes[i]->mTextureCoords[0][k].x;
-        mesh.vertices[k].texcoord[1] = scene->mMeshes[i]->mTextureCoords[0][k].y;
-        mesh.vertices[k].normal[0] = scene->mMeshes[i]->mNormals[k].x;
-        mesh.vertices[k].normal[1] = scene->mMeshes[i]->mNormals[k].y;
-        mesh.vertices[k].normal[2] = scene->mMeshes[i]->mNormals[k].z;
-        mesh.vertices[k].tangent[0] = scene->mMeshes[i]->mTangents[k].x;
-        mesh.vertices[k].tangent[1] = scene->mMeshes[i]->mTangents[k].y;
-        mesh.vertices[k].tangent[2] = scene->mMeshes[i]->mTangents[k].z;
-        mesh.vertices[k].tangent[3] = (dot(cross(scene->mMeshes[i]->mNormals[k], scene->mMeshes[i]->mTangents[k]), scene->mMeshes[i]->mBitangents[k]) < 0.0f) ? -1.0f : 1.0f;
+        if (scene->mMeshes[i]->HasPositions())
+        {
+          mesh.vertices[k].position[0] = scene->mMeshes[i]->mVertices[k].x * scale;
+          mesh.vertices[k].position[1] = scene->mMeshes[i]->mVertices[k].y * scale;
+          mesh.vertices[k].position[2] = scene->mMeshes[i]->mVertices[k].z * scale;
+        }
+
+        if (scene->mMeshes[i]->HasTextureCoords(0))
+        {
+          mesh.vertices[k].texcoord[0] = scene->mMeshes[i]->mTextureCoords[0][k].x;
+          mesh.vertices[k].texcoord[1] = scene->mMeshes[i]->mTextureCoords[0][k].y;
+        }
+
+        if (scene->mMeshes[i]->HasNormals())
+        {
+          mesh.vertices[k].normal[0] = scene->mMeshes[i]->mNormals[k].x;
+          mesh.vertices[k].normal[1] = scene->mMeshes[i]->mNormals[k].y;
+          mesh.vertices[k].normal[2] = scene->mMeshes[i]->mNormals[k].z;
+        }
+
+        if (scene->mMeshes[i]->HasTangentsAndBitangents())
+        {
+          mesh.vertices[k].tangent[0] = scene->mMeshes[i]->mTangents[k].x;
+          mesh.vertices[k].tangent[1] = scene->mMeshes[i]->mTangents[k].y;
+          mesh.vertices[k].tangent[2] = scene->mMeshes[i]->mTangents[k].z;
+          mesh.vertices[k].tangent[3] = (dot(cross(scene->mMeshes[i]->mNormals[k], scene->mMeshes[i]->mTangents[k]), scene->mMeshes[i]->mBitangents[k]) < 0.0f) ? -1.0f : 1.0f;
+        }
       }
 
       mesh.indices.resize(scene->mMeshes[i]->mNumFaces * 3);
