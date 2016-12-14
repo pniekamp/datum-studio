@@ -120,15 +120,15 @@ int main(int argc, char **argv)
 
         if (instance->initialise(args, &errormsg))
         {
-          qDebug() << "Loaded Plugin (" + plugin + ")";
+          qInfo().noquote() << "Loaded Plugin (" + plugin + ")";
 
           Studio::Core::instance()->add_object(instance);
         }
         else
-          qDebug() << "Error Initialising Plugin (" + plugin + ") : " + errormsg;
+          qWarning().noquote() << "Error Initialising Plugin (" + plugin + ") : " + errormsg;
       }
       else
-        qDebug() << "Invalid Plugin (" + plugin + ") : " + loader.errorString();
+        qWarning().noquote() << "Invalid Plugin (" + plugin + ") : " + loader.errorString();
     }
 
     app.exec();

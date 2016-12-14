@@ -6,7 +6,7 @@
 // Copyright (C) 2016 Peter Niekamp
 //
 
-#include "QcFileLineEdit.h"
+#include "qcfilelineedit.h"
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QFileDialog>

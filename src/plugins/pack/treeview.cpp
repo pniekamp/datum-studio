@@ -403,13 +403,16 @@ void TreeView::currentChanged(QModelIndex const &current, QModelIndex const &pre
 ///////////////////////// TreeView::renamed /////////////////////////////////
 void TreeView::commitData(QWidget *editor)
 {
-  QString text = qobject_cast<QLineEdit*>(editor)->text();
-
-  if (text != model()->data(currentIndex()))
+  if (currentIndex().isValid())
   {
-    closePersistentEditor(currentIndex());
+    QString text = qobject_cast<QLineEdit*>(editor)->text();
 
-    emit item_renamed(static_cast<PackModel::Node*>(currentIndex().internalPointer()), text);
+    if (text != model()->data(currentIndex()))
+    {
+      closePersistentEditor(currentIndex());
+
+      emit item_renamed(static_cast<PackModel::Node*>(currentIndex().internalPointer()), text);
+    }
   }
 }
 

@@ -55,7 +55,7 @@ namespace
 
   uint32_t write_catalog(ostream &fout, uint32_t id)
   {
-    write_catl_asset(fout, id);
+    write_catl_asset(fout, id, 0, 0);
 
     return id + 1;
   }

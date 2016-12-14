@@ -73,7 +73,7 @@ class StatusManager : public Studio::StatusManager
   public:
     StatusManager(StatusBar *statusbar, StatusBox *statusbox, StatusReport *statusreport, QStackedWidget *container);
 
-    void add_statusview(QAction *action);
+    void add_statusview(int index, QAction *action);
 
     QString statusview() const;
 

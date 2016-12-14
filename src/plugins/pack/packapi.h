@@ -23,6 +23,7 @@ namespace Studio
   struct PackerState
   {
     uint32_t id;
+    QString name;
 
     QString type;
     unique_document document;

@@ -133,16 +133,19 @@ void FolderView::trigger_rename(QTreeWidgetItem *item)
 ///////////////////////// FolderView::renamed ///////////////////////////////
 void FolderView::commitData(QWidget *editor)
 {
-  QString src = currentItem()->data(0, PathRole).toString();
-  QString dst = QFileInfo(src).dir().absolutePath() + "/" + qobject_cast<QLineEdit*>(editor)->text();
-
-  if (src != dst)
+  if (currentItem())
   {
-    closePersistentEditor(currentItem());
+    QString src = currentItem()->data(0, PathRole).toString();
+    QString dst = QFileInfo(src).dir().absolutePath() + "/" + qobject_cast<QLineEdit*>(editor)->text();
 
-    emit item_renamed(src, dst);
+    if (src != dst)
+    {
+      closePersistentEditor(currentItem());
 
-    emit selection_changed(selected_path());
+      emit item_renamed(src, dst);
+
+      emit selection_changed(selected_path());
+    }
   }
 }
 

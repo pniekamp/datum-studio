@@ -24,7 +24,7 @@ class MaterialWidget : public QWidget
 
   public slots:
 
-    void edit(Studio::Document *document);
+    void edit(ModelDocument *document);
 
     void set_mesh(int index);
     void set_slot(int index);
@@ -51,5 +51,5 @@ class MaterialWidget : public QWidget
 
     Ui::MaterialWidget ui;
 
-    ModelDocument m_document;
+    ModelDocument *m_document = nullptr;
 };

@@ -33,7 +33,9 @@ void MeshDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
     asset.document->lock();
 
-    for(auto &instance : MeshDocument(asset.document).instances())
+    auto meshdocument = MeshDocument(asset.document);
+
+    for(auto &instance : meshdocument.instances())
     {
       PackMeshHeader mesh;
 

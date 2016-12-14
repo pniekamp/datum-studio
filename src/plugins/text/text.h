@@ -21,6 +21,8 @@ class TextDocument : public QObject
 
   public:
 
+    static void create(std::string const &path);
+
     static void hash(Studio::Document *document, size_t *key);
 
     static void pack(Studio::PackerState &asset, std::ofstream &fout);

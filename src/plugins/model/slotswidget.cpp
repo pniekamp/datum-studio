@@ -6,7 +6,7 @@
 // Copyright (C) 2016 Peter Niekamp
 //
 
-#include "Slotswidget.h"
+#include "slotswidget.h"
 #include <QDragMoveEvent>
 #include <QMimeData>
 #include <QMessageBox>
@@ -29,12 +29,12 @@ SlotsWidget::SlotsWidget(QWidget *parent)
 
 
 ///////////////////////// SlotsWidget::edit /////////////////////////////////
-void SlotsWidget::edit(Studio::Document *document)
+void SlotsWidget::edit(ModelDocument *document)
 {
   m_document = document;
 
-  connect(&m_document, &ModelDocument::document_changed, this, &SlotsWidget::refresh);
-  connect(&m_document, &ModelDocument::dependant_changed, this, &SlotsWidget::refresh);
+  connect(m_document, &ModelDocument::document_changed, this, &SlotsWidget::refresh);
+  connect(m_document, &ModelDocument::dependant_changed, this, &SlotsWidget::refresh);
 
   refresh();
 }
@@ -59,9 +59,9 @@ void SlotsWidget::refresh()
 
   clear();
 
-  if (0 <= m_mesh && m_mesh < m_document.meshes())
+  if (0 <= m_mesh && m_mesh < m_document->meshes())
   {
-    auto &mesh = m_document.mesh(m_mesh);
+    auto &mesh = m_document->mesh(m_mesh);
 
     for(auto &material : mesh.materials)
     {
@@ -145,7 +145,9 @@ void SlotsWidget::dropEvent(QDropEvent *event)
   {
     QString src = url.toLocalFile();
 
-    m_document.set_mesh_material(m_mesh, slot, src);
+    m_document->set_mesh_material(m_mesh, slot, src);
+
+    setCurrentRow(slot);
   }
 
   event->setDropAction(Qt::IgnoreAction);

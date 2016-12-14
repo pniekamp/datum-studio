@@ -12,6 +12,7 @@
 #include "contentapi.h"
 #include "pack.h"
 #include "dialogfactory.h"
+#include "ui_properties.h"
 #include <QWidgetAction>
 #include <QSettings>
 #include <QtPlugin>
@@ -46,6 +47,8 @@ bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   Studio::Core::instance()->add_object(m_manager);
 
+//  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
+
   auto actionmanager = Studio::Core::instance()->find_object<Studio::ActionManager>();
 
   QIcon icon;
@@ -78,13 +81,19 @@ bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   m_pack = new PackModel(this);
 
-  m_container = new QWidget;
+  m_container = new QMainWindow;
 
   ui.setupUi(m_container);
 
+  ui.MenuBar->clear();
+
   m_container->addAction(ui.CreateFolder);
   m_container->addAction(ui.Rename);
-  m_container->addAction(ui.Delete);
+  m_container->addAction(ui.Remove);
+
+  actionmanager->register_action("Pack.Menu.PackProperties", ui.PackProperties);
+
+  actionmanager->container("Studio.Menu")->add_back(actionmanager->register_container("Pack.Menu", ui.PackMenu));
 
   ui.Splitter->setStretchFactor(0, 1);
   ui.Splitter->setStretchFactor(1, 12);
@@ -93,7 +102,8 @@ bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   connect(ui.CreateFolder, &QAction::triggered, this, &PackPlugin::on_CreateFolder_triggered);
   connect(ui.Rename, &QAction::triggered, this, &PackPlugin::on_Rename_triggered);
-  connect(ui.Delete, &QAction::triggered, this, &PackPlugin::on_Delete_triggered);
+  connect(ui.Remove, &QAction::triggered, this, &PackPlugin::on_Remove_triggered);
+  connect(ui.PackProperties, &QAction::triggered, this, &PackPlugin::on_PackProperties_triggered);
   connect(ui.Navigator, &TreeView::current_changed, ui.Viewport, &FileView::set_asset);
   connect(ui.Navigator, &TreeView::item_triggered, this, &PackPlugin::on_item_triggered);
   connect(ui.Navigator, &TreeView::item_renamed, this, &PackPlugin::on_item_renamed);
@@ -145,7 +155,7 @@ void PackPlugin::build()
   }
   catch(exception &e)
   {
-    qDebug() << "Build Error:" << e.what();
+    qCritical() << "Build Error:" << e.what();
 
     dlg.ui.Message->setText(QString("Build Failed: %1").arg(e.what()));
     dlg.ui.Close->setText("Close");
@@ -194,6 +204,8 @@ void PackPlugin::on_project_changed(QString const &projectfile)
   m_metamode->setEnabled(true);
 
   m_build->setEnabled(true);
+
+  ui.PackProperties->setEnabled(true);
 }
 
 
@@ -317,7 +329,7 @@ void PackPlugin::on_contextmenu_requested(QPoint pos)
     if (ui.Navigator->current_node())
     {
       menu.addAction(ui.Rename);
-      menu.addAction(ui.Delete);
+      menu.addAction(ui.Remove);
     }
   }
 
@@ -347,8 +359,8 @@ void PackPlugin::on_Rename_triggered()
 }
 
 
-///////////////////////// PackPlugin::Delete ////////////////////////////////
-void PackPlugin::on_Delete_triggered()
+///////////////////////// PackPlugin::Remove ////////////////////////////////
+void PackPlugin::on_Remove_triggered()
 {
   if (QMessageBox::question(m_container, "Remove Asset", "Remove Selected Asset\n\nSure ?", QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok)
   {
@@ -359,5 +371,23 @@ void PackPlugin::on_Delete_triggered()
         m_pack->erase(ui.Navigator->selected_nodes().front());
       }
     }
+  }
+}
+
+
+///////////////////////// PackPlugin::PackProperties ////////////////////////
+void PackPlugin::on_PackProperties_triggered()
+{
+  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
+
+  DialogFactory<Ui::Properties> dlg(mainwindow->handle());
+
+  dlg.ui.Signature->setText(m_pack->signature());
+  dlg.ui.Version->setText(m_pack->version());
+
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    m_pack->set_parameter("signature", dlg.ui.Signature->text());
+    m_pack->set_parameter("version", dlg.ui.Version->text());
   }
 }

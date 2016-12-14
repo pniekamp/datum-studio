@@ -22,10 +22,14 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${DATUM_TOOLS})
 include_directories(${COMMON})
 
+set(QRCS ${QRCS} textplugin.qrc)
+
 set(SRCS ${SRCS} text.h text.cpp)
 set(SRCS ${SRCS} textplugin.h textplugin.cpp)
 set(SRCS ${SRCS} ${COMMON}/assetfile.h ${COMMON}/assetfile.cpp)
 set(SRCS ${SRCS} ${DATUM_TOOLS}/assetpacker.h ${DATUM_TOOLS}/assetpacker.cpp ${DATUM_TOOLS}/bc3.cpp)
+
+qt5_add_resources(QRCS_CXX ${QRCS})
 
 add_library(text SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
 

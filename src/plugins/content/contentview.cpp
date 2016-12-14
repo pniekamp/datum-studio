@@ -86,17 +86,20 @@ void ContentView::trigger_rename(QListWidgetItem *item)
 ///////////////////////// ContentView::renamed //////////////////////////////
 void ContentView::commitData(QWidget *editor)
 {
-  QString src = currentItem()->data(PathRole).toString();
-  QString dst = m_path + "/" + qobject_cast<QLineEdit*>(editor)->text();
-
-  if (QFileInfo(src).suffix() != "")
-    dst = dst + "." + QFileInfo(src).suffix();
-
-  if (src != dst)
+  if (currentItem())
   {
-    closePersistentEditor(currentItem());
+    QString src = currentItem()->data(PathRole).toString();
+    QString dst = m_path + "/" + qobject_cast<QLineEdit*>(editor)->text();
 
-    emit item_renamed(src, dst);
+    if (QFileInfo(src).suffix() != "")
+      dst = dst + "." + QFileInfo(src).suffix();
+
+    if (src != dst)
+    {
+      closePersistentEditor(currentItem());
+
+      emit item_renamed(src, dst);
+    }
   }
 }
 

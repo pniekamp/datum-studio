@@ -31,12 +31,12 @@ MaterialWidget::MaterialWidget(QWidget *parent)
 
 
 ///////////////////////// MaterialWidget::edit //////////////////////////////
-void MaterialWidget::edit(Studio::Document *document)
+void MaterialWidget::edit(ModelDocument *document)
 {
   m_document = document;
 
-  connect(&m_document, &ModelDocument::document_changed, this, &MaterialWidget::refresh);
-  connect(&m_document, &ModelDocument::dependant_changed, this, &MaterialWidget::refresh);
+  connect(m_document, &ModelDocument::document_changed, this, &MaterialWidget::refresh);
+  connect(m_document, &ModelDocument::dependant_changed, this, &MaterialWidget::refresh);
 
   refresh();
 }
@@ -72,9 +72,9 @@ void MaterialWidget::refresh()
   ui.Name->setText("");
   ui.Material->setPixmap(nullptr);
 
-  if (0 <= m_mesh && m_mesh < m_document.meshes())
+  if (0 <= m_mesh && m_mesh < m_document->meshes())
   {
-    auto &mesh = m_document.mesh(m_mesh);
+    auto &mesh = m_document->mesh(m_mesh);
 
     if (0 <= m_slot && m_slot < (int)mesh.materials.size())
     {
@@ -93,6 +93,7 @@ void MaterialWidget::refresh()
     }
   }
 
+  ui.Reset->setEnabled(m_mesh != -1 && m_slot != -1);
   ui.Material->setEnabled(m_mesh != -1 && m_slot != -1);
   ui.TintGroup->setEnabled(m_mesh != -1 && m_slot != -1);
 
@@ -103,54 +104,54 @@ void MaterialWidget::refresh()
 ///////////////////////// MaterialWidget::Material //////////////////////////
 void MaterialWidget::on_Material_itemDropped(QString const &path)
 {
-  m_document.set_mesh_material(m_mesh, m_slot, path);
+  m_document->set_mesh_material(m_mesh, m_slot, path);
 }
 
 
 ///////////////////////// MaterialWidget::TintRedSlider /////////////////////
 void MaterialWidget::on_TintRedSlider_valueChanged(double value)
 {
-  m_document.set_mesh_material_tint(m_mesh, m_slot, Color3(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value()));
+  m_document->set_mesh_material_tint(m_mesh, m_slot, Color3(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintRedSpinner ////////////////////
 void MaterialWidget::on_TintRedSpinner_valueChanged(double value)
 {
-  m_document.set_mesh_material_tint(m_mesh, m_slot, Color3(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value()));
+  m_document->set_mesh_material_tint(m_mesh, m_slot, Color3(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintGreenSlider ///////////////////
 void MaterialWidget::on_TintGreenSlider_valueChanged(double value)
 {
-  m_document.set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value()));
+  m_document->set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintGreenSpinner //////////////////
 void MaterialWidget::on_TintGreenSpinner_valueChanged(double value)
 {
-  m_document.set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value()));
+  m_document->set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintBlueSlider ////////////////////
 void MaterialWidget::on_TintBlueSlider_valueChanged(double value)
 {
-  m_document.set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value));
+  m_document->set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value));
 }
 
 
 ///////////////////////// MaterialWidget::TintBlueSpinner ///////////////////
 void MaterialWidget::on_TintBlueSpinner_valueChanged(double value)
 {
-  m_document.set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value));
+  m_document->set_mesh_material_tint(m_mesh, m_slot, Color3(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value));
 }
 
 
 ///////////////////////// MaterialWidget::Reset /////////////////////////////
 void MaterialWidget::on_Reset_clicked()
 {
-  m_document.reset_mesh_material(m_mesh, m_slot);
+  m_document->reset_mesh_material(m_mesh, m_slot);
 }

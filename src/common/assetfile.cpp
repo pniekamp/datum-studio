@@ -11,6 +11,7 @@
 #include <QJsonDocument>
 #include <QDir>
 #include <chrono>
+#include <cassert>
 
 #include <QtDebug>
 
@@ -251,6 +252,8 @@ void write_asset_image(ostream &fout, uint32_t id, vector<QImage> const &images,
 
   for(size_t i = 0; i < images.size(); i++)
   {
+    assert(images[i].format() == QImage::Format_ARGB32);
+
     if (images[i].width() != width || images[i].height() != height)
       throw runtime_error("Layers with differing dimensions");
 
@@ -306,7 +309,11 @@ uint64_t read_asset_header(Studio::Document *document, uint32_t id, uint32_t typ
         document->read(textpos, &chunk, sizeof(chunk));
 
         if (chunk.type != type)
-          throw runtime_error("Invalid asset type");
+        {
+          qDebug() << "Invalid asset type";
+
+          return 0;
+        }
 
         document->read(textpos + sizeof(chunk), data, size);
 

@@ -17,6 +17,16 @@ using namespace lml;
 
 ///////////////////////// Resource::load_mesh ///////////////////////////////
 template<>
+unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(size_t asset)
+{
+  auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
+
+  return create<Mesh>(platform->assets()->find(asset));
+}
+
+
+///////////////////////// Resource::load_mesh ///////////////////////////////
+template<>
 unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *document, size_t index)
 {
   unique_resource<Mesh> mesh;
@@ -40,6 +50,8 @@ unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *docu
 
       release_lump(lump);
     }
+
+    update<Mesh>(mesh, Bound3(Vec3(mhdr.mincorner[0], mhdr.mincorner[1], mhdr.mincorner[2]), Vec3(mhdr.maxcorner[0], mhdr.maxcorner[1], mhdr.maxcorner[2])));
   }
 
   document->unlock();
@@ -185,7 +197,7 @@ bool Viewport::prepare()
 
   camera.set_projection(60.0f*pi<float>()/180.0f, (float)width() / (float)height());
 
-  if (m_rendercontext.fbowidth != width() || m_rendercontext.fboheight != height())
+  if (m_rendercontext.width != width() || m_rendercontext.height != height())
   {
     VkSurfaceCapabilitiesKHR surfacecapabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vulkan.physicaldevice, surface, &surfacecapabilities);
@@ -239,6 +251,8 @@ bool Viewport::prepare()
   while (renderparams.skybox && !renderparams.skybox->ready())
     platform->resources()->request(*platform->instance(), renderparams.skybox);
 
+  m_resourcetoken = platform->resources()->token();
+
   return true;
 }
 
@@ -282,6 +296,44 @@ void Viewport::push_meshes(MeshList const &meshes)
 }
 
 
+///////////////////////// Viewport::begin ///////////////////////////////////
+bool Viewport::begin(ForwardList &objects, ForwardList::BuildState &buildstate)
+{
+  auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
+
+  return objects.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
+}
+
+
+///////////////////////// Viewport::push_objects ////////////////////////////
+void Viewport::push_objects(ForwardList const &objects)
+{
+  if (auto entry = m_pushbuffer.push<Renderable::Objects>())
+  {
+    entry->commandlist = objects.commandlist();
+  }
+}
+
+
+///////////////////////// Viewport::begin ///////////////////////////////////
+bool Viewport::begin(OverlayList &overlays, OverlayList::BuildState &buildstate)
+{
+  auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
+
+  return overlays.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
+}
+
+
+///////////////////////// Viewport::push_overlays ///////////////////////////
+void Viewport::push_overlays(OverlayList const &overlays)
+{
+  if (auto entry = m_pushbuffer.push<Renderable::Overlays>())
+  {
+    entry->commandlist = overlays.commandlist();
+  }
+}
+
+
 ///////////////////////// Viewport::render //////////////////////////////////
 void Viewport::render()
 {
@@ -315,5 +367,7 @@ void Viewport::render()
 
   vkQueuePresentKHR(vulkan.queue, &presentinfo);
 
-  platform->resources()->release(platform->resources()->token());
+  vkQueueWaitIdle(vulkan.queue);
+
+  platform->resources()->release(m_resourcetoken);
 }

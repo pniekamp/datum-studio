@@ -16,6 +16,7 @@
 #include <QDropEvent>
 #include <QUrl>
 #include <QMimeData>
+#include <QTimer>
 
 #include <QDebug>
 
@@ -67,8 +68,13 @@ MaterialView::MaterialView(QWidget *parent)
   }
   catch(exception &e)
   {
-    qDebug() << "Error loading default mesh:" << e.what();
+    qCritical() << "Error loading default mesh:" << e.what();
   }
+
+  m_updatetimer = new QTimer(this);
+  m_updatetimer->setSingleShot(true);
+
+  connect(m_updatetimer, SIGNAL(timeout()), this, SLOT(update()));
 
   setAcceptDrops(true);
 }
@@ -89,7 +95,7 @@ void MaterialView::view(Studio::Document *document)
 ///////////////////////// MaterialView::invalidate //////////////////////////
 void MaterialView::invalidate()
 {
-  update();
+  m_updatetimer->start();
 }
 
 
@@ -231,7 +237,7 @@ void MaterialView::mousePressEvent(QMouseEvent *event)
   {
     m_mousepresspos = m_mousemovepos = event->pos();
 
-    m_yawsign = (camera.up().y < 0) ? -1.0f : 1.0f;
+    m_yawsign = (camera.up().y > 0) ? -1.0f : 1.0f;
 
     event->accept();
   }
@@ -243,18 +249,18 @@ void MaterialView::mouseMoveEvent(QMouseEvent *event)
 {
   if (!m_mousepresspos.isNull())
   {
-    auto dx = m_mousemovepos.x() - event->pos().x();
-    auto dy = event->pos().y() - m_mousemovepos.y();
+    auto dx = event->pos().x() - m_mousemovepos.x();
+    auto dy = m_mousemovepos.y() - event->pos().y();
 
     if (event->modifiers() == Qt::NoModifier)
     {
-      camera.orbit(m_focuspoint, Transform::rotation(camera.right(), -0.01f * dy).rotation());
+      camera.orbit(m_focuspoint, Transform::rotation(camera.right(), 0.01f * dy).rotation());
       camera.orbit(m_focuspoint, Transform::rotation(Vec3(0, 1, 0), m_yawsign * 0.01f * dx).rotation());
     }
 
     if (event->modifiers() == Qt::ShiftModifier)
     {
-      camera.pan(m_focuspoint, 0.05f * dx, 0.05f * dy);
+      camera.pan(m_focuspoint, -0.05f * dx, -0.05f * dy);
     }
 
     renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
@@ -348,22 +354,43 @@ void MaterialView::paintEvent(QPaintEvent *event)
 {
   prepare();
 
-  MeshList meshes;
-  MeshList::BuildState meshstate;
-
-  if (begin(meshes, meshstate))
+  if (m_document.shader() == MaterialDocument::Shader::Deferred)
   {
-    meshes.push_material(meshstate, m_material);
+    MeshList meshes;
+    MeshList::BuildState buildstate;
 
-    for(auto &instance : m_meshes)
+    if (begin(meshes, buildstate))
     {
-      meshes.push_mesh(meshstate, instance.transform, instance.mesh);
+      meshes.push_material(buildstate, m_material);
+
+      for(auto &instance : m_meshes)
+      {
+        meshes.push_mesh(buildstate, instance.transform, instance.mesh);
+      }
+
+      meshes.finalise(buildstate);
     }
 
-    meshes.finalise(meshstate);
+    push_meshes(meshes);
   }
 
-  push_meshes(meshes);
+  if (m_document.shader() == MaterialDocument::Shader::Transparent)
+  {
+    ForwardList objects;
+    ForwardList::BuildState buildstate;
+
+    if (begin(objects, buildstate))
+    {
+      for(auto &instance : m_meshes)
+      {
+        objects.push_transparent(buildstate, instance.transform, instance.mesh, m_material);
+      }
+
+      objects.finalise(buildstate);
+    }
+
+    push_objects(objects);
+  }
 
   render();
 }

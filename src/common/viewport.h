@@ -38,6 +38,9 @@ class Viewport : public QWidget
         void update(Resource const *resource, Args... args) { m_manager->update(resource, std::forward<Args>(args)...); }
 
         template<typename Resource, typename ...Args>
+        unique_resource<Resource> load(size_t asset);
+
+        template<typename Resource, typename ...Args>
         unique_resource<Resource> load(std::istream &fin, size_t index, Args... args);
 
         template<typename Resource, typename ...Args>
@@ -70,6 +73,14 @@ class Viewport : public QWidget
 
     void push_meshes(MeshList const &meshes);
 
+    bool begin(ForwardList &objects, ForwardList::BuildState &buildstate);
+
+    void push_objects(ForwardList const &objects);
+
+    bool begin(OverlayList &overlays, OverlayList::BuildState &buildstate);
+
+    void push_overlays(OverlayList const &overlays);
+
     void render();
 
   protected:
@@ -97,4 +108,6 @@ class Viewport : public QWidget
     Vulkan::Semaphore rendercomplete;
 
     VkImage presentimages[2];
+
+    size_t m_resourcetoken;
 };

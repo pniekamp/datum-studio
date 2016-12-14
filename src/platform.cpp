@@ -8,6 +8,7 @@
 
 
 #include "platform.h"
+#include <leap.h>
 #include <leap/pathstring.h>
 #include <iostream>
 #include <fstream>
@@ -16,6 +17,10 @@
 #include <mutex>
 #include <condition_variable>
 #include <QWindow>
+
+#ifndef _WIN32
+#include <QX11Info>
+#endif
 
 #include <QtDebug>
 
@@ -238,6 +243,7 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   appinfo.pEngineName = "Datum";
   appinfo.apiVersion = VK_MAKE_VERSION(1, 0, 8);
 
+#ifdef _WIN32
 #if VALIDATION
   const char *validationlayers[] = { "VK_LAYER_LUNARG_standard_validation" };
   const char *instanceextensions[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_REPORT_EXTENSION_NAME };
@@ -245,13 +251,22 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   const char *validationlayers[] = { };
   const char *instanceextensions[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME };
 #endif
+#else
+#if VALIDATION
+  const char *validationlayers[] = { "VK_LAYER_LUNARG_standard_validation" };
+  const char *instanceextensions[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_REPORT_EXTENSION_NAME };
+#else
+  const char *validationlayers[] = { };
+  const char *instanceextensions[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME };
+#endif
+#endif
 
   VkInstanceCreateInfo instanceinfo = {};
   instanceinfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   instanceinfo.pApplicationInfo = &appinfo;
-  instanceinfo.enabledExtensionCount = std::extent<decltype(instanceextensions)>::value;
+  instanceinfo.enabledExtensionCount = extentof(instanceextensions);
   instanceinfo.ppEnabledExtensionNames = instanceextensions;
-  instanceinfo.enabledLayerCount = std::extent<decltype(validationlayers)>::value;
+  instanceinfo.enabledLayerCount = extentof(validationlayers);
   instanceinfo.ppEnabledLayerNames = validationlayers;
 
   VkInstance instance;
@@ -291,13 +306,13 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   while (queueindex < queuecount && !(queueproperties[queueindex].queueFlags & VK_QUEUE_GRAPHICS_BIT))
     ++queueindex;
 
-  array<float, 1> queuepriorities = { 0.0f };
+  float queuepriorities[] = { 0.0f, 0.0f };
 
   VkDeviceQueueCreateInfo queueinfo = {};
   queueinfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
   queueinfo.queueFamilyIndex = queueindex;
-  queueinfo.queueCount = 3;
-  queueinfo.pQueuePriorities = queuepriorities.data();
+  queueinfo.queueCount = extentof(queuepriorities);
+  queueinfo.pQueuePriorities = queuepriorities;
 
   const char* deviceextensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
@@ -307,15 +322,16 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   devicefeatures.geometryShader = true;
   devicefeatures.shaderTessellationAndGeometryPointSize = true;
   devicefeatures.shaderStorageImageWriteWithoutFormat = true;
+  devicefeatures.independentBlend = true;
 
   VkDeviceCreateInfo deviceinfo = {};
   deviceinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   deviceinfo.queueCreateInfoCount = 1;
   deviceinfo.pQueueCreateInfos = &queueinfo;
   deviceinfo.pEnabledFeatures = &devicefeatures;
-  deviceinfo.enabledExtensionCount = std::extent<decltype(deviceextensions)>::value;
+  deviceinfo.enabledExtensionCount = extentof(deviceextensions);
   deviceinfo.ppEnabledExtensionNames = deviceextensions;
-  deviceinfo.enabledLayerCount = std::extent<decltype(validationlayers)>::value;
+  deviceinfo.enabledLayerCount = extentof(validationlayers);
   deviceinfo.ppEnabledLayerNames = validationlayers;
 
   VkDevice device;
@@ -390,7 +406,10 @@ void initialise_platform(QWindow *window)
 
   initialise_resource_system(platform, game->m_resources, 2*1024*1024, 8*1024*1024, 64*1024*1024);
 
-  game->m_assets.load(platform, "core.pack");
+  auto core = game->m_assets.load(platform, "core.pack");
+
+  if (core->magic != CoreAsset::magic || core->version != CoreAsset::version)
+    throw runtime_error("Core Assets Version Mismatch");
 
   Studio::Core::instance()->add_object(game);
 }
@@ -406,6 +425,7 @@ DatumPlatform::PlatformInterface *Studio::Platform::instance()
 ///////////////////////// surface ///////////////////////////////////////////
 Vulkan::Surface Game::create_surface(WId wid)
 {
+#ifdef _WIN32
   VkWin32SurfaceCreateInfoKHR surfaceinfo = {};
   surfaceinfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
   surfaceinfo.hinstance = GetModuleHandle(NULL);
@@ -414,6 +434,16 @@ Vulkan::Surface Game::create_surface(WId wid)
   VkSurfaceKHR surface;
   if (vkCreateWin32SurfaceKHR(platform.instance, &surfaceinfo, nullptr, &surface) != VK_SUCCESS)
     throw runtime_error("Vulkan vkCreateWin32SurfaceKHR failed");
+#else
+  VkXcbSurfaceCreateInfoKHR surfaceinfo = {};
+  surfaceinfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+  surfaceinfo.connection = QX11Info::connection();
+  surfaceinfo.window = wid;
+
+  VkSurfaceKHR surface;
+  if (vkCreateXcbSurfaceKHR(platform.instance, &surfaceinfo, nullptr, &surface) != VK_SUCCESS)
+    throw runtime_error("Vulkan vkCreateWin32SurfaceKHR failed");
+#endif
 
   uint32_t queuecount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(platform.physicaldevice, &queuecount, nullptr);

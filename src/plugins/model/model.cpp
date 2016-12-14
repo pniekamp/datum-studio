@@ -21,6 +21,8 @@
 
 using namespace std;
 using namespace lml;
+using leap::extentof;
+using leap::indexof;
 
 namespace
 {
@@ -126,32 +128,38 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
   map<std::tuple<Studio::Document*, int>, size_t> texturemap;
   map<std::tuple<Studio::Document*, float, float, float>, size_t> materialmap;
 
+  auto make_meshkey = [](Studio::Document *document, size_t index) { return make_tuple(document, index); };
+  auto make_texturekey = [](Studio::Document *document, size_t slot) { return make_tuple(document, slot); };
+  auto make_materialkey = [](Studio::Document *document, Color3 const &tint) { return make_tuple(document, tint.r, tint.g, tint.b); };
+
   textures.push_back({ PackModelPayload::Texture::nullmap, 0 });
 
-  for(auto &instance : ModelDocument(asset.document).instances())
+  auto modeldocument = ModelDocument(asset.document);
+
+  for(auto &instance : modeldocument.instances())
   {
-    auto mesh = meshmap.find(make_tuple(instance.mesh, instance.index));
+    auto mesh = meshmap.find(make_meshkey(instance.submesh->document, instance.submesh->index));
 
     if (mesh == meshmap.end())
     {
       PackModelPayload::Mesh entry;
 
-      entry.mesh = asset.add_dependant(instance.mesh, instance.index, "Mesh");
+      entry.mesh = asset.add_dependant(instance.submesh->document, instance.submesh->index, "Mesh");
 
       meshes.push_back(entry);
 
-      mesh = meshmap.insert({ make_tuple(instance.mesh, instance.index), meshes.size() - 1 }).first;
+      mesh = meshmap.insert({ make_meshkey(instance.submesh->document, instance.submesh->index), meshes.size() - 1 }).first;
     }
 
-    auto material = materialmap.find(make_tuple(instance.material, instance.tint.r, instance.tint.g, instance.tint.b));
+    auto material = materialmap.find(make_materialkey(instance.material->document, instance.material->tint));
 
     if (material == materialmap.end())
     {
       PackModelPayload::Material entry;
 
-      entry.color[0] = instance.tint.r;
-      entry.color[1] = instance.tint.g;
-      entry.color[2] = instance.tint.b;
+      entry.color[0] = instance.material->tint.r;
+      entry.color[1] = instance.material->tint.g;
+      entry.color[2] = instance.material->tint.b;
       entry.metalness = 0.0f;
       entry.roughness = 1.0f;
       entry.reflectivity = 0.5f;
@@ -160,11 +168,11 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
       entry.specularmap = 0;
       entry.normalmap = 0;
 
-      if (auto materialdocument = MaterialDocument(instance.material))
+      if (auto materialdocument = MaterialDocument(instance.material->document))
       {
-        entry.color[0] = instance.tint.r * materialdocument.color().r;
-        entry.color[1] = instance.tint.g * materialdocument.color().g;
-        entry.color[2] = instance.tint.b * materialdocument.color().b;
+        entry.color[0] = instance.material->tint.r * materialdocument.color().r;
+        entry.color[1] = instance.material->tint.g * materialdocument.color().g;
+        entry.color[2] = instance.material->tint.b * materialdocument.color().b;
         entry.metalness = materialdocument.metalness();
         entry.roughness = materialdocument.roughness();
         entry.reflectivity = materialdocument.reflectivity();
@@ -172,18 +180,18 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
         if (materialdocument.image(MaterialDocument::Image::AlbedoMap))
         {
-          auto texture = texturemap.find(make_tuple(instance.material, 1));
+          auto texture = texturemap.find(make_texturekey(instance.material->document, 1));
 
           if (texture == texturemap.end())
           {
             PackModelPayload::Texture entry;
 
             entry.type = PackModelPayload::Texture::albedomap;
-            entry.texture = asset.add_dependant(instance.material, "Material.AlbedoMap");;
+            entry.texture = asset.add_dependant(instance.material->document, "Material.AlbedoMap");;
 
             textures.push_back(entry);
 
-            texture = texturemap.insert({ make_tuple(instance.material, 1), textures.size() - 1 }).first;
+            texture = texturemap.insert({ make_texturekey(instance.material->document, 1), textures.size() - 1 }).first;
           }
 
           entry.albedomap = texture->second;
@@ -191,18 +199,18 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
         if (materialdocument.image(MaterialDocument::Image::MetalnessMap) || materialdocument.image(MaterialDocument::Image::RoughnessMap) || materialdocument.image(MaterialDocument::Image::ReflectivityMap))
         {
-          auto texture = texturemap.find(make_tuple(instance.material, 2));
+          auto texture = texturemap.find(make_texturekey(instance.material->document, 2));
 
           if (texture == texturemap.end())
           {
             PackModelPayload::Texture entry;
 
             entry.type = PackModelPayload::Texture::specularmap;
-            entry.texture = asset.add_dependant(instance.material, "Material.SpecularMap");;
+            entry.texture = asset.add_dependant(instance.material->document, "Material.SpecularMap");;
 
             textures.push_back(entry);
 
-            texture = texturemap.insert({ make_tuple(instance.material, 2), textures.size() - 1 }).first;
+            texture = texturemap.insert({ make_texturekey(instance.material->document, 2), textures.size() - 1 }).first;
           }
 
           entry.specularmap = texture->second;
@@ -210,18 +218,18 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
         if (materialdocument.image(MaterialDocument::Image::NormalMap))
         {
-          auto texture = texturemap.find(make_tuple(instance.material, 3));
+          auto texture = texturemap.find(make_texturekey(instance.material->document, 3));
 
           if (texture == texturemap.end())
           {
             PackModelPayload::Texture entry;
 
             entry.type = PackModelPayload::Texture::normalmap;
-            entry.texture = asset.add_dependant(instance.material, "Material.NormalMap");;
+            entry.texture = asset.add_dependant(instance.material->document, "Material.NormalMap");;
 
             textures.push_back(entry);
 
-            texture = texturemap.insert({ make_tuple(instance.material, 3), textures.size() - 1 }).first;
+            texture = texturemap.insert({ make_texturekey(instance.material->document, 3), textures.size() - 1 }).first;
           }
 
           entry.normalmap = texture->second;
@@ -230,7 +238,7 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
       materials.push_back(entry);
 
-      material = materialmap.insert({ make_tuple(instance.material, instance.tint.r, instance.tint.g, instance.tint.b), materials.size() - 1 }).first;
+      material = materialmap.insert({ make_materialkey(instance.material->document, instance.material->tint), materials.size() - 1 }).first;
     }
 
     PackModelPayload::Instance entry;
@@ -479,14 +487,15 @@ vector<ModelDocument::Instance> ModelDocument::instances() const
   {
     if (mesh.document && mesh.document->type() == "Mesh")
     {
-      for(auto &meshinstance : MeshDocument(mesh.document).instances())
+      auto meshdocument = MeshDocument(mesh.document);
+
+      for(auto &meshinstance : meshdocument.instances())
       {
         Instance instance;
 
-        instance.mesh = mesh.document;
-        instance.index = meshinstance.index;
-        instance.material = mesh.materials[meshinstance.material].document;
-        instance.tint = mesh.materials[meshinstance.material].tint;
+        instance.index = indexof(m_meshes, mesh);
+        instance.submesh = &mesh.submeshes[meshinstance.index-2];
+        instance.material = &mesh.materials[meshinstance.material];
         instance.transform = mesh.transform * meshinstance.transform;
 
         instances.push_back(instance);
@@ -495,14 +504,15 @@ vector<ModelDocument::Instance> ModelDocument::instances() const
 
     if (mesh.document && mesh.document->type() == "Model")
     {
-      for(auto &meshinstance : ModelDocument(mesh.document).instances())
+      auto modeldocument = ModelDocument(mesh.document);
+
+      for(auto &meshinstance : modeldocument.instances())
       {
         Instance instance;
 
-        instance.mesh = meshinstance.mesh;
-        instance.index = meshinstance.index;
-        instance.material = meshinstance.material;
-        instance.tint = meshinstance.tint;
+        instance.index = indexof(m_meshes, mesh);
+        instance.submesh = &mesh.submeshes[indexof(modeldocument.mesh(meshinstance.index).submeshes, meshinstance.submesh)];
+        instance.material = &mesh.materials[indexof(modeldocument.mesh(meshinstance.index).materials, meshinstance.material)];
         instance.transform = mesh.transform * meshinstance.transform;
 
         instances.push_back(instance);
@@ -542,7 +552,17 @@ void ModelDocument::touch(Studio::Document *document, QString const &path)
   {
     if (document == mesh.document)
     {
+      refresh();
+
       touched = true;
+    }
+
+    for(auto &submesh : mesh.submeshes)
+    {
+      if (document == submesh.document)
+      {
+        touched = true;
+      }
     }
 
     for(auto &material : mesh.materials)
@@ -555,7 +575,9 @@ void ModelDocument::touch(Studio::Document *document, QString const &path)
   }
 
   if (touched)
+  {
     emit dependant_changed();
+  }
 }
 
 
@@ -600,17 +622,41 @@ void ModelDocument::refresh()
 
     if (md.document && md.document->type() == "Mesh")
     {
-      md.materials.resize(MeshDocument(md.document).materialcount());
+      auto meshdocument = MeshDocument(md.document);
+
+      md.materials.resize(meshdocument.materialcount());
+
+      for(size_t i = 0; i < md.materials.size(); ++i)
+      {
+        md.materials[i].name = QString("Slot %1").arg(i);
+        md.materials[i].tint = Color3(1.0f, 1.0f, 1.0f);
+      }
+
+      md.submeshes.resize(meshdocument.meshcount());
+
+      for(size_t i = 0; i < md.submeshes.size(); ++i)
+      {
+        md.submeshes[i].document = documentmanager->dup(md.document);
+        md.submeshes[i].index = i + 2;
+      }
     }
 
     if (md.document && md.document->type() == "Model")
     {
-    }
+      auto modeldocument = ModelDocument(md.document);
 
-    for(size_t slot = 0; slot < md.materials.size(); ++slot)
-    {
-      md.materials[slot].name = QString("Slot %1").arg(slot);
-      md.materials[slot].tint = Color3(1.0f, 1.0f, 1.0f);
+      for(int k = 0; k < modeldocument.meshes(); ++k)
+      {
+        for(auto &material : modeldocument.mesh(k).materials)
+        {
+          md.materials.push_back({ material.name, material.tint, material.document ? documentmanager->dup(material.document) : nullptr });
+        }
+
+        for(auto &submesh : modeldocument.mesh(k).submeshes)
+        {
+          md.submeshes.push_back({ documentmanager->dup(submesh.document), submesh.index });
+        }
+      }
     }
 
     for(auto j : mesh["materials"].toArray())

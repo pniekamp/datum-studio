@@ -23,7 +23,7 @@ class SlotsWidget : public QListWidget
 
   public slots:
 
-    void edit(Studio::Document *document);
+    void edit(ModelDocument *document);
 
     void set_mesh(int index);
 
@@ -49,5 +49,5 @@ class SlotsWidget : public QListWidget
 
     int m_mesh;
 
-    ModelDocument m_document;
+    ModelDocument *m_document = nullptr;
 };

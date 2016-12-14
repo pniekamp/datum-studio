@@ -47,6 +47,8 @@ void MaterialWidget::edit(Studio::Document *document)
 ///////////////////////// MaterialWidget::refresh ///////////////////////////
 void MaterialWidget::refresh()
 {
+  ui.ShaderList->setCurrentIndex(static_cast<int>(m_document.shader()));
+
   ui.AlbedoMap->setPixmap(m_document.image(MaterialDocument::Image::AlbedoMap));
   ui.AlbedoMask->setPixmap(m_document.image(MaterialDocument::Image::AlbedoMask));
   ui.TintRedSlider->updateValue(m_document.color().r);
@@ -101,6 +103,13 @@ void MaterialWidget::refresh()
   ui.NormalOutput3->setChecked(m_document.normaloutput() == MaterialDocument::NormalOutput::bump);
 
   update();
+}
+
+
+///////////////////////// MaterialWidget::Shader ////////////////////////////
+void MaterialWidget::on_ShaderList_activated(int index)
+{
+  m_document.set_shader(static_cast<MaterialDocument::Shader>(index));
 }
 
 
@@ -500,7 +509,9 @@ void MaterialWidget::paintEvent(QPaintEvent *event)
     path.cubicTo(a + QPoint(in, 0), b - QPoint(out, 0), b);
   };
 
-  wire(ui.AlbedoOutput, ui.AlbedoInput, 10, 10);
+  wire(ui.ShaderOutput, ui.ShaderInput, 10, 10);
+
+  wire(ui.AlbedoOutput, ui.AlbedoInput, 20, 30);
 
   if (ui.MetalnessOutput1->isChecked()) wire(ui.MetalnessOutput1, ui.MetalnessInput, 40, 90);
   if (ui.MetalnessOutput2->isChecked()) wire(ui.MetalnessOutput2, ui.MetalnessInput, 40, 90);

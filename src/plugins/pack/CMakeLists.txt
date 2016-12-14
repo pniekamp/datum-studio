@@ -23,6 +23,7 @@ include_directories(${DATUM_TOOLS})
 include_directories(${COMMON})
 
 set(FRMS ${FRMS} build.ui)
+set(FRMS ${FRMS} properties.ui)
 set(FRMS ${FRMS} packplugin.ui)
 
 set(QRCS ${QRCS} packplugin.qrc)

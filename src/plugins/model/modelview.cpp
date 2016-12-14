@@ -11,12 +11,15 @@
 #include "assetfile.h"
 #include "mesh.h"
 #include "material.h"
+#include <QApplication>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QStyleHints>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QUrl>
 #include <QMimeData>
+#include <QTimer>
 
 #include <QDebug>
 
@@ -31,47 +34,82 @@ using namespace leap;
 ModelView::ModelView(QWidget *parent)
   : Viewport(8*1024, 2*1024*1024, parent)
 {
+  m_mode = ModeType::None;
+
+  m_readonly = false;
+
+  m_selection = -1;
+
+  m_hitrotation = 0;
+
   m_focuspoint = Vec3(0, 0, 0);
 
-  renderparams.ssaoscale = 0;
-  renderparams.ssrstrength = 0;
+//  renderparams.ssaoscale = 0;
+//  renderparams.ssrstrength = 0;
 
   camera.lookat(Vec3(0, 1, 10), m_focuspoint, Vec3(0, 1, 0));
 
   renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
+
+  m_homocube = resources.load<Mesh>(CoreAsset::homo_cube);
+
+  m_updatetimer = new QTimer(this);
+  m_updatetimer->setSingleShot(true);
+
+  connect(m_updatetimer, SIGNAL(timeout()), this, SLOT(update()));
+
+  setMouseTracking(true);
 
   setAcceptDrops(true);
 }
 
 
 ///////////////////////// ModelView::view ///////////////////////////////////
-void ModelView::view(Studio::Document *document)
+void ModelView::view(ModelDocument *document)
 {
   m_document = document;
 
-  connect(&m_document, &ModelDocument::document_changed, this, &ModelView::refresh);
-  connect(&m_document, &ModelDocument::dependant_changed, this, &ModelView::refresh);
+  connect(m_document, &ModelDocument::document_changed, this, &ModelView::refresh);
+  connect(m_document, &ModelDocument::dependant_changed, this, &ModelView::refresh);
+
+  m_readonly = true;
 
   refresh();
 }
 
 
 ///////////////////////// ModelView::edit ///////////////////////////////////
-void ModelView::edit(Studio::Document *document)
+void ModelView::edit(ModelDocument *document)
 {
   m_document = document;
 
-  connect(&m_document, &ModelDocument::document_changed, this, &ModelView::refresh);
-  connect(&m_document, &ModelDocument::dependant_changed, this, &ModelView::refresh);
+  connect(m_document, &ModelDocument::document_changed, this, &ModelView::refresh);
+  connect(m_document, &ModelDocument::dependant_changed, this, &ModelView::refresh);
+
+  m_readonly = false;
 
   refresh();
+}
+
+
+///////////////////////// ModelView::set_selection //////////////////////////
+void ModelView::set_selection(int index)
+{
+  if (m_selection != index)
+  {
+    m_selection = index;
+
+    emit selection_changed(index);
+
+    invalidate();
+  }
 }
 
 
 ///////////////////////// ModelView::invalidate /////////////////////////////
 void ModelView::invalidate()
 {
-  update();
+  m_updatetimer->start();
 }
 
 
@@ -173,13 +211,39 @@ void ModelView::on_material_build_complete(Studio::Document *document, QString c
 void ModelView::refresh()
 {
   m_instances.clear();
+  m_transparencies.clear();
 
-  for(auto &instance : m_document.instances())
+  for(auto &instance : m_document->instances())
   {
-    auto mesh = find_or_create_mesh(instance.mesh, instance.index);
-    auto material = find_or_create_material(instance.material, instance.tint);
+    Instance id;
 
-    m_instances.push_back({ mesh, material, instance.transform });
+    id.index = instance.index;
+
+    id.mesh = find_or_create_mesh(instance.submesh->document, instance.submesh->index);
+    id.material = find_or_create_material(instance.material->document, instance.material->tint);
+
+    id.transform = instance.transform;
+
+    if (id.index == m_selection)
+      id.transform = m_selectedtransform * id.transform;
+
+    id.bound = id.transform * id.mesh->bound;
+
+    auto shader = MaterialDocument::Shader::Deferred;
+
+    if (auto materialdocument = MaterialDocument(instance.material->document))
+      shader = materialdocument.shader();
+
+    switch (shader)
+    {
+      case MaterialDocument::Shader::Deferred:
+        m_instances.push_back(id);
+        break;
+
+      case MaterialDocument::Shader::Transparent:
+        m_transparencies.push_back(id);
+        break;
+    }
   }
 
   invalidate();
@@ -241,6 +305,33 @@ void ModelView::keyPressEvent(QKeyEvent *event)
 
     invalidate();
   }
+
+  if (event->key() == Qt::Key_G && m_selection != -1)
+  {
+    grabMouse();
+
+    m_mode = ModeType::Translating;
+  }
+
+  if (event->key() == Qt::Key_R && m_selection != -1)
+  {
+    grabMouse();
+
+    m_mode = ModeType::Rotating;
+  }
+
+  if (event->key() == Qt::Key_Escape)
+  {
+    m_selectedtransform = Transform::identity();
+
+    releaseMouse();
+
+    m_mode = ModeType::None;
+
+    refresh();
+  }
+
+  m_keypresspos = m_mousemovepos;
 }
 
 
@@ -251,7 +342,7 @@ void ModelView::mousePressEvent(QMouseEvent *event)
   {
     m_mousepresspos = m_mousemovepos = event->pos();
 
-    m_yawsign = (camera.up().y < 0) ? -1.0f : 1.0f;
+    m_yawsign = (camera.up().y > 0) ? -1.0f : 1.0f;
 
     event->accept();
   }
@@ -263,23 +354,62 @@ void ModelView::mouseMoveEvent(QMouseEvent *event)
 {
   if (!m_mousepresspos.isNull())
   {
-    auto dx = m_mousemovepos.x() - event->pos().x();
-    auto dy = event->pos().y() - m_mousemovepos.y();
-
-    if (event->modifiers() == Qt::NoModifier)
+    if (m_mode == ModeType::None)
     {
-      camera.orbit(m_focuspoint, Transform::rotation(camera.right(), -0.01f * dy).rotation());
-      camera.orbit(m_focuspoint, Transform::rotation(Vec3(0, 1, 0), m_yawsign * 0.01f * dx).rotation());
+      auto dx = event->pos().x() - m_mousemovepos.x();
+      auto dy = m_mousemovepos.y() - event->pos().y();
+
+      if (event->modifiers() == Qt::NoModifier)
+      {
+        camera.orbit(m_focuspoint, Transform::rotation(camera.right(), 0.01f * dy).rotation());
+        camera.orbit(m_focuspoint, Transform::rotation(Vec3(0, 1, 0), m_yawsign * 0.01f * dx).rotation());
+      }
+
+      if (event->modifiers() == Qt::ShiftModifier)
+      {
+        camera.pan(m_focuspoint, -0.05f * dx, -0.05f * dy);
+      }
+
+      renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
+
+      invalidate();
     }
+  }
 
-    if (event->modifiers() == Qt::ShiftModifier)
-    {
-      camera.pan(m_focuspoint, 0.05f * dx, 0.05f * dy);
-    }
+  if (m_mode == ModeType::Translating)
+  {
+    auto &mesh = m_document->mesh(m_selection);
 
-    renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
+    auto position = mesh.transform.translation();
 
-    invalidate();
+    auto dx = event->pos().x() - m_keypresspos.x();
+    auto dy = event->pos().y() - m_keypresspos.y();
+
+    float scalex = 2 * dist(camera.position(), position) / camera.proj()(0, 0) / width();
+    float scaley = 2 * dist(camera.position(), position) / camera.proj()(1, 1) / height();
+
+    m_selectedtransform = Transform::translation(scalex*dx*camera.right() + scaley*dy*camera.up());
+
+    refresh();
+  }
+
+  if (m_mode == ModeType::Rotating)
+  {
+    auto &mesh = m_document->mesh(m_selection);
+
+    auto position = mesh.transform.translation();
+
+    auto pt = camera.viewproj() * Vec4(position, 1.0f);
+
+    auto bx = m_keypresspos.x() - (0.5f + 0.5f*pt.x/pt.w)*width();
+    auto by = m_keypresspos.y() - (0.5f + 0.5f*pt.y/pt.w)*height();
+
+    auto ax = event->pos().x() - (0.5f + 0.5f*pt.x/pt.w)*width();
+    auto ay = event->pos().y() - (0.5f + 0.5f*pt.y/pt.w)*height();
+
+    m_selectedtransform = Transform::translation(position) * Transform::rotation(camera.forward(), atan2(ay, ax) - atan2(by, bx)) * Transform::translation(-position);
+
+    refresh();
   }
 
   m_mousemovepos = event->pos();
@@ -289,6 +419,50 @@ void ModelView::mouseMoveEvent(QMouseEvent *event)
 ///////////////////////// ModelView::mouseReleaseEvent //////////////////////
 void ModelView::mouseReleaseEvent(QMouseEvent *event)
 {
+  if (m_mode == ModeType::None)
+  {
+    if (event->button() == Qt::LeftButton && (m_mousepresspos - event->pos()).manhattanLength() < qApp->styleHints()->startDragDistance())
+    {
+      if (!m_readonly)
+      {
+        vector<int> hits;
+
+        auto cameraposition = camera.position();
+        auto ray = normalise((inverse(camera.viewproj()) * Vec4((2.0f * m_mousepresspos.x()) / width() - 1.0f, (2.0f * m_mousepresspos.y()) / height() - 1.0f, 1.0f, 1.0f)).xyz);
+
+        for(auto &instance : m_instances)
+        {
+          if (intersection(instance.bound, cameraposition, cameraposition + ray))
+            hits.push_back(instance.index);
+        }
+
+        for(auto &instance : m_transparencies)
+        {
+          if (intersection(instance.bound, cameraposition, cameraposition + ray))
+            hits.push_back(instance.index);
+        }
+
+        sort(hits.begin(), hits.end());
+        hits.erase(unique(hits.begin(), hits.end()), hits.end());
+
+        set_selection((hits.size() != 0) ? hits[m_hitrotation++ % hits.size()] : -1);
+      }
+    }
+  }
+
+  if (m_mode == ModeType::Translating || m_mode == ModeType::Rotating)
+  {
+    auto transform = m_selectedtransform * m_document->mesh(m_selection).transform;
+
+    m_selectedtransform = Transform::identity();
+
+    m_document->set_mesh_transform(m_selection, transform);
+
+    releaseMouse();
+
+    m_mode = ModeType::None;
+  }
+
   m_mousepresspos = QPoint();
 }
 
@@ -358,20 +532,92 @@ void ModelView::paintEvent(QPaintEvent *event)
 {
   prepare();
 
-  MeshList meshes;
-  MeshList::BuildState meshstate;
-
-  if (begin(meshes, meshstate))
+  if (m_instances.size() != 0)
   {
-    for(auto &instance : m_instances)
+    MeshList meshes;
+    MeshList::BuildState buildstate;
+
+    if (begin(meshes, buildstate))
     {
-      meshes.push_mesh(meshstate, instance.transform, instance.mesh, instance.material);
+      for(auto &instance : m_instances)
+      {
+        meshes.push_mesh(buildstate, instance.transform, instance.mesh, instance.material);
+      }
+
+      meshes.finalise(buildstate);
     }
 
-    meshes.finalise(meshstate);
+    push_meshes(meshes);
   }
 
-  push_meshes(meshes);
+  if (m_transparencies.size() != 0)
+  {
+    ForwardList objects;
+    ForwardList::BuildState buildstate;
+
+    if (begin(objects, buildstate))
+    {
+      auto cameraposition = camera.position();
+
+      auto draworder = [&](auto &lhs, auto &rhs) { return distsqr(cameraposition, rhs.bound.centre()) < distsqr(cameraposition, lhs.bound.centre()); };
+
+      sort(m_transparencies.begin(), m_transparencies.end(), draworder);
+
+      for(auto &instance : m_transparencies)
+      {
+        objects.push_transparent(buildstate, instance.transform, instance.mesh, instance.material);
+      }
+
+      objects.finalise(buildstate);
+    }
+
+    push_objects(objects);
+  }
+
+
+  if (m_selection != -1)
+  {
+    OverlayList selection;
+    OverlayList::BuildState buildstate;
+
+    if (begin(selection, buildstate))
+    {
+
+      for(auto &instance : m_instances)
+      {
+        if (instance.index == m_selection)
+        {
+          selection.push_stencil(buildstate, instance.transform, instance.mesh, instance.material);
+        }
+      }
+
+      for(auto &instance : m_instances)
+      {
+        if (instance.index == m_selection)
+        {
+          selection.push_outline(buildstate, instance.transform, instance.mesh, instance.material, Color4(1.0f, 0.5f, 0.15f, 1.0f));
+        }
+      }
+
+#if 0
+      auto bound = bound_limits<Bound3>::min();
+
+      for(auto &instance : m_instances)
+      {
+        if (instance.index == m_selection)
+        {
+          bound = expand(bound, instance.bound);
+        }
+      }
+
+      selection.push_volume(buildstate, bound, m_homocube, Color4(0.6f, 0.2f, 0.2f, 0.4f));
+#endif
+
+      selection.finalise(buildstate);
+    }
+
+    push_overlays(selection);
+  }
 
   render();
 }

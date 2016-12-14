@@ -143,7 +143,7 @@ namespace Studio
     public:
       virtual ~StatusManager() { }
 
-      virtual void add_statusview(QAction *action) = 0;
+      virtual void add_statusview(int index, QAction *action) = 0;
 
       virtual QString statusview() const = 0;
       virtual void set_statusview(QString const &statusview) = 0;

@@ -259,17 +259,21 @@ bool BuildManager::build(Studio::Document *document, QString *path)
 
     if (!result)
     {
+      qInfo() << "Building" << doc;
+
       emit build_started(document);
 
       try
       {
-        QMetaObject::invokeMethod(builder, "build", Qt::DirectConnection, Q_RETURN_ARG(bool, result), Q_ARG(Studio::Document*, document), Q_ARG(QString, *path));
+        QMetaObject::invokeMethod(builder, "build", Qt::DirectConnection, Q_RETURN_ARG(bool, result), Q_ARG(Studio::Document*, document), Q_ARG(QString, *path + ".tmp"));
+
+        QFile::rename(*path + ".tmp", *path);
       }
       catch(exception &e)
       {
-        qDebug() << "Build Error:" << e.what();
+        qCritical() << "Build Error:" << e.what();
 
-        QFile::remove(*path);
+        QFile::remove(*path + ".tmp");
       }
 
       emit build_completed(document);

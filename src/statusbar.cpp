@@ -118,9 +118,22 @@ StatusManager::StatusManager(StatusBar *statusbar, StatusBox *statusbox, StatusR
 
 
 ///////////////////////// StatusManager::add_statusview /////////////////////
-void StatusManager::add_statusview(QAction *action)
+void StatusManager::add_statusview(int index, QAction *action)
 {
-  m_statusbar->addAction(action);
+  QAction *before = nullptr;
+
+  for(auto &action : m_statusbar->actions())
+  {
+    if (index < action->property("Index").toInt())
+    {
+      before = action;
+      break;
+    }
+  }
+
+  action->setProperty("Index", index);
+
+  m_statusbar->insertAction(before, action);
 }
 
 

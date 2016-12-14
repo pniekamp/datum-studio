@@ -36,9 +36,19 @@ class TextEditor : public QPlainTextEdit
 
     void on_text_changed();
 
+    void on_update_request(QRect const &rect, int dy);
+
+    void resizeEvent(QResizeEvent *event);
+
+  public:
+
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
+
   private:
 
     QToolBar *m_toolbar;
+
+    QWidget *m_linenumberarea;
 
     uint64_t m_filepos;
 

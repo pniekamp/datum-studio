@@ -125,9 +125,9 @@ namespace
 
         if (scene->mMeshes[i]->HasTangentsAndBitangents())
         {
-          mesh.vertices[k].tangent[0] = scene->mMeshes[i]->mTangents[k].x;
-          mesh.vertices[k].tangent[1] = scene->mMeshes[i]->mTangents[k].y;
-          mesh.vertices[k].tangent[2] = scene->mMeshes[i]->mTangents[k].z;
+          mesh.vertices[k].tangent[0] = isnormal(scene->mMeshes[i]->mTangents[k].x) ?  scene->mMeshes[i]->mTangents[k].x : 0;
+          mesh.vertices[k].tangent[1] = isnormal(scene->mMeshes[i]->mTangents[k].y) ? scene->mMeshes[i]->mTangents[k].y : 0;
+          mesh.vertices[k].tangent[2] = isnormal(scene->mMeshes[i]->mTangents[k].z) ? scene->mMeshes[i]->mTangents[k].z : 0;
           mesh.vertices[k].tangent[3] = (dot(cross(scene->mMeshes[i]->mNormals[k], scene->mMeshes[i]->mTangents[k]), scene->mMeshes[i]->mBitangents[k]) < 0.0f) ? -1.0f : 1.0f;
         }
       }

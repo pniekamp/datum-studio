@@ -194,6 +194,13 @@ class PackModel : public QObject
 
   public:
 
+    QString signature() const { return m_parameters["signature"]; }
+    QString version() const { return m_parameters["version"]; }
+
+    void set_parameter(QString const &name, QString const &value);
+
+  public:
+
     void load(std::string const &projectfile);
     void save(std::string const &projectfile);
 
@@ -216,6 +223,8 @@ class PackModel : public QObject
     bool m_modified;
 
     std::unique_ptr<Node> m_root;
+
+    QMap<QString, QString> m_parameters;
 };
 
 

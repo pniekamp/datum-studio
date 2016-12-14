@@ -95,12 +95,14 @@ message(STATUS ${VULKAN_LIBRARIES})
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5X11Extras QUIET)
 
 #
 # datum-studio
 #
 
 add_subdirectory(src)
+add_subdirectory(src/plugins/console)
 add_subdirectory(src/plugins/project)
 add_subdirectory(src/plugins/document)
 add_subdirectory(src/plugins/build)
@@ -126,6 +128,16 @@ add_subdirectory(src/plugins/hdrimporter)
 add_subdirectory(src/plugins/objimporter)
 
 #
+# glslang
+#
+
+find_path(GLSLANG_INSTALL lib/libglslang.a)
+
+if(GLSLANG_INSTALL)
+  add_subdirectory(src/plugins/shader)
+endif(GLSLANG_INSTALL)
+
+#
 # assimp
 #
 
@@ -134,4 +146,3 @@ find_package(assimp QUIET)
 if(assimp_FOUND)
   add_subdirectory(src/plugins/assimporter)
 endif(assimp_FOUND)
-

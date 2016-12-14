@@ -79,7 +79,7 @@ bool ContentManager::create(QString const &type, QString const &path)
     }
     catch(exception &e)
     {
-      qDebug() << "Create Error:" << e.what();
+      qCritical() << "Create Error:" << e.what();
     }
   }
 
@@ -151,7 +151,7 @@ bool ContentManager::import(QString const &src, QString const &dst)
   }
   catch(exception &e)
   {
-    qDebug() << "Import Error:" << e.what();
+    qCritical() << "Import Error:" << e.what();
 
     QFile::remove(path);
   }
@@ -201,7 +201,7 @@ bool ContentManager::reimport(QString const &path)
       }
       catch(exception &e)
       {
-        qDebug() << "Import Error:" << e.what();
+        qCritical() << "Import Error:" << e.what();
 
         QFile::remove(dst);
       }

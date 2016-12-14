@@ -99,7 +99,7 @@ namespace
 
   uint32_t write_catalog(ostream &fout, uint32_t id)
   {
-    write_catl_asset(fout, id);
+    write_catl_asset(fout, id, 0, 0);
 
     return id + 1;
   }
@@ -528,7 +528,7 @@ void MaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
   if (asset.type == "Material")
   {
-    MaterialDocument materialdocument(asset.document);
+    auto materialdocument = MaterialDocument(asset.document);
 
     auto color = materialdocument.color();
     auto metalness = materialdocument.metalness();
@@ -680,6 +680,15 @@ void MaterialDocument::touch(Studio::Document *document, QString const &path)
       emit dependant_changed();
     }
   }
+}
+
+
+///////////////////////// MaterialDocument::set_shader //////////////////////
+void MaterialDocument::set_shader(Shader shader)
+{
+  m_definition["shader"] = static_cast<int>(shader);
+
+  update();
 }
 
 

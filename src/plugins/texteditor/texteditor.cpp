@@ -13,10 +13,33 @@
 #include <QCloseEvent>
 #include <QScrollBar>
 #include <QPainter>
+#include <QTextBlock>
 
 #include <QDebug>
 
 using namespace std;
+
+//|---------------------- LineNumberArea ------------------------------------
+//|--------------------------------------------------------------------------
+
+class LineNumberArea : public QWidget
+{
+  public:
+    LineNumberArea(TextEditor *editor)
+      : QWidget(editor),
+        editor(editor)
+    {
+    }
+
+    void paintEvent(QPaintEvent *event)
+    {
+      editor->lineNumberAreaPaintEvent(event);
+    }
+
+    TextEditor *editor;
+};
+
+
 
 //|---------------------- TextEditor ----------------------------------------
 //|--------------------------------------------------------------------------
@@ -30,10 +53,17 @@ TextEditor::TextEditor(QWidget *parent)
   
   m_toolbar = new CommandBar(this);
 
+  m_linenumberarea = new LineNumberArea(this);
+
   setFont(QFont("Courier"));
   setLineWrapMode(QPlainTextEdit::NoWrap);
 
+  int linenumberareawidth = 3 + fontMetrics().width(QLatin1Char('9')) * 5;
+
+  setViewportMargins(linenumberareawidth, 0, 0, 0);
+
   connect(this, &QPlainTextEdit::textChanged, this, &TextEditor::on_text_changed);
+  connect(this, &QPlainTextEdit::updateRequest, this, &TextEditor::on_update_request);
 }
 
 
@@ -99,6 +129,58 @@ void TextEditor::on_text_changed()
     m_document->unlock_exclusive();
 
     connect(m_document, &Studio::Document::document_changed, this, &TextEditor::refresh);
+  }
+}
+
+
+///////////////////////// TextEditor::on_update_request /////////////////////
+void TextEditor::on_update_request(const QRect &rect, int dy)
+{
+  if (dy)
+    m_linenumberarea->scroll(0, dy);
+  else
+    m_linenumberarea->update(0, rect.y(), m_linenumberarea->width(), rect.height());
+}
+
+
+///////////////////////// TextEditor::resizeEvent ///////////////////////////
+void TextEditor::resizeEvent(QResizeEvent *event)
+{
+  auto contentsrect = contentsRect();
+  auto viewportmargins = viewportMargins();
+
+  m_linenumberarea->setGeometry(QRect(contentsrect.left(), contentsrect.top(), viewportmargins.left(), contentsrect.height()));
+
+  QPlainTextEdit::resizeEvent(event);
+}
+
+
+///////////////////////// TextEditor::lineNumberAreaPaintEvent //////////////
+void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
+{
+  QPainter painter(m_linenumberarea);
+  painter.fillRect(event->rect(), QColor(240, 240, 240));
+
+  QTextBlock block = firstVisibleBlock();
+
+  int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
+  int bottom = top + (int)blockBoundingRect(block).height();
+
+  int linenumber = block.blockNumber();
+
+  while (block.isValid() && top <= event->rect().bottom())
+  {
+    if (block.isVisible() && bottom >= event->rect().top())
+    {
+      painter.setPen(Qt::black);
+      painter.drawText(0, top, m_linenumberarea->width()-2, fontMetrics().height(), Qt::AlignRight, QString::number(linenumber + 1));
+    }
+
+    block = block.next();
+    top = bottom;
+    bottom = top + (int)blockBoundingRect(block).height();
+
+    ++linenumber;
   }
 }
 

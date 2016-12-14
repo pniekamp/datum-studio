@@ -137,6 +137,8 @@ void PackModel::clear()
 {
   m_root = unique_ptr<Group>(new Group("Root"));
 
+  m_parameters.clear();
+
   emit reset();
 
   m_modified = true;
@@ -202,7 +204,7 @@ void PackModel::move(Node *node, Node *parent, size_t index)
 }
 
 
-///////////////////////// PackModel::erase //////////////////////////////
+///////////////////////// PackModel::erase //////////////////////////////////
 void PackModel::erase(Node *node)
 {
   auto parent = node->parent();
@@ -229,6 +231,18 @@ void PackModel::set_data(Node *node, DataRole role, QVariant const &value)
   node->set_data(role, value);
 
   emit changed(node, role);
+}
+
+
+///////////////////////// PackModel::set_parameter //////////////////////////
+void PackModel::set_parameter(QString const &name, QString const &value)
+{
+  if (m_parameters[name] != value)
+  {
+    m_parameters[name] = value;
+
+    m_modified = true;
+  }
 }
 
 
@@ -285,6 +299,14 @@ void PackModel::load(string const &projectfile)
 
     if (buffer[0] == '<' && buffer[buffer.length()-1] == '>')
     {
+      if (buffer.substr(1, 9) == "Parameter")
+      {
+        auto name = string(buffer.begin() + buffer.find_first_of("'") + 1, buffer.begin() + buffer.find_last_of("'"));
+        auto value = string(buffer.begin() + name.length() + 19, buffer.begin() + buffer.length() - 12);
+
+        set_parameter(name.c_str(), value.c_str());
+      }
+
       if (buffer.substr(1, 5) == "Group")
       {
         auto group = add_group(groupstack.back(), groupstack.back()->children(), buffer.substr(13, buffer.length()-15).c_str());
@@ -313,6 +335,11 @@ void PackModel::save(string const &projectfile)
   ofstream fout(projectfile, ios::app);
 
   fout << "[Pack]" << '\n';
+
+  for(auto i = m_parameters.begin(); i != m_parameters.end(); ++i)
+  {
+    fout << "<Parameter name='" << i.key().toStdString() << "'>" << i.value().toStdString() << "</Parameter>" << '\n';
+  }
 
   QDir base = QFileInfo(projectfile.c_str()).dir();
 

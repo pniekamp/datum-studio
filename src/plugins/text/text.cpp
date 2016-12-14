@@ -10,11 +10,33 @@
 #include "assetfile.h"
 #include <functional>
 #include <cassert>
+#include <QJsonDocument>
 
 #include <QDebug>
 
 using namespace std;
 using namespace lml;
+
+///////////////////////// create ////////////////////////////////////////////
+void TextDocument::create(string const &path)
+{
+  QJsonObject metadata;
+  metadata["type"] = "Text";
+  metadata["icon"] = encode_icon(QIcon(":/textplugin/icon.png"));
+
+  const char *text = "";
+
+  ofstream fout(path, ios::binary | ios::trunc);
+
+  write_asset_header(fout, metadata);
+
+  write_asset_text(fout, 1, strlen(text), text);
+
+  write_asset_footer(fout);
+
+  fout.close();
+}
+
 
 ///////////////////////// hash //////////////////////////////////////////////
 void TextDocument::hash(Studio::Document *document, size_t *key)

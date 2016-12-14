@@ -24,7 +24,13 @@ class ModelProperties : public QDockWidget
 
   public slots:
 
-    void edit(Studio::Document *document);
+    void edit(ModelDocument *document);
+
+    void set_selection(int index);
+
+  signals:
+
+    void selection_changed(int index);
 
   protected slots:
 
@@ -34,5 +40,5 @@ class ModelProperties : public QDockWidget
 
     Ui::Properties ui;
 
-    ModelDocument m_document;
+    ModelDocument *m_document = nullptr;
 };

@@ -222,26 +222,26 @@ void ImageView::paintEvent(QPaintEvent *event)
   viewport()->prepare();
 
   SpriteList sprites;
-  SpriteList::BuildState spritestate;
+  SpriteList::BuildState buildstate;
 
   auto sprite = viewport()->resources.create<Sprite>(*m_image, Rect2(Vec2(0, 0), Vec2(1, 1)), Vec2(0,0));
 
-  if (viewport()->begin(sprites, spritestate))
+  if (viewport()->begin(sprites, buildstate))
   {
     for(int j = y % 32; j < height(); j += 32)
     {
       for(int i = x % 32; i < width(); i += 32)
       {
-        sprites.push_rect(spritestate, Vec2(i, j), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.6f, 0.6f, 0.6f));
-        sprites.push_rect(spritestate, Vec2(i+16, j), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.4f, 0.4f, 0.4f));
-        sprites.push_rect(spritestate, Vec2(i, j+16), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.4f, 0.4f, 0.4f));
-        sprites.push_rect(spritestate, Vec2(i+16, j+16), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.6f, 0.6f, 0.6f));
+        sprites.push_rect(buildstate, Vec2(i, j), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.6f, 0.6f, 0.6f));
+        sprites.push_rect(buildstate, Vec2(i+16, j), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.4f, 0.4f, 0.4f));
+        sprites.push_rect(buildstate, Vec2(i, j+16), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.4f, 0.4f, 0.4f));
+        sprites.push_rect(buildstate, Vec2(i+16, j+16), Rect2(Vec2(0, 0), Vec2(16, 16)), Color4(0.6f, 0.6f, 0.6f));
       }
     }
 
-    sprites.push_sprite(spritestate, Vec2(x + m_border, y + m_border), m_scale*m_height, sprite, m_layer, Color4(m_exposure, m_exposure, m_exposure, 1));
+    sprites.push_sprite(buildstate, Vec2(x + m_border, y + m_border), m_scale*m_height, sprite, m_layer, Color4(m_exposure, m_exposure, m_exposure, 1));
 
-    sprites.finalise(spritestate);
+    sprites.finalise(buildstate);
   }
 
   viewport()->push_sprites(sprites);

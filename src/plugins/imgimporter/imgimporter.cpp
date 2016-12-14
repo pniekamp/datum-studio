@@ -89,6 +89,11 @@ bool ImageImporter::try_import(QString const &src, QString const &dst, QJsonObje
     image = image.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
   }
 
+  if (image.format() != QImage::Format_ARGB32)
+  {
+    image = image.convertToFormat(QImage::Format_ARGB32);
+  }
+
   metadata["src"] = src;
   metadata["type"] = "Image";
   metadata["icon"] = encode_icon(generate_icon(image));

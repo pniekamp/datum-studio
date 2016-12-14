@@ -78,6 +78,8 @@ class MaterialView : public Viewport
 
     std::vector<MeshInstance> m_meshes;
 
+    QTimer *m_updatetimer;
+
   private:
 
     float m_yawsign;

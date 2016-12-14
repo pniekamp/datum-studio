@@ -22,7 +22,7 @@ namespace
 {
   uint32_t write_catalog(ostream &fout, uint32_t id)
   {
-    write_catl_asset(fout, id);
+    write_catl_asset(fout, id, 0, 0);
 
     return id + 1;
   }
@@ -37,8 +37,6 @@ namespace
     vector<char> payload(image_datasize(width, height, layers, levels));
 
     memcpy(payload.data(), atlas.bits(), atlas.byteCount());
-
-    image_premultiply_srgb(width, height, layers, levels, payload.data());
 
     image_buildmips_srgb(width, height, layers, levels, payload.data());
 
@@ -166,6 +164,8 @@ void FontDocument::build(Studio::Document *document, string const &path)
   document->unlock();
 
   QFont font(definition["name"].toString(), definition["size"].toInt(), definition["weight"].toInt(), definition["italic"].toBool());
+
+  font.setStyleStrategy(QFont::OpenGLCompatible);
 
   int atlaswidth = definition["atlaswidth"].toInt(512);
   int atlasheight = definition["atlasheight"].toInt(256);

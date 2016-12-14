@@ -55,7 +55,7 @@ bool ContentPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   auto statusmanager = Studio::Core::instance()->find_object<Studio::StatusManager>();
 
-  statusmanager->add_statusview(statusview);
+  statusmanager->add_statusview(1, statusview);
 
   connect(statusmanager, &Studio::StatusManager::statusview_changed, this, &ContentPlugin::on_statusview_changed);
 

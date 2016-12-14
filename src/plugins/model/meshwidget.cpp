@@ -44,14 +44,24 @@ MeshWidget::MeshWidget(QWidget *parent)
 
 
 ///////////////////////// MeshWidget::edit //////////////////////////////////
-void MeshWidget::edit(Studio::Document *document)
+void MeshWidget::edit(ModelDocument *document)
 {
   m_document = document;
 
-  connect(&m_document, &ModelDocument::document_changed, this, &MeshWidget::refresh);
-  connect(&m_document, &ModelDocument::dependant_changed, this, &MeshWidget::refresh);
+  connect(m_document, &ModelDocument::document_changed, this, &MeshWidget::refresh);
+  connect(m_document, &ModelDocument::dependant_changed, this, &MeshWidget::refresh);
 
   refresh();
+}
+
+
+///////////////////////// MeshWidget::set_selection /////////////////////////
+void MeshWidget::set_selection(int index)
+{
+  if (currentRow() != index)
+  {
+    setCurrentRow(index);
+  }
 }
 
 
@@ -62,13 +72,15 @@ void MeshWidget::refresh()
 
   clear();
 
-  for(int i = 0; i < m_document.meshes(); ++i)
+  for(int i = 0; i < m_document->meshes(); ++i)
   {
-    QListWidgetItem *item = new QListWidgetItem(m_document.mesh(i).name, this);
+    auto &mesh = m_document->mesh(i);
+
+    QListWidgetItem *item = new QListWidgetItem(mesh.name, this);
 
     item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled);
 
-    item->setIcon(m_document.mesh(i).document ? m_document.mesh(i).document->icon() : QIcon());
+    item->setIcon(mesh.document ? mesh.document->icon() : QIcon());
   }
 
   setCurrentRow(currentrow);
@@ -77,7 +89,7 @@ void MeshWidget::refresh()
 
 ///////////////////////// MeshWidget::itemSelectionChanged ////////////////////////////////
 void MeshWidget::itemSelectionChanged()
-{
+{ 
   emit selection_changed(currentRow());
 }
 
@@ -85,13 +97,16 @@ void MeshWidget::itemSelectionChanged()
 ///////////////////////// MeshWidget::renamed ///////////////////////////////
 void MeshWidget::commitData(QWidget *editor)
 {
-  QString text = qobject_cast<QLineEdit*>(editor)->text();
-
-  if (text != currentItem()->text())
+  if (currentItem())
   {
-    closePersistentEditor(currentItem());
+    QString text = qobject_cast<QLineEdit*>(editor)->text();
 
-    m_document.set_mesh_name(currentRow(), text);
+    if (text != currentItem()->text())
+    {
+      closePersistentEditor(currentItem());
+
+      m_document->set_mesh_name(currentRow(), text);
+    }
   }
 }
 
@@ -198,7 +213,7 @@ void MeshWidget::dropEvent(QDropEvent *event)
 
       stream >> index;
 
-      m_document.move_mesh(index, position);
+      m_document->move_mesh(index, position);
     }
   }
 
@@ -208,7 +223,7 @@ void MeshWidget::dropEvent(QDropEvent *event)
     {
       QString src = url.toLocalFile();
 
-      m_document.add_mesh(position, src);
+      m_document->add_mesh(position, src);
     }
   }
 
@@ -250,7 +265,7 @@ void MeshWidget::on_Delete_triggered()
   {
     if (QMessageBox::question(this, "Remove Mesh", "Remove Selected Mesh\n\nSure ?", QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok)
     {
-      m_document.erase_mesh(currentRow());
+      m_document->erase_mesh(currentRow());
     }
   }
 }

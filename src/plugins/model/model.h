@@ -47,6 +47,14 @@ class ModelDocument : public QObject
       QString name;
       unique_document document;
 
+      struct SubMesh
+      {
+        unique_document document;
+        size_t index;
+      };
+
+      std::vector<SubMesh> submeshes;
+
       struct Material
       {
         QString name;
@@ -67,12 +75,9 @@ class ModelDocument : public QObject
 
     struct Instance
     {
-      Studio::Document *mesh;
-      size_t index;
-
-      Studio::Document *material;
-
-      lml::Color3 tint;
+      int index;
+      Mesh::SubMesh const *submesh;
+      Mesh::Material const *material;
 
       lml::Transform transform;
     };

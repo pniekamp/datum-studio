@@ -39,6 +39,9 @@ namespace
       }
     };
 
+    uint32_t signature;
+    uint32_t version;
+
     vector<unique_ptr<Asset>> assets;
 
     size_t add(Studio::Document *document, uint32_t index = 0);
@@ -50,6 +53,7 @@ namespace
     auto asset = make_unique<Asset>();
 
     asset->id = assets.size() + 1;
+    asset->name = QFileInfo(Studio::Core::instance()->find_object<Studio::DocumentManager>()->path(document)).completeBaseName();
     asset->type = document->metadata("type", QString("Text"));
     asset->document = Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document);
     asset->index = index;
@@ -70,6 +74,7 @@ namespace
       auto asset = make_unique<Asset>();
 
       asset->id = assets.size() + 1;
+      asset->name = QFileInfo(Studio::Core::instance()->find_object<Studio::DocumentManager>()->path(document)).completeBaseName();
       asset->type = type;
       asset->document = Studio::Core::instance()->find_object<Studio::DocumentManager>()->dup(document);
       asset->index = index;
@@ -116,6 +121,9 @@ void PackManager::build(PackModel const *model, QString const &filename, Ui::Bui
 
   BuildState pack;
 
+  pack.signature = model->signature().toUInt(nullptr, 0);
+  pack.version = model->version().toUInt(nullptr, 0);
+
   for(auto &node : model->nodes())
   {
     if (auto asset = node_cast<PackModel::Asset>(node))
@@ -131,7 +139,7 @@ void PackManager::build(PackModel const *model, QString const &filename, Ui::Bui
 
   write_header(fout);
 
-  write_catl_asset(fout, 0);
+  write_catl_asset(fout, 0, pack.signature, pack.version);
 
   dlg->Message->setText("Building...");
 
@@ -141,7 +149,7 @@ void PackManager::build(PackModel const *model, QString const &filename, Ui::Bui
   {
     auto &asset = *pack.assets[head];
 
-    dlg->Message->setText(QString("Building: %1").arg(QFileInfo(Studio::Core::instance()->find_object<Studio::DocumentManager>()->path(asset.document)).completeBaseName()));
+    dlg->Message->setText(QString("Building: %1").arg(asset.name));
     dlg->TotalProgress->setValue(100 * head / pack.assets.size());
 
     for(size_t i = head; i < pack.assets.size(); ++i)
@@ -168,12 +176,12 @@ void PackManager::build(PackModel const *model, QString const &filename, Ui::Bui
         }
         catch(exception &e)
         {
-          qDebug() << "Pack Error:" << e.what();
+          qCritical() << "Pack Error:" << asset.name << e.what();
         }
       }
       else
       {
-        qDebug() << "Pack Error:" << "No Packer for" << asset.type;
+        qCritical() << "Pack Error: No Packer for" << asset.type;
       }
 
       asset.status = (result) ? BuildState::Asset::Done : BuildState::Asset::Failed;

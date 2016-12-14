@@ -30,6 +30,8 @@ class MaterialWidget : public QWidget
 
     void refresh();
 
+    void on_ShaderList_activated(int index);
+
     void on_AlbedoMap_itemDropped(QString const &path);
     void on_AlbedoMask_itemDropped(QString const &path);
     void on_TintRedSlider_valueChanged(double value);

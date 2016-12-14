@@ -50,7 +50,9 @@ void ActionContainerMenu::add_back(ActionContainer *menu)
   ActionContainerMenu *container = qobject_cast<ActionContainerMenu*>(menu);
 
   if (container)
+  {
     m_menu->addMenu(container->menu());
+  }
 }
 
 
@@ -90,7 +92,9 @@ void ActionContainerMenubar::add_back(ActionContainer *menu)
   ActionContainerMenu *container = qobject_cast<ActionContainerMenu*>(menu);
 
   if (container)
-    m_menubar->addMenu(container->menu());
+  {
+    m_menubar->insertMenu(m_menubar->actions().back(), container->menu());
+  }
 }
 
 

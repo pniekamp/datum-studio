@@ -30,6 +30,8 @@ class TextPlugin : public Studio::Plugin
 
   public slots:
 
+    bool create(QString const &type, QString const &path, QJsonObject metadata);
+
     bool pack(Studio::PackerState &asset, std::ofstream &fout);
 };
 

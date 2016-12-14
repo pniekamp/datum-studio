@@ -46,6 +46,12 @@ class MaterialDocument : public QObject
 
   public:
 
+    enum class Shader
+    {
+      Deferred,
+      Transparent
+    };
+
     enum class Image
     {
       AlbedoMap,
@@ -81,6 +87,8 @@ class MaterialDocument : public QObject
       xyz, xinvyz, bump
     };
 
+    Shader shader() const { return static_cast<Shader>(m_definition["shader"].toInt(0)); }
+
     lml::Color3 color() const { return lml::Color3(m_definition["color.r"].toDouble(), m_definition["color.g"].toDouble(), m_definition["color.b"].toDouble()); }
 
     float metalness() const { return m_definition["metalness"].toDouble(0); }
@@ -98,6 +106,8 @@ class MaterialDocument : public QObject
     NormalOutput normaloutput() const { return static_cast<NormalOutput>(m_definition["normaloutput"].toInt(0)); }
 
   public:
+
+    void set_shader(Shader shader);
 
     void set_color(lml::Color3 const &color);
 

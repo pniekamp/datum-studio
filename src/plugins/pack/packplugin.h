@@ -57,7 +57,9 @@ class PackPlugin : public Studio::Plugin
 
     void on_CreateFolder_triggered();
     void on_Rename_triggered();
-    void on_Delete_triggered();
+    void on_Remove_triggered();
+
+    void on_PackProperties_triggered();
 
   private:
 
@@ -69,7 +71,7 @@ class PackPlugin : public Studio::Plugin
 
     QAction *m_metamode;
 
-    QWidget *m_container;
+    QMainWindow *m_container;
 
     Ui::PackPlugin ui;
 };

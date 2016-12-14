@@ -24,8 +24,10 @@ class ModelView : public Viewport
 
   public slots:
 
-    void view(Studio::Document *document);
-    void edit(Studio::Document *document);
+    void view(ModelDocument *document);
+    void edit(ModelDocument *document);
+
+    void set_selection(int index);
 
     void set_skybox(QString const &path);
 
@@ -34,6 +36,8 @@ class ModelView : public Viewport
   signals:
 
     void exposure_changed(float value);
+
+    void selection_changed(int index);
 
   protected slots:
 
@@ -102,20 +106,45 @@ class ModelView : public Viewport
 
     struct Instance
     {
+      int index;
       Mesh const *mesh;
       Material const *material;
       lml::Transform transform;
+      lml::Bound3 bound;
     };
 
     std::vector<Instance> m_instances;
 
+    std::vector<Instance> m_transparencies;
+
+    unique_resource<Mesh> m_homocube;
+
+    QTimer *m_updatetimer;
+
   private:
+
+    enum class ModeType
+    {
+      None,
+      Translating,
+      Rotating,
+    };
+
+    ModeType m_mode;
 
     float m_yawsign;
 
     lml::Vec3 m_focuspoint;
 
+    QPoint m_keypresspos;
     QPoint m_mousepresspos, m_mousemovepos;
 
-    ModelDocument m_document;
+    int m_selection;
+    size_t m_hitrotation;
+
+    lml::Transform m_selectedtransform;
+
+    bool m_readonly;
+
+    ModelDocument *m_document = nullptr;
 };

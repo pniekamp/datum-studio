@@ -23,7 +23,9 @@ class MeshWidget : public QListWidget
 
   public slots:
 
-    void edit(Studio::Document *document);
+    void edit(ModelDocument *document);
+
+    void set_selection(int index);
 
   signals:
 
@@ -55,5 +57,5 @@ class MeshWidget : public QListWidget
     QAction *m_renameaction;
     QAction *m_deleteaction;
 
-    ModelDocument m_document;
+    ModelDocument *m_document = nullptr;
 };

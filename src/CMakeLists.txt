@@ -43,6 +43,10 @@ set_target_properties(datumstudio PROPERTIES COMPILE_DEFINITIONS "DATUMSTUDIO")
 
 target_link_libraries(datumstudio datum leap vulkan Qt5::Core Qt5::Widgets)
 
+if(UNIX)
+  target_link_libraries(datumstudio Qt5::X11Extras)
+endif(UNIX)
+
 if(WIN32)
   set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-subsystem,windows")
 endif(WIN32)

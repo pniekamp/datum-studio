@@ -43,6 +43,9 @@ ModelEditor::ModelEditor(QWidget *parent)
   connect(m_exposureslider, &QcDoubleSlider::valueChanged, m_view, &ModelView::set_exposure);
   connect(m_view, &ModelView::exposure_changed, m_exposureslider, &QcDoubleSlider::updateValue);
 
+  connect(m_properties, &ModelProperties::selection_changed, m_view, &ModelView::set_selection);
+  connect(m_view, &ModelView::selection_changed, m_properties, &ModelProperties::set_selection);
+
   QSettings settings;
   restoreState(settings.value("modeleditor/state", QByteArray()).toByteArray());
 }
@@ -69,7 +72,9 @@ QToolBar *ModelEditor::toolbar() const
 ///////////////////////// ModelEditor::view /////////////////////////////////
 void ModelEditor::view(Studio::Document *document)
 {
-  m_view->view(document);
+  m_document = document;
+
+  m_view->view(&m_document);
 
   m_properties->hide();
 }
@@ -78,9 +83,11 @@ void ModelEditor::view(Studio::Document *document)
 ///////////////////////// ModelEditor::edit /////////////////////////////////
 void ModelEditor::edit(Studio::Document *document)
 {
-  m_view->edit(document);
+  m_document = document;
 
-  m_properties->edit(document);
+  m_view->edit(&m_document);
+
+  m_properties->edit(&m_document);
 
   m_properties->show();
 }

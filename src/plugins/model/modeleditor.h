@@ -41,4 +41,6 @@ class ModelEditor : public QMainWindow
 
     ModelView *m_view;
     ModelProperties *m_properties;
+
+    ModelDocument m_document;
 };
