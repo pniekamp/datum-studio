@@ -99,6 +99,8 @@ void ModelView::set_selection(int index)
   {
     m_selection = index;
 
+    m_selectedtransform = Transform::identity();
+
     emit selection_changed(index);
 
     invalidate();
@@ -225,7 +227,9 @@ void ModelView::refresh()
     id.transform = instance.transform;
 
     if (id.index == m_selection)
+    {
       id.transform = m_selectedtransform * id.transform;
+    }
 
     id.bound = id.transform * id.mesh->bound;
 
@@ -240,7 +244,7 @@ void ModelView::refresh()
         m_instances.push_back(id);
         break;
 
-      case MaterialDocument::Shader::Transparent:
+      case MaterialDocument::Shader::Translucent:
         m_transparencies.push_back(id);
         break;
     }
@@ -565,7 +569,7 @@ void ModelView::paintEvent(QPaintEvent *event)
 
       for(auto &instance : m_transparencies)
       {
-        objects.push_transparent(buildstate, instance.transform, instance.mesh, instance.material);
+        objects.push_translucent(buildstate, instance.transform, instance.mesh, instance.material);
       }
 
       objects.finalise(buildstate);

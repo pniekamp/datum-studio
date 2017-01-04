@@ -17,7 +17,7 @@
 
 using namespace std;
 
-static constexpr int MetaDataBlockSize = 8192;
+static constexpr int MetaDataBlockSize = 16384;
 
 
 ///////////////////////// encode_icon ///////////////////////////////////////

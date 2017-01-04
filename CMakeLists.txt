@@ -146,3 +146,13 @@ find_package(assimp QUIET)
 if(assimp_FOUND)
   add_subdirectory(src/plugins/assimporter)
 endif(assimp_FOUND)
+
+#
+# DevIL
+#
+
+find_path(DEVIL_INSTALL lib/libIL.dll.a)
+
+if(DEVIL_INSTALL)
+  add_subdirectory(src/plugins/devilimporter)
+endif(DEVIL_INSTALL)

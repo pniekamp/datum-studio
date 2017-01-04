@@ -374,7 +374,7 @@ void MaterialView::paintEvent(QPaintEvent *event)
     push_meshes(meshes);
   }
 
-  if (m_document.shader() == MaterialDocument::Shader::Transparent)
+  if (m_document.shader() == MaterialDocument::Shader::Translucent)
   {
     ForwardList objects;
     ForwardList::BuildState buildstate;
@@ -383,7 +383,7 @@ void MaterialView::paintEvent(QPaintEvent *event)
     {
       for(auto &instance : m_meshes)
       {
-        objects.push_transparent(buildstate, instance.transform, instance.mesh, m_material);
+        objects.push_translucent(buildstate, instance.transform, instance.mesh, m_material);
       }
 
       objects.finalise(buildstate);

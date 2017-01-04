@@ -49,7 +49,7 @@ class MaterialDocument : public QObject
     enum class Shader
     {
       Deferred,
-      Transparent
+      Translucent
     };
 
     enum class Image

@@ -601,7 +601,7 @@ void ModelDocument::refresh()
 
   auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
 
-  m_meshes.clear();
+  vector<Mesh> meshes;
 
   for(auto i : m_definition["meshes"].toArray())
   {
@@ -681,8 +681,10 @@ void ModelDocument::refresh()
       }
     }
 
-    m_meshes.push_back(std::move(md));
+    meshes.push_back(std::move(md));
   }
+
+  swap(meshes, m_meshes);
 
   emit document_changed();
 }

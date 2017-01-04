@@ -1,0 +1,7 @@
+{
+  "Name" : "DevILImporter",
+  "Version" : "1.0",
+  "Description" : "Import Image Files",
+  "Url" : "",
+  "LoadOrder": 98
+}

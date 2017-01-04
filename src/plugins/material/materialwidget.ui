@@ -91,7 +91,7 @@ QRadioButton::indicator
               </item>
               <item>
                <property name="text">
-                <string>Transparent</string>
+                <string>Translucent</string>
                </property>
               </item>
              </widget>

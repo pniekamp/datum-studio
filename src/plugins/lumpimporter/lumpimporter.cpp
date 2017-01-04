@@ -55,6 +55,9 @@ bool LumpImporter::try_import(QString const &src, QString const &dst, QJsonObjec
 
   ifstream fin(src.toUtf8(), ios::binary);
 
+  if (!fin)
+    throw runtime_error("Unable to open file: " + src.toStdString());
+
   fin.seekg(0, ios::end);
 
   data.resize(fin.tellg());

@@ -31,6 +31,81 @@ Document::Document(QString const &path)
 
   m_metadata = read_asset_json(m_file, 0);
 
+#if 0
+  uint64_t position = sizeof(PackHeader);
+
+  position += sizeof(PackAssetHeader) + sizeof(PackChunk) + sizeof(uint32_t);
+  position += sizeof(PackTextHeader) + sizeof(PackChunk) + sizeof(uint32_t);
+
+  PackChunk chunk;
+
+  m_file.seekg(position);
+  m_file.read((char*)&chunk, sizeof(chunk));
+
+  position += chunk.length + sizeof(chunk) + sizeof(uint32_t);
+  position += sizeof(chunk) + sizeof(uint32_t);
+
+  if (chunk.length < 16384)
+  {
+    ofstream fout(path.toStdString() + ".tmp", ios::binary);
+
+    write_asset_header(fout, m_metadata);
+
+    while (m_file)
+    {
+      m_file.seekg(position);
+      m_file.read((char*)&chunk, sizeof(chunk));
+
+      if (chunk.type == "HEND"_packchunktype)
+        break;
+
+      vector<char> buffer(chunk.length);
+
+      m_file.read(buffer.data(), chunk.length);
+
+      switch(chunk.type)
+      {
+        case "TEXT"_packchunktype:
+          reinterpret_cast<PackTextHeader*>(buffer.data())->dataoffset += 8192;
+          break;
+
+        case "IMAG"_packchunktype:
+          reinterpret_cast<PackImageHeader*>(buffer.data())->dataoffset += 8192;
+          break;
+
+        case "MODL"_packchunktype:
+          reinterpret_cast<PackModelHeader*>(buffer.data())->dataoffset += 8192;
+          break;
+
+        case "MESH"_packchunktype:
+          reinterpret_cast<PackMeshHeader*>(buffer.data())->dataoffset += 8192;
+          break;
+
+        case "ASET"_packchunktype:
+        case "AEND"_packchunktype:
+        case "DATA"_packchunktype:
+          break;
+
+        default:
+          assert(false);
+      }
+
+      write_chunk(fout, (char*)&chunk.type, buffer.size(), buffer.data());
+
+      position += chunk.length + sizeof(chunk) + sizeof(uint32_t);
+    }
+
+    write_asset_footer(fout);
+
+    fout.close();
+
+    detach();
+    QFile::remove(path);
+    QFile::rename(path + ".tmp", path);
+    attach(path);
+  }
+#endif
+
   unlock_exclusive();
 }
 
