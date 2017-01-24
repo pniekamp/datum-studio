@@ -153,22 +153,22 @@ void MeshView::paintEvent(QPaintEvent *event)
 {
   prepare();
 
-  MeshList meshes;
-  MeshList::BuildState buildstate;
+  GeometryList geometry;
+  GeometryList::BuildState buildstate;
 
-  if (begin(meshes, buildstate))
+  if (begin(geometry, buildstate))
   {
-    meshes.push_material(buildstate, m_material);
+    geometry.push_material(buildstate, m_material);
 
     for(auto &instance : m_meshes)
     {
-      meshes.push_mesh(buildstate, instance.transform, instance.mesh);
+      geometry.push_mesh(buildstate, instance.transform, instance.mesh);
     }
 
-    meshes.finalise(buildstate);
+    geometry.finalise(buildstate);
   }
 
-  push_meshes(meshes);
+  push_geometry(geometry);
 
   render();
 }

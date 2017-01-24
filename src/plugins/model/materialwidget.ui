@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>262</width>
-    <height>186</height>
+    <height>184</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,17 +16,18 @@
   <property name="styleSheet">
    <string notr="true">QGroupBox
 {
-    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
-    border: 2px solid gray;
-    border-radius: 5px;
+    border: 1px solid gray;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     margin-top: 2ex;
 }
 
 QGroupBox::title
 {
+    background: #bbb;
     subcontrol-origin: margin;
-    subcontrol-position: top center;
-    padding: 0 3px;
+    subcontrol-position: top left;
+    padding: 2px 800px 2px 3px;
 }
 
 QSlider
@@ -123,6 +124,16 @@ QRadioButton::indicator
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QGroupBox" name="TintGroup">
+         <property name="styleSheet">
+          <string notr="true">QGroupBox::title
+{
+    background: none;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 3px 0 3px;
+    left: 8px;
+}</string>
+         </property>
          <property name="title">
           <string>Tint</string>
          </property>
@@ -293,6 +304,11 @@ QRadioButton::indicator
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QcDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qcdoublespinbox.h</header>
+  </customwidget>
+  <customwidget>
    <class>DropLabel</class>
    <extends>QLabel</extends>
    <header>droplabel.h</header>
@@ -301,11 +317,6 @@ QRadioButton::indicator
    <class>QcDoubleSlider</class>
    <extends>QSlider</extends>
    <header>qcdoubleslider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QcDoubleSpinBox</class>
-   <extends>QDoubleSpinBox</extends>
-   <header>qcdoublespinbox.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -39,18 +39,6 @@ namespace
     return key;
   }
 
-  HDRImage image_data(QString const &path)
-  {
-    HDRImage image = {};
-
-    if (auto document = ImageDocument(path))
-    {
-      image = document.data();
-    }
-
-    return image;
-  }
-
   uint32_t write_catalog(ostream &fout, uint32_t id)
   {
     write_catl_asset(fout, id, 0, 0);
@@ -178,33 +166,16 @@ void SpriteSheetDocument::build_hash(Studio::Document *document, size_t *key)
 ///////////////////////// build /////////////////////////////////////////////
 void SpriteSheetDocument::build(Studio::Document *document, string const &path)
 {
-  QJsonObject definition;
-
-  document->lock();
-
-  PackTextHeader text;
-
-  if (read_asset_header(document, 1, &text))
-  {
-    QByteArray payload(pack_payload_size(text), 0);
-
-    read_asset_payload(document, text.dataoffset, payload.data(), payload.size());
-
-    definition = QJsonDocument::fromBinaryData(payload).object();
-  }
-
-  document->unlock();
+  auto spritesheetdocument = SpriteSheetDocument(document);
 
   int width = 0;
   int height = 0;
 
   vector<HDRImage> images;
 
-  for(auto i : definition["layers"].toArray())
+  for(int i = 0; i < spritesheetdocument.layers(); ++i)
   {
-    auto layer = i.toObject();
-
-    auto image = image_data(fullpath(document, layer["path"].toString()));
+    auto image = ImageDocument(spritesheetdocument.layer(i)).data();
 
     width = max(width, image.width);
     height = max(height, image.height);

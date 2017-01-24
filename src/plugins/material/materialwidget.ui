@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>553</width>
+    <width>493</width>
     <height>960</height>
    </rect>
   </property>
@@ -16,17 +16,18 @@
   <property name="styleSheet">
    <string notr="true">QGroupBox
 {
-    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);
-    border: 2px solid gray;
-    border-radius: 5px;
+    border: 1px solid gray;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     margin-top: 2ex;
 }
 
 QGroupBox::title
 {
+    background: #bbb;
     subcontrol-origin: margin;
-    subcontrol-position: top center;
-    padding: 0 3px;
+    subcontrol-position: top left;
+    padding: 2px 800px 2px 3px;
 }
 
 QSlider
@@ -71,6 +72,9 @@ QRadioButton::indicator
      </property>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
        <item>
         <widget class="QGroupBox" name="Shader">
          <property name="title">
@@ -79,6 +83,9 @@ QRadioButton::indicator
          <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,0">
           <property name="spacing">
            <number>12</number>
+          </property>
+          <property name="topMargin">
+           <number>14</number>
           </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -148,6 +155,9 @@ QRadioButton::indicator
          <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0">
           <property name="spacing">
            <number>12</number>
+          </property>
+          <property name="topMargin">
+           <number>14</number>
           </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -226,10 +236,23 @@ QRadioButton::indicator
             </item>
             <item>
              <widget class="QGroupBox" name="groupBox_8">
+              <property name="styleSheet">
+               <string notr="true">QGroupBox::title
+{
+    background: none;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 3px 0 3px;
+    left: 8px;
+}</string>
+              </property>
               <property name="title">
                <string>Tint</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_11">
+               <property name="topMargin">
+                <number>14</number>
+               </property>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_2">
                  <item>
@@ -364,10 +387,23 @@ QRadioButton::indicator
             </item>
             <item>
              <widget class="QGroupBox" name="groupBox_3">
+              <property name="styleSheet">
+               <string notr="true">QGroupBox::title
+{
+    background: none;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 3px 0 3px;
+    left: 8px;
+}</string>
+              </property>
               <property name="title">
                <string>Emissive</string>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_24">
+               <property name="topMargin">
+                <number>14</number>
+               </property>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_27">
                  <item>
@@ -464,6 +500,9 @@ QRadioButton::indicator
           <property name="spacing">
            <number>12</number>
           </property>
+          <property name="topMargin">
+           <number>14</number>
+          </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
@@ -515,10 +554,23 @@ QRadioButton::indicator
              <layout class="QHBoxLayout" name="horizontalLayout_10">
               <item>
                <widget class="QGroupBox" name="groupBox_5">
+                <property name="styleSheet">
+                 <string notr="true">QGroupBox::title
+{
+    background: none;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 3px 0 3px;
+    left: 8px;
+}</string>
+                </property>
                 <property name="title">
                  <string>Scale</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_6">
+                 <property name="topMargin">
+                  <number>14</number>
+                 </property>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_11">
                    <item>
@@ -735,6 +787,9 @@ QRadioButton::indicator
           <property name="spacing">
            <number>12</number>
           </property>
+          <property name="topMargin">
+           <number>14</number>
+          </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <item>
@@ -786,10 +841,23 @@ QRadioButton::indicator
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
                <widget class="QGroupBox" name="groupBox_7">
+                <property name="styleSheet">
+                 <string notr="true">QGroupBox::title
+{
+    background: none;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 3px 0 3px;
+    left: 8px;
+}</string>
+                </property>
                 <property name="title">
                  <string>Scale</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_9">
+                 <property name="topMargin">
+                  <number>14</number>
+                 </property>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_15">
                    <item>
@@ -1009,6 +1077,9 @@ QRadioButton::indicator
           <property name="spacing">
            <number>12</number>
           </property>
+          <property name="topMargin">
+           <number>14</number>
+          </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_12">
             <item>
@@ -1060,10 +1131,23 @@ QRadioButton::indicator
              <layout class="QHBoxLayout" name="horizontalLayout_19">
               <item>
                <widget class="QGroupBox" name="groupBox_10">
+                <property name="styleSheet">
+                 <string notr="true">QGroupBox::title
+{
+    background: none;
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 3px 0 3px;
+    left: 8px;
+}</string>
+                </property>
                 <property name="title">
                  <string>Scale</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_13">
+                 <property name="topMargin">
+                  <number>14</number>
+                 </property>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_20">
                    <item>
@@ -1280,6 +1364,9 @@ QRadioButton::indicator
           <property name="spacing">
            <number>12</number>
           </property>
+          <property name="topMargin">
+           <number>14</number>
+          </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_15">
             <item>
@@ -1434,6 +1521,9 @@ QRadioButton::indicator
         <string>Material</string>
        </property>
        <layout class="QGridLayout" name="gridLayout">
+        <property name="topMargin">
+         <number>14</number>
+        </property>
         <item row="1" column="0">
          <widget class="QRadioButton" name="AlbedoInput">
           <property name="enabled">
@@ -1653,6 +1743,11 @@ QRadioButton::indicator
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QcDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qcdoublespinbox.h</header>
+  </customwidget>
+  <customwidget>
    <class>DropLabel</class>
    <extends>QLabel</extends>
    <header>droplabel.h</header>
@@ -1661,11 +1756,6 @@ QRadioButton::indicator
    <class>QcDoubleSlider</class>
    <extends>QSlider</extends>
    <header>qcdoubleslider.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QcDoubleSpinBox</class>
-   <extends>QDoubleSpinBox</extends>
-   <header>qcdoublespinbox.h</header>
   </customwidget>
  </customwidgets>
  <resources>

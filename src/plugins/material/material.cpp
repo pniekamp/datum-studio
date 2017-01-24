@@ -40,30 +40,6 @@ namespace
     return key;
   }
 
-  HDRImage image_data(QString const &path)
-  {
-    HDRImage image = {};
-
-    if (auto document = ImageDocument(path))
-    {
-      image = document.data();
-    }
-
-    return image;
-  }
-
-  HDRImage image_data_raw(QString const &path)
-  {
-    HDRImage image = {};
-
-    if (auto document = ImageDocument(path))
-    {
-      image = document.data(ImageDocument::raw);
-    }
-
-    return image;
-  }
-
   HDRImage normalmap_from_image(HDRImage const &src, float strength = 1.0f)
   {
     HDRImage normalmap(src.width, src.height);
@@ -285,22 +261,7 @@ void MaterialDocument::build_hash(Studio::Document *document, size_t *key)
 ///////////////////////// build /////////////////////////////////////////////
 void MaterialDocument::build(Studio::Document *document, string const &path)
 {
-  QJsonObject definition;
-
-  document->lock();
-
-  PackTextHeader text;
-
-  if (read_asset_header(document, 1, &text))
-  {
-    QByteArray payload(pack_payload_size(text), 0);
-
-    read_asset_payload(document, text.dataoffset, payload.data(), payload.size());
-
-    definition = QJsonDocument::fromBinaryData(payload).object();
-  }
-
-  document->unlock();
+  auto materialdocument = MaterialDocument(document);
 
   ofstream fout(path, ios::binary | ios::trunc);
 
@@ -308,13 +269,13 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
 
   write_catalog(fout, 0);
 
-  if (definition["albedomap"].toString() != "")
+  if (materialdocument.image(MaterialDocument::Image::AlbedoMap))
   {
-    HDRImage albedomap = image_data(fullpath(document, definition["albedomap"].toString()));
+    auto albedomap = ImageDocument(materialdocument.image(MaterialDocument::Image::AlbedoMap)).data();
 
-    if (definition["albedomask"].toString() != "")
+    if (materialdocument.image(MaterialDocument::Image::AlbedoMask))
     {
-      HDRImage albedomask = image_data(fullpath(document, definition["albedomask"].toString()));
+      auto albedomask = ImageDocument(materialdocument.image(MaterialDocument::Image::AlbedoMask)).data();
 
       if (albedomap.width != albedomask.width || albedomap.height != albedomap.height)
         throw runtime_error("Material build failed - albedo mask size mismatch");
@@ -329,158 +290,158 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
     write_albedomap(fout, 1, albedomap);
   }
 
-  if (definition["metalnessmap"].toString() != "" || definition["roughnessmap"].toString() != "" || definition["reflectivitymap"].toString() != "")
+  if (materialdocument.image(MaterialDocument::Image::MetalnessMap) || materialdocument.image(MaterialDocument::Image::RoughnessMap) || materialdocument.image(MaterialDocument::Image::ReflectivityMap))
   {
-    HDRImage metalnessmap = image_data_raw(fullpath(document, definition["metalnessmap"].toString()));
-    HDRImage roughnessmap = image_data_raw(fullpath(document, definition["roughnessmap"].toString()));
-    HDRImage reflectivitymap = image_data_raw(fullpath(document, definition["reflectivitymap"].toString()));
+    auto metalnessmap = ImageDocument(materialdocument.image(MaterialDocument::Image::MetalnessMap)).data(ImageDocument::raw);
+    auto roughnessmap = ImageDocument(materialdocument.image(MaterialDocument::Image::RoughnessMap)).data(ImageDocument::raw);
+    auto reflectivitymap = ImageDocument(materialdocument.image(MaterialDocument::Image::ReflectivityMap)).data(ImageDocument::raw);
 
     HDRImage specularmap;
     specularmap.width = max({ metalnessmap.width, roughnessmap.width, reflectivitymap.width });;
     specularmap.height = max({ metalnessmap.height, roughnessmap.height, reflectivitymap.height });
     specularmap.bits = vector<Color4>(specularmap.width * specularmap.height, Color4(1, 1, 1, 1));
 
-    if (definition["metalnessmap"].toString() != "")
+    if (materialdocument.image(MaterialDocument::Image::MetalnessMap))
     {
       if (metalnessmap.width != specularmap.width || metalnessmap.height != specularmap.height)
         throw runtime_error("Material build failed - metalness map size mismatch");
 
-      switch(definition["metalnessoutput"].toInt())
+      switch(materialdocument.metalnessoutput())
       {
-        case 0: // r
+        case MaterialDocument::MetalnessOutput::r:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = metalnessmap.bits[i].r;
           break;
 
-        case 1: // g
+        case MaterialDocument::MetalnessOutput::g:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = metalnessmap.bits[i].g;
           break;
 
-        case 2: // b
+        case MaterialDocument::MetalnessOutput::b:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = metalnessmap.bits[i].b;
           break;
 
-        case 3: // a
+        case MaterialDocument::MetalnessOutput::a:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = metalnessmap.bits[i].a;
           break;
 
-        case 4: // invr
+        case MaterialDocument::MetalnessOutput::invr:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = 1 - metalnessmap.bits[i].r;
           break;
 
-        case 5: // invg
+        case MaterialDocument::MetalnessOutput::invg:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = 1 - metalnessmap.bits[i].g;
           break;
 
-        case 6: // invb
+        case MaterialDocument::MetalnessOutput::invb:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = 1 - metalnessmap.bits[i].b;
           break;
 
-        case 7: // inva
+        case MaterialDocument::MetalnessOutput::inva:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].r = 1 - metalnessmap.bits[i].a;
           break;
       }
     }
 
-    if (definition["roughnessmap"].toString() != "")
+    if (materialdocument.image(MaterialDocument::Image::RoughnessMap))
     {
       if (roughnessmap.width != specularmap.width || roughnessmap.height != specularmap.height)
         throw runtime_error("Material build failed - roughness map size mismatch");
 
-      switch(definition["roughnessoutput"].toInt())
+      switch(materialdocument.roughnessoutput())
       {
-        case 0: // r
+        case MaterialDocument::RoughnessOutput::r:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = roughnessmap.bits[i].r;
           break;
 
-        case 1: // g
+        case MaterialDocument::RoughnessOutput::g:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = roughnessmap.bits[i].g;
           break;
 
-        case 2: // b
+        case MaterialDocument::RoughnessOutput::b:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = roughnessmap.bits[i].b;
           break;
 
-        case 3: // a
+        case MaterialDocument::RoughnessOutput::a:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = roughnessmap.bits[i].a;
           break;
 
-        case 4: // invr
+        case MaterialDocument::RoughnessOutput::invr:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = 1 - roughnessmap.bits[i].r;
           break;
 
-        case 5: // invg
+        case MaterialDocument::RoughnessOutput::invg:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = 1 - roughnessmap.bits[i].g;
           break;
 
-        case 6: // invb
+        case MaterialDocument::RoughnessOutput::invb:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = 1 - roughnessmap.bits[i].b;
           break;
 
-        case 7: // inva
+        case MaterialDocument::RoughnessOutput::inva:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].a = 1 - roughnessmap.bits[i].a;
           break;
       }
     }
 
-    if (definition["reflectivitymap"].toString() != "")
+    if (materialdocument.image(MaterialDocument::Image::ReflectivityMap))
     {
       if (reflectivitymap.width != specularmap.width || reflectivitymap.height != specularmap.height)
         throw runtime_error("Material build failed - reflectivity map size mismatch");
 
-      switch(definition["reflectivityoutput"].toInt())
+      switch(materialdocument.reflectivityoutput())
       {
-        case 0: // r
+        case MaterialDocument::ReflectivityOutput::r:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = reflectivitymap.bits[i].r;
           break;
 
-        case 1: // g
+        case MaterialDocument::ReflectivityOutput::g:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = reflectivitymap.bits[i].g;
           break;
 
-        case 2: // b
+        case MaterialDocument::ReflectivityOutput::b:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = reflectivitymap.bits[i].b;
           break;
 
-        case 3: // a
+        case MaterialDocument::ReflectivityOutput::a:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = reflectivitymap.bits[i].a;
           break;
 
-        case 4: // invr
+        case MaterialDocument::ReflectivityOutput::invr:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = 1 - reflectivitymap.bits[i].r;
           break;
 
-        case 5: // invg
+        case MaterialDocument::ReflectivityOutput::invg:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = 1 - reflectivitymap.bits[i].g;
           break;
 
-        case 6: // invb
+        case MaterialDocument::ReflectivityOutput::invb:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = 1 - reflectivitymap.bits[i].b;
           break;
 
-        case 7: // inva
+        case MaterialDocument::ReflectivityOutput::inva:
           for(size_t i = 0; i < specularmap.bits.size(); ++i)
             specularmap.bits[i].g = 1 - reflectivitymap.bits[i].a;
           break;
@@ -490,21 +451,21 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
     write_specularmap(fout, 2, specularmap);
   }
 
-  if (definition["normalmap"].toString() != "")
+  if (materialdocument.image(MaterialDocument::Image::NormalMap))
   {
-    HDRImage normalmap = image_data_raw(fullpath(document, definition["normalmap"].toString()));
+    auto normalmap = ImageDocument(materialdocument.image(MaterialDocument::Image::NormalMap)).data(ImageDocument::raw);
 
-    switch(definition["normaloutput"].toInt())
+    switch(materialdocument.normaloutput())
     {
-      case 0: // xyz
+      case MaterialDocument::NormalOutput::xyz:
         break;
 
-      case 1: // xinyz
+      case MaterialDocument::NormalOutput::xinvyz:
         for(size_t i = 0; i < normalmap.bits.size(); ++i)
           normalmap.bits[i].g = 1 - normalmap.bits[i].g;
         break;
 
-      case 2: // bump
+      case MaterialDocument::NormalOutput::bump:
         normalmap = normalmap_from_image(normalmap);
         break;
     }

@@ -117,7 +117,7 @@ class ModelView : public Viewport
 
     std::vector<Instance> m_transparencies;
 
-    unique_resource<Mesh> m_homocube;
+    unique_resource<Mesh> m_linecube;
 
     QTimer *m_updatetimer;
 

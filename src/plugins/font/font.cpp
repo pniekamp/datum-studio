@@ -146,29 +146,11 @@ void FontDocument::hash(Studio::Document *document, size_t *key)
 ///////////////////////// build /////////////////////////////////////////////
 void FontDocument::build(Studio::Document *document, string const &path)
 {
-  QJsonObject definition;
+  auto fontdocument = FontDocument(document);
 
-  document->lock();
-
-  PackTextHeader text;
-
-  if (read_asset_header(document, 1, &text))
-  {
-    QByteArray payload(pack_payload_size(text), 0);
-
-    read_asset_payload(document, text.dataoffset, payload.data(), payload.size());
-
-    definition = QJsonDocument::fromBinaryData(payload).object();
-  }
-
-  document->unlock();
-
-  QFont font(definition["name"].toString(), definition["size"].toInt(), definition["weight"].toInt(), definition["italic"].toBool());
+  auto font = fontdocument.font();
 
   font.setStyleStrategy(QFont::OpenGLCompatible);
-
-  int atlaswidth = definition["atlaswidth"].toInt(512);
-  int atlasheight = definition["atlasheight"].toInt(256);
 
   ofstream fout(path, ios::binary | ios::trunc);
 
@@ -176,7 +158,7 @@ void FontDocument::build(Studio::Document *document, string const &path)
 
   write_catalog(fout, 0);
 
-  write_font(fout, 1, font, atlaswidth, atlasheight);
+  write_font(fout, 1, font, fontdocument.atlaswidth(), fontdocument.atlasheight());
 
   write_chunk(fout, "HEND", 0, nullptr);
 

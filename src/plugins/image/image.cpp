@@ -114,43 +114,46 @@ HDRImage ImageDocument::data(long flags)
 {
   HDRImage image = {};
 
-  m_document->lock();
-
-  PackImageHeader imag;
-
-  if (read_asset_header(m_document, 1, &imag))
+  if (m_document)
   {
-    vector<char> payload(pack_payload_size(imag));
+    m_document->lock();
 
-    read_asset_payload(m_document, imag.dataoffset, payload.data(), payload.size());
+    PackImageHeader imag;
 
-    image.width = imag.width;
-    image.height = imag.height;
-    image.bits.resize(image.width * image.height);
-
-    uint32_t *src = (uint32_t*)payload.data();
-
-    for(size_t i = 0; i < image.bits.size(); ++i)
+    if (read_asset_header(m_document, 1, &imag))
     {
-      switch(imag.format)
+      vector<char> payload(pack_payload_size(imag));
+
+      read_asset_payload(m_document, imag.dataoffset, payload.data(), payload.size());
+
+      image.width = imag.width;
+      image.height = imag.height;
+      image.bits.resize(image.width * image.height);
+
+      uint32_t *src = (uint32_t*)payload.data();
+
+      for(size_t i = 0; i < image.bits.size(); ++i)
       {
-        case PackImageHeader::rgba:
-          image.bits[i] = (flags & srgb) ? srgba(*src) : rgba(*src);
-          break;
+        switch(imag.format)
+        {
+          case PackImageHeader::rgba:
+            image.bits[i] = (flags & srgb) ? srgba(*src) : rgba(*src);
+            break;
 
-        case PackImageHeader::rgbe:
-          image.bits[i] = rgbe(*src);
-          break;
+          case PackImageHeader::rgbe:
+            image.bits[i] = rgbe(*src);
+            break;
 
-        default:
-          assert(false);
+          default:
+            assert(false);
+        }
+
+        ++src;
       }
-
-      ++src;
     }
-  }
 
-  m_document->unlock();
+    m_document->unlock();
+  }
 
   return image;
 }

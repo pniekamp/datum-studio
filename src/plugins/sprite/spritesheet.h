@@ -47,7 +47,7 @@ class SpriteSheetDocument : public QObject
 
     int layers() const { return m_images.size(); }
 
-    Studio::Document const *layer(int index) const { return m_images[index]; }
+    Studio::Document *layer(int index) const { return m_images[index]; }
 
   public:
 

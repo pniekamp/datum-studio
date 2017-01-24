@@ -41,18 +41,6 @@ namespace
     return key;
   }
 
-  HDRImage image_data(QString const &path)
-  {
-    HDRImage image = {};
-
-    if (auto document = ImageDocument(path))
-    {
-      image = document.data();
-    }
-
-    return image;
-  }
-
   uint32_t write_catalog(ostream &fout, uint32_t id)
   {
     write_catl_asset(fout, id, 0, 0);
@@ -167,26 +155,10 @@ void SkyboxDocument::hash(Studio::Document *document, size_t *key)
 ///////////////////////// build /////////////////////////////////////////////
 void SkyboxDocument::build(Studio::Document *document, string const &path)
 {
-  QJsonObject definition;
+  auto skyboxdocument = SkyboxDocument(document);
 
-  document->lock();
-
-  PackTextHeader text;
-
-  if (read_asset_header(document, 1, &text))
-  {
-    QByteArray payload(pack_payload_size(text), 0);
-
-    read_asset_payload(document, text.dataoffset, payload.data(), payload.size());
-
-    definition = QJsonDocument::fromBinaryData(payload).object();
-  }
-
-  document->unlock();
-
-  int type = definition["type"].toInt(0);
-  int width = definition["width"].toInt(512);
-  int height = definition["height"].toInt(512);
+  int width = skyboxdocument.width();
+  int height = skyboxdocument.height();
 
   if (width == 0 || height == 0 || image_maxlevels(width, height) < 8)
     throw runtime_error("Skybox build failed - too small");
@@ -197,25 +169,25 @@ void SkyboxDocument::build(Studio::Document *document, string const &path)
 
   write_catalog(fout, 0);
 
-  switch(type)
+  switch(skyboxdocument.type())
   {
-    case 0: // Faces Images
+    case SkyboxDocument::Type::FaceImages:
     {
-      auto front = image_data(fullpath(document, definition["front"].toString()));
-      auto left = image_data(fullpath(document, definition["left"].toString()));
-      auto right = image_data(fullpath(document, definition["right"].toString()));
-      auto back = image_data(fullpath(document, definition["back"].toString()));
-      auto top = image_data(fullpath(document, definition["top"].toString()));
-      auto bottom = image_data(fullpath(document, definition["bottom"].toString()));
+      auto front = ImageDocument(skyboxdocument.image(SkyboxDocument::Image::Front)).data();
+      auto left = ImageDocument(skyboxdocument.image(SkyboxDocument::Image::Left)).data();
+      auto right = ImageDocument(skyboxdocument.image(SkyboxDocument::Image::Right)).data();
+      auto back = ImageDocument(skyboxdocument.image(SkyboxDocument::Image::Back)).data();
+      auto top = ImageDocument(skyboxdocument.image(SkyboxDocument::Image::Top)).data();
+      auto bottom = ImageDocument(skyboxdocument.image(SkyboxDocument::Image::Bottom)).data();
 
       write_skybox(fout, 1, width, height, { right, left, bottom, top, front, back });
 
       break;
     }
 
-    case 1: // Spherical Map
+    case SkyboxDocument::Type::SphericalMap:
     {
-      auto envmap = image_data(fullpath(document, definition["envmap"].toString()));
+      auto envmap = ImageDocument(skyboxdocument.image(SkyboxDocument::Image::EnvMap)).data();
 
       write_skybox(fout, 1, width, height, envmap);
 

@@ -18,10 +18,20 @@ using namespace lml;
 ///////////////////////// Resource::load_mesh ///////////////////////////////
 template<>
 unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(size_t asset)
-{
+{ 
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return create<Mesh>(platform->assets()->find(asset));
+  auto mesh = create<Mesh>(platform->assets()->find(asset));
+
+  if (mesh)
+  {
+    asset_guard lock(platform->assets());
+
+    while (!mesh->ready())
+      platform->resources()->request(*platform->instance(), *mesh);
+  }
+
+  return mesh;
 }
 
 
@@ -57,6 +67,26 @@ unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *docu
   document->unlock();
 
   return mesh;
+}
+
+
+///////////////////////// Resource::load_texture ////////////////////////////
+template<>
+unique_resource<Texture> Viewport::ResourceProxy::load<Texture>(size_t asset, Texture::Format format)
+{
+  auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
+
+  auto texture = create<Texture>(platform->assets()->find(asset), format);
+
+  if (texture)
+  {
+    asset_guard lock(platform->assets());
+
+    while (!texture->ready())
+      platform->resources()->request(*platform->instance(), *texture);
+  }
+
+  return texture;
 }
 
 
@@ -248,9 +278,6 @@ bool Viewport::prepare()
 
   m_pushbuffer.reset();
 
-  while (renderparams.skybox && !renderparams.skybox->ready())
-    platform->resources()->request(*platform->instance(), renderparams.skybox);
-
   m_resourcetoken = platform->resources()->token();
 
   return true;
@@ -278,20 +305,20 @@ void Viewport::push_sprites(SpriteList const &sprites)
 
 
 ///////////////////////// Viewport::begin ///////////////////////////////////
-bool Viewport::begin(MeshList &meshes, MeshList::BuildState &buildstate)
+bool Viewport::begin(GeometryList &geometry, GeometryList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return meshes.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
+  return geometry.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
 }
 
 
-///////////////////////// Viewport::push_meshes /////////////////////////////
-void Viewport::push_meshes(MeshList const &meshes)
+///////////////////////// Viewport::push_geometry ///////////////////////////
+void Viewport::push_geometry(GeometryList const &geometry)
 {
-  if (auto entry = m_pushbuffer.push<Renderable::Meshes>())
+  if (auto entry = m_pushbuffer.push<Renderable::Geometry>())
   {
-    entry->commandlist = meshes.commandlist();
+    entry->commandlist = geometry.commandlist();
   }
 }
 

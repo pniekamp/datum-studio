@@ -65,8 +65,8 @@ class SkyboxDocument : public QObject
     int width() const { return m_definition["width"].toInt(); }
     int height() const { return m_definition["height"].toInt(); }
 
-    Studio::Document const *image(int image) const { return m_images[image]; }
-    Studio::Document const *image(Image image) const { return m_images[static_cast<int>(image)]; }
+    Studio::Document *image(int image) const { return m_images[image]; }
+    Studio::Document *image(Image image) const { return m_images[static_cast<int>(image)]; }
 
   public:
 

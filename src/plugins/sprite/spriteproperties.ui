@@ -100,7 +100,7 @@
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>2</number>
+           <number>6</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
@@ -108,23 +108,7 @@
           <property name="bottomMargin">
            <number>12</number>
           </property>
-          <item row="1" column="0">
-           <widget class="QLabel" name="WidthLabel">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Width :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
+          <item row="0" column="1">
            <widget class="QLineEdit" name="Width">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -146,23 +130,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="HeightLabel">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Height :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
+          <item row="1" column="1">
            <widget class="QLineEdit" name="Height">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -184,23 +152,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="LayersLabel">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Layers :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
+          <item row="2" column="1">
            <widget class="QLineEdit" name="Layers">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -222,6 +174,54 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="WidthLabel">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Width :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="HeightLabel">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Height :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="LayersLabel">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Layers :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -240,7 +240,7 @@
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>2</number>
+           <number>6</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
@@ -249,7 +249,7 @@
            <number>12</number>
           </property>
           <item>
-           <widget class="LayersWidget" name="LayersList">
+           <widget class="LayerListWidget" name="LayerList">
             <property name="acceptDrops">
              <bool>true</bool>
             </property>
@@ -267,6 +267,9 @@
               <width>48</width>
               <height>48</height>
              </size>
+            </property>
+            <property name="verticalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
             <property name="spacing">
              <number>4</number>
@@ -297,9 +300,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>LayersWidget</class>
+   <class>LayerListWidget</class>
    <extends>QListWidget</extends>
-   <header>layerswidget.h</header>
+   <header>layerlistwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

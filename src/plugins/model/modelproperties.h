@@ -36,7 +36,16 @@ class ModelProperties : public QDockWidget
 
     void refresh();
 
+    void on_dx_valueChanged(double value);
+    void on_dy_valueChanged(double value);
+    void on_dz_valueChanged(double value);
+    void on_ax_valueChanged(double value);
+    void on_ay_valueChanged(double value);
+    void on_az_valueChanged(double value);
+
   private:
+
+    int m_mesh;
 
     Ui::Properties ui;
 

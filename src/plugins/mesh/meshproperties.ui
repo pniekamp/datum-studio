@@ -100,7 +100,7 @@
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>2</number>
+           <number>6</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
@@ -108,7 +108,7 @@
           <property name="bottomMargin">
            <number>12</number>
           </property>
-          <item row="1" column="0">
+          <item row="0" column="0">
            <widget class="QLabel" name="MeshesLabel">
             <property name="minimumSize">
              <size>
@@ -124,7 +124,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="0" column="1">
            <widget class="QLineEdit" name="Meshes">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -149,7 +149,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="MaterialsLabel">
             <property name="minimumSize">
              <size>
@@ -165,7 +165,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="1" column="1">
            <widget class="QLineEdit" name="Materials">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -190,7 +190,23 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="2" column="0">
+           <widget class="QLabel" name="VerticesLabel">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Vertices :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
            <widget class="QLineEdit" name="Vertices">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -216,7 +232,7 @@
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="VerticesLabel">
+           <widget class="QLabel" name="TrignalesLabel">
             <property name="minimumSize">
              <size>
               <width>50</width>
@@ -224,14 +240,14 @@
              </size>
             </property>
             <property name="text">
-             <string>Vertices :</string>
+             <string>Triangles :</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="3" column="1">
            <widget class="QLineEdit" name="Triangles">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -253,22 +269,6 @@
             </property>
             <property name="placeholderText">
              <string>triangle count</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="TrignalesLabel">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Triangles :</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -299,7 +299,7 @@
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>2</number>
+           <number>6</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
@@ -307,7 +307,7 @@
           <property name="bottomMargin">
            <number>12</number>
           </property>
-          <item row="1" column="0">
+          <item row="0" column="0">
            <widget class="QLabel" name="ImportSrcLabel">
             <property name="minimumSize">
              <size>
@@ -323,7 +323,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="0" column="1">
            <widget class="QcFileLineEdit" name="ImportSrc">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -336,7 +336,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="ImportWidthLabel">
             <property name="minimumSize">
              <size>
@@ -352,7 +352,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="1" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <property name="spacing">
              <number>2</number>
@@ -408,7 +408,7 @@
             </item>
            </layout>
           </item>
-          <item row="3" column="1">
+          <item row="2" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <spacer name="horizontalSpacer">

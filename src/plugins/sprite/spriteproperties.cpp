@@ -32,7 +32,7 @@ void SpriteProperties::edit(Studio::Document *document)
 {
   m_document = document;
 
-  ui.LayersList->edit(document);
+  ui.LayerList->edit(document);
 
   connect(&m_document, &SpriteSheetDocument::document_changed, this, &SpriteProperties::refresh);
   connect(&m_document, &SpriteSheetDocument::dependant_changed, this, &SpriteProperties::refresh);

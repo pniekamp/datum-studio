@@ -51,7 +51,7 @@ ModelView::ModelView(QWidget *parent)
 
   renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
 
-  m_homocube = resources.load<Mesh>(CoreAsset::homo_cube);
+  m_linecube = resources.load<Mesh>(CoreAsset::line_cube);
 
   m_updatetimer = new QTimer(this);
   m_updatetimer->setSingleShot(true);
@@ -456,7 +456,7 @@ void ModelView::mouseReleaseEvent(QMouseEvent *event)
 
   if (m_mode == ModeType::Translating || m_mode == ModeType::Rotating)
   {
-    auto transform = m_selectedtransform * m_document->mesh(m_selection).transform;
+    auto transform = normalise(m_selectedtransform * m_document->mesh(m_selection).transform);
 
     m_selectedtransform = Transform::identity();
 
@@ -538,20 +538,20 @@ void ModelView::paintEvent(QPaintEvent *event)
 
   if (m_instances.size() != 0)
   {
-    MeshList meshes;
-    MeshList::BuildState buildstate;
+    GeometryList geometry;
+    GeometryList::BuildState buildstate;
 
-    if (begin(meshes, buildstate))
+    if (begin(geometry, buildstate))
     {
       for(auto &instance : m_instances)
       {
-        meshes.push_mesh(buildstate, instance.transform, instance.mesh, instance.material);
+        geometry.push_mesh(buildstate, instance.transform, instance.mesh, instance.material);
       }
 
-      meshes.finalise(buildstate);
+      geometry.finalise(buildstate);
     }
 
-    push_meshes(meshes);
+    push_geometry(geometry);
   }
 
   if (m_transparencies.size() != 0)
@@ -578,7 +578,6 @@ void ModelView::paintEvent(QPaintEvent *event)
     push_objects(objects);
   }
 
-
   if (m_selection != -1)
   {
     OverlayList selection;
@@ -586,12 +585,11 @@ void ModelView::paintEvent(QPaintEvent *event)
 
     if (begin(selection, buildstate))
     {
-
       for(auto &instance : m_instances)
       {
         if (instance.index == m_selection)
         {
-          selection.push_stencil(buildstate, instance.transform, instance.mesh, instance.material);
+          selection.push_stencilmask(buildstate, instance.transform, instance.mesh);
         }
       }
 
@@ -599,7 +597,7 @@ void ModelView::paintEvent(QPaintEvent *event)
       {
         if (instance.index == m_selection)
         {
-          selection.push_outline(buildstate, instance.transform, instance.mesh, instance.material, Color4(1.0f, 0.5f, 0.15f, 1.0f));
+          selection.push_stencilpath(buildstate, instance.transform, instance.mesh, Color4(1.0f, 0.5f, 0.15f, 1.0f));
         }
       }
 
@@ -614,7 +612,7 @@ void ModelView::paintEvent(QPaintEvent *event)
         }
       }
 
-      selection.push_volume(buildstate, bound, m_homocube, Color4(0.6f, 0.2f, 0.2f, 0.4f));
+      selection.push_volume(buildstate, bound, m_linecube, Color4(0.6f, 0.2f, 0.2f, 0.4f));
 #endif
 
       selection.finalise(buildstate);

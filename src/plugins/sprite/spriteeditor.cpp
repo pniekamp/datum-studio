@@ -53,6 +53,8 @@ SpriteEditor::SpriteEditor(QWidget *parent)
   connect(m_layerslider, &QcSlider::valueChanged, m_view, &SpriteView::set_layer);
   connect(m_view, &SpriteView::layer_changed, m_layerslider, &QcSlider::updateValue);
 
+  connect(m_view, &SpriteView::layers_changed, m_layerslider, &QcSlider::setMaximum);
+
   QSettings settings;
   restoreState(settings.value("spriteeditor/state", QByteArray()).toByteArray());
 }

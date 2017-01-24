@@ -72,6 +72,9 @@
       <property name="defaultDropAction">
        <enum>Qt::MoveAction</enum>
       </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
       <property name="indentation">
        <number>16</number>
       </property>
@@ -117,6 +120,12 @@
         <width>48</width>
         <height>48</height>
        </size>
+      </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
       </property>
       <property name="movement">
        <enum>QListView::Free</enum>

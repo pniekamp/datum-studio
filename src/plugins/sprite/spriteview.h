@@ -35,6 +35,7 @@ class SpriteView : public QAbstractScrollArea
 
     void zoom_changed(float value);
     void layer_changed(int value);
+    void layers_changed(int layers);
 
   protected slots:
 

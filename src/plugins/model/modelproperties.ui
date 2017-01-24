@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>220</width>
+    <width>300</width>
     <height>545</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>220</width>
+    <width>300</width>
     <height>109</height>
    </size>
   </property>
@@ -58,11 +58,11 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>220</width>
+         <width>300</width>
          <height>523</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0,0,0,0">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -91,7 +91,7 @@
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>2</number>
+           <number>6</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
@@ -100,7 +100,7 @@
            <number>12</number>
           </property>
           <item>
-           <widget class="MeshWidget" name="MeshList">
+           <widget class="MeshListWidget" name="MeshList">
             <property name="acceptDrops">
              <bool>true</bool>
             </property>
@@ -116,6 +116,9 @@
             <property name="defaultDropAction">
              <enum>Qt::MoveAction</enum>
             </property>
+            <property name="verticalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
+            </property>
             <property name="spacing">
              <number>4</number>
             </property>
@@ -124,9 +127,138 @@
          </layout>
         </item>
         <item>
+         <widget class="QLabel" name="TransformHeader">
+          <property name="text">
+           <string>Transform</string>
+          </property>
+          <property name="class" stdset="0">
+           <string>header</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QFormLayout" name="Transform">
+          <property name="labelAlignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="horizontalSpacing">
+           <number>8</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>9</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>9</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QcDoubleSpinBox" name="dx">
+              <property name="minimum">
+               <double>-9999.989999999999782</double>
+              </property>
+              <property name="maximum">
+               <double>9999.989999999999782</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QcDoubleSpinBox" name="dy">
+              <property name="minimum">
+               <double>-9999.989999999999782</double>
+              </property>
+              <property name="maximum">
+               <double>9999.989999999999782</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QcDoubleSpinBox" name="dz">
+              <property name="minimum">
+               <double>-9999.989999999999782</double>
+              </property>
+              <property name="maximum">
+               <double>9999.989999999999782</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Position :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Rotation :</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QcDoubleSpinBox" name="ax">
+              <property name="minimum">
+               <double>-360.990000000000009</double>
+              </property>
+              <property name="maximum">
+               <double>360.990000000000009</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QcDoubleSpinBox" name="ay">
+              <property name="minimum">
+               <double>-360.990000000000009</double>
+              </property>
+              <property name="maximum">
+               <double>360.990000000000009</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QcDoubleSpinBox" name="az">
+              <property name="minimum">
+               <double>-360.990000000000009</double>
+              </property>
+              <property name="maximum">
+               <double>360.990000000000009</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QLabel" name="LayersHeader">
           <property name="text">
-           <string>Material Slots</string>
+           <string>Materials</string>
           </property>
           <property name="class" stdset="0">
            <string>header</string>
@@ -139,7 +271,7 @@
            <number>9</number>
           </property>
           <property name="topMargin">
-           <number>2</number>
+           <number>6</number>
           </property>
           <property name="rightMargin">
            <number>9</number>
@@ -148,7 +280,7 @@
            <number>12</number>
           </property>
           <item>
-           <widget class="SlotsWidget" name="SlotsList">
+           <widget class="SlotListWidget" name="SlotList">
             <property name="acceptDrops">
              <bool>true</bool>
             </property>
@@ -157,6 +289,9 @@
             </property>
             <property name="defaultDropAction">
              <enum>Qt::CopyAction</enum>
+            </property>
+            <property name="verticalScrollMode">
+             <enum>QAbstractItemView::ScrollPerPixel</enum>
             </property>
             <property name="spacing">
              <number>4</number>
@@ -200,20 +335,25 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QcDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qcdoublespinbox.h</header>
+  </customwidget>
+  <customwidget>
    <class>MaterialWidget</class>
    <extends>QWidget</extends>
    <header>materialwidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SlotsWidget</class>
+   <class>MeshListWidget</class>
    <extends>QListWidget</extends>
-   <header>slotswidget.h</header>
+   <header>meshlistwidget.h</header>
   </customwidget>
   <customwidget>
-   <class>MeshWidget</class>
+   <class>SlotListWidget</class>
    <extends>QListWidget</extends>
-   <header>meshwidget.h</header>
+   <header>slotlistwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

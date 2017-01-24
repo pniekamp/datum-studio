@@ -38,7 +38,7 @@ class Viewport : public QWidget
         void update(Resource const *resource, Args... args) { m_manager->update(resource, std::forward<Args>(args)...); }
 
         template<typename Resource, typename ...Args>
-        unique_resource<Resource> load(size_t asset);
+        unique_resource<Resource> load(size_t asset, Args... args);
 
         template<typename Resource, typename ...Args>
         unique_resource<Resource> load(std::istream &fin, size_t index, Args... args);
@@ -69,9 +69,9 @@ class Viewport : public QWidget
 
     void push_sprites(SpriteList const &sprites);
 
-    bool begin(MeshList &meshes, MeshList::BuildState &buildstate);
+    bool begin(GeometryList &geometry, GeometryList::BuildState &buildstate);
 
-    void push_meshes(MeshList const &meshes);
+    void push_geometry(GeometryList const &geometry);
 
     bool begin(ForwardList &objects, ForwardList::BuildState &buildstate);
 

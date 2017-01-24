@@ -70,7 +70,7 @@ void SpriteView::invalidate()
 
 ///////////////////////// SpriteView::refresh ///////////////////////////////
 void SpriteView::refresh()
-{
+{ 
   auto buildmanager = Studio::Core::instance()->find_object<Studio::BuildManager>();
 
   buildmanager->request_build(m_document, this, &SpriteView::on_sprite_build_complete);
@@ -100,6 +100,8 @@ void SpriteView::on_sprite_build_complete(Studio::Document *document, QString co
 
       viewport()->resources.release_lump(lump);
     }
+
+    emit layers_changed(m_layers);
   }
 
   invalidate();
