@@ -10,6 +10,7 @@
 #include "contentapi.h"
 #include "assetfile.h"
 #include <leap.h>
+#include <leap/lml/matrixconstants.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -27,6 +28,7 @@ namespace
 {
   struct Mesh
   {
+    Vec3 scale;
     vector<PackVertex> vertices;
     vector<uint32_t> indices;
   };
@@ -40,35 +42,41 @@ namespace
     vector<PackModelPayload::Instance> instances;
   };
 
-  float dot(aiVector3D const &u, aiVector3D const &v)
+  Vector3f vec(aiVector3D const &v)
   {
-    return u * v;
+    return { v.x, v.y, v.z };
   }
 
-  aiVector3D cross(aiVector3D const &u, aiVector3D const &v)
+  Matrix4f mat(aiMatrix4x4 const &m)
   {
-    return { u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x };
+    return { { m.a1, m.a2, m.a3, m.a4 }, { m.b1, m.b2, m.b3, m.b4 }, { m.c1, m.c2, m.c3, m.c4 }, { m.d1, m.d2, m.d3, m.d4 } };
   }
 
-  void build_model(Model &model, aiScene const *scene, aiNode const *node, Transform const &transform, float scale)
+  void build_model(Model &model, aiScene const *scene, aiNode const *node, Matrix4f const &transform)
   {
-    auto xaxis = Vector3(node->mTransformation.a1, node->mTransformation.b1, node->mTransformation.c1);
-    auto yaxis = Vector3(node->mTransformation.a2, node->mTransformation.b2, node->mTransformation.c2);
-    auto zaxis = Vector3(node->mTransformation.a3, node->mTransformation.b3, node->mTransformation.c3);
+    auto m = transform * mat(node->mTransformation);
 
-    auto rotation = Transform::rotation(Quaternion3f(xaxis, yaxis, zaxis));
-    auto translation = Transform::translation(scale * node->mTransformation.a4, scale * node->mTransformation.b4, scale * node->mTransformation.c4);
+    auto xaxis = Vec3(m(0, 0), m(1, 0), m(2, 0));
+    auto yaxis = Vec3(m(0, 1), m(1, 1), m(2, 1));
+    auto zaxis = Vec3(m(0, 2), m(1, 2), m(2, 2));
+    auto offset = Vec3(m(0, 3), m(1, 3), m(2, 3));
 
-    Transform local = transform * translation * rotation;
+    auto scale = Vec3(norm(xaxis), norm(yaxis), norm(zaxis));
+    auto rotation = Transform::rotation(Quaternion3f(normalise(xaxis), normalise(yaxis), normalise(zaxis)));
+    auto translation = Transform::translation(offset);
+
+    Transform world = translation * rotation;
 
     for(size_t i = 0; i < node->mNumMeshes; ++i)
     {
-      model.instances.push_back({ node->mMeshes[i], scene->mMeshes[node->mMeshes[i]]->mMaterialIndex, local.real.w, local.real.x, local.real.y, local.real.z, local.dual.w, local.dual.x, local.dual.y, local.dual.z, 0 });
+      model.meshdata[node->mMeshes[i]].scale = scale;
+
+      model.instances.push_back({ node->mMeshes[i], scene->mMeshes[node->mMeshes[i]]->mMaterialIndex, world.real.w, world.real.x, world.real.y, world.real.z, world.dual.w, world.dual.x, world.dual.y, world.dual.z, 0 });
     }
 
     for(size_t i = 0; i < node->mNumChildren; ++i)
     {
-      build_model(model, scene, node->mChildren[i], local, scale);
+      build_model(model, scene, node->mChildren[i], m);
     }
   }
 
@@ -99,15 +107,17 @@ namespace
 
       Mesh mesh;
 
+      mesh.scale = Vec3(1.0f);
+
       mesh.vertices.resize(scene->mMeshes[i]->mNumVertices);
 
       for(size_t k = 0; k < scene->mMeshes[i]->mNumVertices; ++k)
       {
         if (scene->mMeshes[i]->HasPositions())
         {
-          mesh.vertices[k].position[0] = scene->mMeshes[i]->mVertices[k].x * scale;
-          mesh.vertices[k].position[1] = scene->mMeshes[i]->mVertices[k].y * scale;
-          mesh.vertices[k].position[2] = scene->mMeshes[i]->mVertices[k].z * scale;
+          mesh.vertices[k].position[0] = scene->mMeshes[i]->mVertices[k].x;
+          mesh.vertices[k].position[1] = scene->mMeshes[i]->mVertices[k].y;
+          mesh.vertices[k].position[2] = scene->mMeshes[i]->mVertices[k].z;
         }
 
         if (scene->mMeshes[i]->HasTextureCoords(0))
@@ -128,7 +138,7 @@ namespace
           mesh.vertices[k].tangent[0] = isnormal(scene->mMeshes[i]->mTangents[k].x) ?  scene->mMeshes[i]->mTangents[k].x : 0;
           mesh.vertices[k].tangent[1] = isnormal(scene->mMeshes[i]->mTangents[k].y) ? scene->mMeshes[i]->mTangents[k].y : 0;
           mesh.vertices[k].tangent[2] = isnormal(scene->mMeshes[i]->mTangents[k].z) ? scene->mMeshes[i]->mTangents[k].z : 0;
-          mesh.vertices[k].tangent[3] = (dot(cross(scene->mMeshes[i]->mNormals[k], scene->mMeshes[i]->mTangents[k]), scene->mMeshes[i]->mBitangents[k]) < 0.0f) ? -1.0f : 1.0f;
+          mesh.vertices[k].tangent[3] = (dot(cross(vec(scene->mMeshes[i]->mNormals[k]), vec(scene->mMeshes[i]->mTangents[k])), vec(scene->mMeshes[i]->mBitangents[k])) < 0.0f) ? -1.0f : 1.0f;
         }
       }
 
@@ -143,11 +153,22 @@ namespace
         mesh.indices[k*3 + 2] = scene->mMeshes[i]->mFaces[k].mIndices[2];
       }
 
-      model.meshes.push_back({ (uint32_t)(1 + i) });
       model.meshdata.push_back(std::move(mesh));
+
+      model.meshes.push_back({ (uint32_t)(1 + i) });
     }
 
-    build_model(model, scene, scene->mRootNode, Transform::identity(), scale);
+    build_model(model, scene, scene->mRootNode, ScaleMatrix(scale, scale, scale, 1.0f));
+
+    for(auto &mesh : model.meshdata)
+    {
+      for(size_t k = 0; k < mesh.vertices.size(); ++k)
+      {
+        mesh.vertices[k].position[0] *= mesh.scale.x;
+        mesh.vertices[k].position[1] *= mesh.scale.y;
+        mesh.vertices[k].position[2] *= mesh.scale.z;
+      }
+    }
 
     write_modl_asset(fout, id, model.textures, model.materials, model.meshes, model.instances);
 

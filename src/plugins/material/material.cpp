@@ -277,7 +277,7 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
     {
       auto albedomask = ImageDocument(materialdocument.image(MaterialDocument::Image::AlbedoMask)).data();
 
-      if (albedomap.width != albedomask.width || albedomap.height != albedomap.height)
+      if (albedomask.width != albedomap.width || albedomask.height != albedomap.height)
         throw runtime_error("Material build failed - albedo mask size mismatch");
 
       for(int i = 0; i < albedomap.width * albedomap.height; ++i)
