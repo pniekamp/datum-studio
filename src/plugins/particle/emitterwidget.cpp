@@ -454,7 +454,7 @@ void EmitterWidget::on_RotationEdit_clicked()
 ///////////////////////// EmitterWidget::VelocityMin ////////////////////////
 void EmitterWidget::on_VelocityMin_valueChanged(double value)
 {
-  m_emitter.velocity.ya.front() = value * safenormalise(m_emitter.velocity.ya.front(), Vec3(1.0f, 0.0f, 0.0f));
+  m_emitter.velocity.ya.front() = (float)value * safenormalise(m_emitter.velocity.ya.front(), Vec3(1.0f, 0.0f, 0.0f));
 
   m_document.update_emitter(m_index, m_emitter);
 }
@@ -463,7 +463,7 @@ void EmitterWidget::on_VelocityMin_valueChanged(double value)
 ///////////////////////// EmitterWidget::VelocityMax ////////////////////////
 void EmitterWidget::on_VelocityMax_valueChanged(double value)
 {
-  m_emitter.velocity.ya.back() = value * safenormalise(m_emitter.velocity.ya.back(), Vec3(1.0f, 0.0f, 0.0f));
+  m_emitter.velocity.ya.back() = (float)value * safenormalise(m_emitter.velocity.ya.back(), Vec3(1.0f, 0.0f, 0.0f));
 
   m_document.update_emitter(m_index, m_emitter);
 }

@@ -40,6 +40,8 @@ class MaterialWidget : public QWidget
     void on_TintGreenSpinner_valueChanged(double value);
     void on_TintBlueSlider_valueChanged(double value);
     void on_TintBlueSpinner_valueChanged(double value);    
+    void on_TintAlphaSlider_valueChanged(double value);
+    void on_TintAlphaSpinner_valueChanged(double value);
     void on_EmissiveSlider_valueChanged(double value);
     void on_EmissiveSpinner_valueChanged(double value);
     void on_AlbedoOutput_clicked();

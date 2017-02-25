@@ -193,8 +193,8 @@ Distribution<T> make_distribution(ParticleSystemDocument::Distribution<T> const 
 }
 
 
-///////////////////////// make_particleemitter //////////////////////////////
-ParticleEmitter make_particleemitter(ParticleSystemDocument::Emitter const &source)
+///////////////////////// make_emitter //////////////////////////////////////
+ParticleEmitter make_emitter(ParticleSystemDocument::Emitter const &source)
 {
   ParticleEmitter emitter;
 
@@ -321,20 +321,20 @@ void ParticleSystemDocument::hash(Studio::Document *document, size_t *key)
 ///////////////////////// pack //////////////////////////////////////////////
 void ParticleSystemDocument::pack(Studio::PackerState &asset, ofstream &fout)
 {
+  using ::pack;
+
   auto particledocument = ParticleSystemDocument(asset.document);
 
-  vector<vector<uint8_t>> emitters;
+  vector<uint8_t> emitters;
 
   for(int i = 0; i < particledocument.emitters(); ++i)
   {
-    auto emitter = make_particleemitter(particledocument.emitter(i));
-
-    emitters.push_back(::pack(emitter));
+    pack(emitters, make_emitter(particledocument.emitter(i)));
   }
 
   uint32_t spritesheet = asset.add_dependant(particledocument.spritesheet(), "SpriteSheet");
 
-  write_ptsm_asset(fout, asset.id, particledocument.bound(), spritesheet, particledocument.maxparticles(), emitters);
+  write_ptsm_asset(fout, asset.id, particledocument.bound(), spritesheet, particledocument.maxparticles(), particledocument.emitters(), emitters);
 }
 
 

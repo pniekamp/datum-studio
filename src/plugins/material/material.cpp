@@ -171,7 +171,7 @@ namespace
 
 
 ///////////////////////// create ////////////////////////////////////////////
-void MaterialDocument::create(string const &path, lml::Color3 const &color, float metalness, float roughness)
+void MaterialDocument::create(string const &path, Color4 const &color, float metalness, float roughness)
 {
   QJsonObject metadata;
   metadata["type"] = "Material";
@@ -181,6 +181,7 @@ void MaterialDocument::create(string const &path, lml::Color3 const &color, floa
   definition["color.r"] = color.r;
   definition["color.g"] = color.g;
   definition["color.b"] = color.b;
+  definition["color.a"] = color.a;
   definition["metalness"] = metalness;
   definition["roughness"] = roughness;
 
@@ -654,11 +655,12 @@ void MaterialDocument::set_shader(Shader shader)
 
 
 ///////////////////////// MaterialDocument::set_color ///////////////////////
-void MaterialDocument::set_color(Color3 const &color)
+void MaterialDocument::set_color(Color4 const &color)
 {
   m_definition["color.r"] = color.r;
   m_definition["color.g"] = color.g;
   m_definition["color.b"] = color.b;
+  m_definition["color.a"] = color.a;
 
   update();
 }

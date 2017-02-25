@@ -22,7 +22,7 @@ class MaterialDocument : public QObject
 
   public:
 
-    static void create(std::string const &path, lml::Color3 const &color, float metalness, float roughness);
+    static void create(std::string const &path, lml::Color4 const &color, float metalness, float roughness);
 
     static void hash(Studio::Document *document, size_t *key);
 
@@ -89,7 +89,7 @@ class MaterialDocument : public QObject
 
     Shader shader() const { return static_cast<Shader>(m_definition["shader"].toInt(0)); }
 
-    lml::Color3 color() const { return lml::Color3(m_definition["color.r"].toDouble(), m_definition["color.g"].toDouble(), m_definition["color.b"].toDouble()); }
+    lml::Color4 color() const { return lml::Color4(m_definition["color.r"].toDouble(), m_definition["color.g"].toDouble(), m_definition["color.b"].toDouble(), m_definition["color.a"].toDouble(1)); }
 
     float metalness() const { return m_definition["metalness"].toDouble(0); }
     float roughness() const { return m_definition["roughness"].toDouble(1); }
@@ -109,7 +109,7 @@ class MaterialDocument : public QObject
 
     void set_shader(Shader shader);
 
-    void set_color(lml::Color3 const &color);
+    void set_color(lml::Color4 const &color);
 
     void set_metalness(float metalness);
     void set_roughness(float roughness);

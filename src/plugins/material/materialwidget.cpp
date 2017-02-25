@@ -57,6 +57,8 @@ void MaterialWidget::refresh()
   ui.TintGreenSpinner->updateValue(m_document.color().g);
   ui.TintBlueSlider->updateValue(m_document.color().b);
   ui.TintBlueSpinner->updateValue(m_document.color().b);  
+  ui.TintAlphaSlider->updateValue(m_document.color().a);
+  ui.TintAlphaSpinner->updateValue(m_document.color().a);
   ui.EmissiveSlider->updateValue(m_document.emissive());
   ui.EmissiveSpinner->updateValue(m_document.emissive());
   ui.AlbedoOutput->setChecked(true);
@@ -130,42 +132,56 @@ void MaterialWidget::on_AlbedoMask_itemDropped(QString const &path)
 ///////////////////////// MaterialWidget::TintRedSlider /////////////////////
 void MaterialWidget::on_TintRedSlider_valueChanged(double value)
 {
-  m_document.set_color(Color3(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value()));
+  m_document.set_color(Color4(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value(), ui.TintAlphaSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintRedSpinner ////////////////////
 void MaterialWidget::on_TintRedSpinner_valueChanged(double value)
 {
-  m_document.set_color(Color3(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value()));
+  m_document.set_color(Color4(value, ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value(), ui.TintAlphaSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintGreenSlider ///////////////////
 void MaterialWidget::on_TintGreenSlider_valueChanged(double value)
 {
-  m_document.set_color(Color3(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value()));
+  m_document.set_color(Color4(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value(), ui.TintAlphaSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintGreenSpinner //////////////////
 void MaterialWidget::on_TintGreenSpinner_valueChanged(double value)
 {
-  m_document.set_color(Color3(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value()));
+  m_document.set_color(Color4(ui.TintRedSpinner->value(), value, ui.TintBlueSpinner->value(), ui.TintAlphaSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintBlueSlider ////////////////////
 void MaterialWidget::on_TintBlueSlider_valueChanged(double value)
 {
-  m_document.set_color(Color3(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value));
+  m_document.set_color(Color4(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value, ui.TintAlphaSpinner->value()));
 }
 
 
 ///////////////////////// MaterialWidget::TintBlueSpinner ///////////////////
 void MaterialWidget::on_TintBlueSpinner_valueChanged(double value)
 {
-  m_document.set_color(Color3(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value));
+  m_document.set_color(Color4(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), value, ui.TintAlphaSpinner->value()));
+}
+
+
+///////////////////////// MaterialWidget::TintAlphaSlider ///////////////////
+void MaterialWidget::on_TintAlphaSlider_valueChanged(double value)
+{
+  m_document.set_color(Color4(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value(), value));
+}
+
+
+///////////////////////// MaterialWidget::TintAlphaSpinner //////////////////
+void MaterialWidget::on_TintAlphaSpinner_valueChanged(double value)
+{
+  m_document.set_color(Color4(ui.TintRedSpinner->value(), ui.TintGreenSpinner->value(), ui.TintBlueSpinner->value(), value));
 }
 
 
@@ -454,7 +470,7 @@ void MaterialWidget::on_ResetAlbedo_clicked()
 {
   m_document.set_image(MaterialDocument::Image::AlbedoMap, "");
   m_document.set_image(MaterialDocument::Image::AlbedoMask, "");
-  m_document.set_color(Color3(1.0f, 1.0f, 1.0f));
+  m_document.set_color(Color4(1.0f, 1.0f, 1.0f, 1.0f));
   m_document.set_emissive(0);
   m_document.set_albedooutput(MaterialDocument::AlbedoOutput::rgba);
 }

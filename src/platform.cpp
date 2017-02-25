@@ -186,8 +186,8 @@ class Platform : public PlatformInterface
   public:
 
     VkInstance instance;
-    VkPhysicalDevice physicaldevice;
-    VkDevice device;
+
+    RenderDevice renderdevice;
 
   protected:
 
@@ -197,7 +197,7 @@ class Platform : public PlatformInterface
 
 RenderDevice Platform::render_device()
 {
-  return { physicaldevice, device };
+  return renderdevice;
 }
 
 PlatformInterface::handle_t Platform::open_handle(const char *identifier)
@@ -361,9 +361,19 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
 
 #endif
 
+  VkQueue renderqueue;
+  vkGetDeviceQueue(device, queueindex, 0, &renderqueue);
+
+  VkQueue transferqueue;
+  vkGetDeviceQueue(device, queueindex, 1, &transferqueue);
+
   platform.instance = instance;
-  platform.physicaldevice = physicaldevice;
-  platform.device = device;
+  platform.renderdevice.device = device;
+  platform.renderdevice.physicaldevice = physicaldevice;
+  platform.renderdevice.queues[0] = { renderqueue, queueindex };
+  platform.renderdevice.queues[1] = { transferqueue, queueindex };
+  platform.renderdevice.renderqueue = 0;
+  platform.renderdevice.transferqueue = 1;
 }
 
 
@@ -444,30 +454,17 @@ Vulkan::Surface Game::create_surface(WId wid)
     throw runtime_error("Vulkan vkCreateWin32SurfaceKHR failed");
 #endif
 
-  uint32_t queuecount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(platform.physicaldevice, &queuecount, nullptr);
-
-  if (queuecount == 0)
-    throw runtime_error("Vulkan vkGetPhysicalDeviceQueueFamilyProperties failed");
-
-  vector<VkQueueFamilyProperties> queueproperties(queuecount);
-  vkGetPhysicalDeviceQueueFamilyProperties(platform.physicaldevice, &queuecount, queueproperties.data());
-
-  uint32_t queueindex = 0;
-  while (queueindex < queuecount && !(queueproperties[queueindex].queueFlags & VK_QUEUE_GRAPHICS_BIT))
-    ++queueindex;
-
   VkBool32 surfacesupport = VK_FALSE;
-  vkGetPhysicalDeviceSurfaceSupportKHR(platform.physicaldevice, queueindex, surface, &surfacesupport);
+  vkGetPhysicalDeviceSurfaceSupportKHR(platform.renderdevice.physicaldevice, platform.renderdevice.queues[0].familyindex, surface, &surfacesupport);
 
   if (surfacesupport != VK_TRUE)
     throw runtime_error("Vulkan vkGetPhysicalDeviceSurfaceSupportKHR error");
 
   uint32_t formatscount = 0;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(platform.physicaldevice, surface, &formatscount, nullptr);
+  vkGetPhysicalDeviceSurfaceFormatsKHR(platform.renderdevice.physicaldevice, surface, &formatscount, nullptr);
 
   vector<VkSurfaceFormatKHR> formats(formatscount);
-  vkGetPhysicalDeviceSurfaceFormatsKHR(platform.physicaldevice, surface, &formatscount, formats.data());
+  vkGetPhysicalDeviceSurfaceFormatsKHR(platform.renderdevice.physicaldevice, surface, &formatscount, formats.data());
 
   if (!any_of(formats.begin(), formats.end(), [](VkSurfaceFormatKHR surface) { return (surface.format == VK_FORMAT_B8G8R8A8_SRGB); }))
     throw runtime_error("Vulkan vkGetPhysicalDeviceSurfaceFormatsKHR error");

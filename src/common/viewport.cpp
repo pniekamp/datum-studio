@@ -53,7 +53,7 @@ unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *docu
     {
       uint64_t position = mhdr.dataoffset + sizeof(PackChunk);
 
-      position += document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.verticiesoffset, mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
+      position += document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.verticesoffset, mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
       position += document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.indicesoffset, mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
 
       update<Mesh>(mesh, lump);
@@ -160,16 +160,14 @@ Viewport::Viewport(size_t slabsize, size_t storagesize, QWidget *parent)
 
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  auto renderdevice = platform->instance()->render_device();
-
-  initialise_vulkan_device(&vulkan, renderdevice.physicaldevice, renderdevice.device, 0);
-
   initialise_resource_pool(*platform->instance(), m_rendercontext.resourcepool, storagesize);
+
+  prepare_render_context(*platform->instance(), m_rendercontext, platform->assets());
 
   surface = platform->create_surface(winId());
 
-  acquirecomplete = create_semaphore(vulkan);
-  rendercomplete = create_semaphore(vulkan);
+  acquirecomplete = create_semaphore(m_rendercontext.vulkan);
+  rendercomplete = create_semaphore(m_rendercontext.vulkan);
 
   camera.set_projection(60.0f*pi<float>()/180.0f, 1920.0f/1080.0f);
 }
@@ -184,7 +182,7 @@ Viewport::~Viewport()
 
   delete static_cast<char*>(scratchmemory.data);
 
-  vkDeviceWaitIdle(vulkan.device);
+  vkDeviceWaitIdle(m_rendercontext.vulkan);
 }
 
 
@@ -230,7 +228,7 @@ bool Viewport::prepare()
   if (m_rendercontext.width != width() || m_rendercontext.height != height())
   {
     VkSurfaceCapabilitiesKHR surfacecapabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vulkan.physicaldevice, surface, &surfacecapabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_rendercontext.vulkan.physicaldevice, surface, &surfacecapabilities);
 
     VkSwapchainCreateInfoKHR swapchaininfo = {};
     swapchaininfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -251,22 +249,22 @@ bool Viewport::prepare()
     swapchaininfo.clipped = true;
 
     VkSwapchainKHR newswapchain;
-    if (vkCreateSwapchainKHR(vulkan.device, &swapchaininfo, nullptr, &newswapchain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(m_rendercontext.vulkan, &swapchaininfo, nullptr, &newswapchain) != VK_SUCCESS)
       throw runtime_error("Vulkan vkCreateSwapchainKHR failed");
 
-    swapchain = Vulkan::Swapchain(newswapchain, { vulkan.device });
+    swapchain = Vulkan::Swapchain(newswapchain, { m_rendercontext.vulkan.device });
 
     uint32_t imagescount = 0;
-    vkGetSwapchainImagesKHR(vulkan.device, swapchain, &imagescount, nullptr);
+    vkGetSwapchainImagesKHR(m_rendercontext.vulkan.device, swapchain, &imagescount, nullptr);
 
     if (extent<decltype(presentimages)>::value < imagescount)
       throw runtime_error("Vulkan vkGetSwapchainImagesKHR failed");
 
-    vkGetSwapchainImagesKHR(vulkan.device, swapchain, &imagescount, presentimages);
+    vkGetSwapchainImagesKHR(m_rendercontext.vulkan.device, swapchain, &imagescount, presentimages);
 
     for(size_t i = 0; i < imagescount; ++i)
     {
-      setimagelayout(vulkan, presentimages[i], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+      setimagelayout(m_rendercontext.vulkan, presentimages[i], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
     }
 
     renderparams.width = width();
@@ -371,7 +369,7 @@ void Viewport::render()
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
   uint32_t imageindex;
-  vkAcquireNextImageKHR(vulkan.device, swapchain, UINT64_MAX, acquirecomplete, VK_NULL_HANDLE, &imageindex);
+  vkAcquireNextImageKHR(m_rendercontext.vulkan.device, swapchain, UINT64_MAX, acquirecomplete, VK_NULL_HANDLE, &imageindex);
 
   DatumPlatform::Viewport viewport;
   viewport.x = 0;
@@ -392,9 +390,9 @@ void Viewport::render()
   presentinfo.waitSemaphoreCount = 1;
   presentinfo.pWaitSemaphores = rendercomplete.data();
 
-  vkQueuePresentKHR(vulkan.queue, &presentinfo);
+  vkQueuePresentKHR(m_rendercontext.vulkan.queue, &presentinfo);
 
-  vkQueueWaitIdle(vulkan.queue);
+  vkQueueWaitIdle(m_rendercontext.vulkan.queue);
 
   platform->resources()->release(m_resourcetoken);
 }

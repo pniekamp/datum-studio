@@ -134,6 +134,7 @@ namespace
       material.color[0] = 0.75f;
       material.color[1] = 0.75f;
       material.color[2] = 0.75f;
+      material.color[3] = 1.0f;
       material.metalness = 0.0f;
       material.roughness = 1.0f;
       material.reflectivity = 0.5f;

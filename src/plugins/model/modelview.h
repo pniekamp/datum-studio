@@ -56,6 +56,7 @@ class ModelView : public Viewport
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void leaveEvent(QEvent *event);
     void wheelEvent(QWheelEvent *event);
 
     void dragEnterEvent(QDragEnterEvent *event);
@@ -92,7 +93,7 @@ class ModelView : public Viewport
 
       struct TintData
       {
-        lml::Color3 tint;
+        lml::Color4 tint;
 
         unique_resource<Material> material;
       };
@@ -102,7 +103,7 @@ class ModelView : public Viewport
 
     std::map<Studio::Document*, MaterialData> m_materials;
 
-    Material const *find_or_create_material(Studio::Document *document, lml::Color3 const &tint);
+    Material const *find_or_create_material(Studio::Document *document, lml::Color4 const &tint);
 
     struct Instance
     {
@@ -136,6 +137,7 @@ class ModelView : public Viewport
 
     lml::Vec3 m_focuspoint;
 
+    QPoint m_wrapoffset;
     QPoint m_keypresspos;
     QPoint m_mousepresspos, m_mousemovepos;
 

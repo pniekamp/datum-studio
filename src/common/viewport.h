@@ -99,8 +99,6 @@ class Viewport : public QWidget
 
     RenderContext m_rendercontext;
 
-    Vulkan::VulkanDevice vulkan;
-
     Vulkan::Surface surface;
 
     Vulkan::Swapchain swapchain;

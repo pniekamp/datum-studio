@@ -165,4 +165,4 @@ class ParticleSystemDocument : public QObject
 template<typename T>
 Distribution<T> make_distribution(ParticleSystemDocument::Distribution<T> const &source);
 
-ParticleEmitter make_particleemitter(ParticleSystemDocument::Emitter const &source);
+ParticleEmitter make_emitter(ParticleSystemDocument::Emitter const &source);

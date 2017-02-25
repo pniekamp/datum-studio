@@ -91,7 +91,7 @@ namespace
       aiColor4D diffuse = { 0.75f, 0.75f, 0.75f, 1.0f };
       aiGetMaterialColor(scene->mMaterials[i], AI_MATKEY_COLOR_DIFFUSE, &diffuse);
 
-      model.materials.push_back({ diffuse.r, diffuse.g, diffuse.b, 0.0f, 1.0f, 0.5f, 0, 0, 0 });
+      model.materials.push_back({ diffuse.r, diffuse.g, diffuse.b, diffuse.a, 0.0f, 1.0f, 0.5f, 0, 0, 0 });
     }
 
     for(size_t i = 0; i < scene->mNumMeshes; ++i)

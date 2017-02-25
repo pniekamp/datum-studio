@@ -135,7 +135,7 @@ Mesh const *ModelView::find_or_create_mesh(Studio::Document *document, size_t in
 
 
 ///////////////////////// ModelView::find_or_create_material ////////////////
-Material const *ModelView::find_or_create_material(Studio::Document *document, Color3 const &tint)
+Material const *ModelView::find_or_create_material(Studio::Document *document, Color4 const &tint)
 {
   auto &materialdata = m_materials[document];
 
@@ -312,14 +312,14 @@ void ModelView::keyPressEvent(QKeyEvent *event)
 
   if (event->key() == Qt::Key_G && m_selection != -1)
   {
-    grabMouse();
+    m_wrapoffset = QPoint();
 
     m_mode = ModeType::Translating;
   }
 
   if (event->key() == Qt::Key_R && m_selection != -1)
   {
-    grabMouse();
+    m_wrapoffset = QPoint();
 
     m_mode = ModeType::Rotating;
   }
@@ -327,8 +327,6 @@ void ModelView::keyPressEvent(QKeyEvent *event)
   if (event->key() == Qt::Key_Escape)
   {
     m_selectedtransform = Transform::identity();
-
-    releaseMouse();
 
     m_mode = ModeType::None;
 
@@ -386,8 +384,8 @@ void ModelView::mouseMoveEvent(QMouseEvent *event)
 
     auto position = mesh.transform.translation();
 
-    auto dx = event->pos().x() - m_keypresspos.x();
-    auto dy = event->pos().y() - m_keypresspos.y();
+    auto dx = event->pos().x() - m_keypresspos.x() + m_wrapoffset.x();
+    auto dy = event->pos().y() - m_keypresspos.y() + m_wrapoffset.y();
 
     float scalex = 2 * dist(camera.position(), position) / camera.proj()(0, 0) / width();
     float scaley = 2 * dist(camera.position(), position) / camera.proj()(1, 1) / height();
@@ -408,8 +406,8 @@ void ModelView::mouseMoveEvent(QMouseEvent *event)
     auto bx = m_keypresspos.x() - (0.5f + 0.5f*pt.x/pt.w)*width();
     auto by = m_keypresspos.y() - (0.5f + 0.5f*pt.y/pt.w)*height();
 
-    auto ax = event->pos().x() - (0.5f + 0.5f*pt.x/pt.w)*width();
-    auto ay = event->pos().y() - (0.5f + 0.5f*pt.y/pt.w)*height();
+    auto ax = event->pos().x() - (0.5f + 0.5f*pt.x/pt.w)*width() + m_wrapoffset.x();
+    auto ay = event->pos().y() - (0.5f + 0.5f*pt.y/pt.w)*height() + m_wrapoffset.y();
 
     m_selectedtransform = Transform::translation(position) * Transform::rotation(camera.forward(), atan2(ay, ax) - atan2(by, bx)) * Transform::translation(-position);
 
@@ -462,12 +460,46 @@ void ModelView::mouseReleaseEvent(QMouseEvent *event)
 
     m_document->set_mesh_transform(m_selection, transform);
 
-    releaseMouse();
-
     m_mode = ModeType::None;
   }
 
   m_mousepresspos = QPoint();
+}
+
+
+///////////////////////// ModelView::leaveEvent /////////////////////////////
+void ModelView::leaveEvent(QEvent *event)
+{
+  QWidget::leaveEvent(event);
+
+  auto pos = mapFromGlobal(QCursor::pos());
+
+  if (m_mode == ModeType::Translating || m_mode == ModeType::Rotating)
+  {
+    if (pos.x() <= 0)
+    {
+      m_wrapoffset -= QPoint(width(), 0);
+      QCursor::setPos(mapToGlobal(QPoint(width(), pos.y())));
+    }
+
+    if (pos.x() >= width())
+    {
+      m_wrapoffset += QPoint(width(), 0);
+      QCursor::setPos(mapToGlobal(QPoint(0, pos.y())));
+    }
+
+    if (pos.y() <= 0)
+    {
+      m_wrapoffset -= QPoint(0, height());
+      QCursor::setPos(mapToGlobal(QPoint(pos.x(), height())));
+    }
+
+    if (pos.y() >= height())
+    {
+      m_wrapoffset += QPoint(0, height());
+      QCursor::setPos(mapToGlobal(QPoint(pos.x(), 0)));
+    }
+  }
 }
 
 

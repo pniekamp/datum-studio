@@ -160,6 +160,7 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
       entry.color[0] = instance.material->tint.r;
       entry.color[1] = instance.material->tint.g;
       entry.color[2] = instance.material->tint.b;
+      entry.color[3] = 1.0f;
       entry.metalness = 0.0f;
       entry.roughness = 1.0f;
       entry.reflectivity = 0.5f;
@@ -173,6 +174,7 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
         entry.color[0] = instance.material->tint.r * materialdocument.color().r;
         entry.color[1] = instance.material->tint.g * materialdocument.color().g;
         entry.color[2] = instance.material->tint.b * materialdocument.color().b;
+        entry.color[3] = materialdocument.color().a;
         entry.metalness = materialdocument.metalness();
         entry.roughness = materialdocument.roughness();
         entry.reflectivity = materialdocument.reflectivity();

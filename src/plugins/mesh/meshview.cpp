@@ -34,7 +34,7 @@ MeshView::MeshView(QWidget *parent)
 
   renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
 
-  m_material = resources.create<Material>(Color3(0.4f, 0.4f, 0.4f), 0.0f, 1.0f);
+  m_material = resources.create<Material>(Color4(0.4f, 0.4f, 0.4f, 1.0f), 0.0f, 1.0f);
 
   renderparams.ssaoscale = 0;
   renderparams.ssrstrength = 0;
@@ -158,11 +158,9 @@ void MeshView::paintEvent(QPaintEvent *event)
 
   if (begin(geometry, buildstate))
   {
-    geometry.push_material(buildstate, m_material);
-
     for(auto &instance : m_meshes)
     {
-      geometry.push_mesh(buildstate, instance.transform, instance.mesh);
+      geometry.push_mesh(buildstate, instance.transform, instance.mesh, m_material);
     }
 
     geometry.finalise(buildstate);

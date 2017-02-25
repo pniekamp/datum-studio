@@ -112,7 +112,7 @@ void ParticleView::refresh()
 
   for(int i = 0; i < m_document.emitters(); ++i)
   {
-    m_system->emitters[i] = make_particleemitter(m_document.emitter(i));
+    m_system->emitters[i] = make_emitter(m_document.emitter(i));
   }
 
   invalidate();
