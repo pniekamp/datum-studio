@@ -162,7 +162,7 @@ Viewport::Viewport(size_t slabsize, size_t storagesize, QWidget *parent)
 
   initialise_resource_pool(*platform->instance(), m_rendercontext.resourcepool, storagesize);
 
-  prepare_render_context(*platform->instance(), m_rendercontext, platform->assets());
+  initialise_render_context(*platform->instance(), m_rendercontext);
 
   surface = platform->create_surface(winId());
 
@@ -189,7 +189,7 @@ Viewport::~Viewport()
 ///////////////////////// Viewport::hideEvent ///////////////////////////////
 void Viewport::hideEvent(QHideEvent *event)
 {
-  if (m_rendercontext.initialised)
+  if (m_rendercontext.ready)
   {
     swapchain = {};
 

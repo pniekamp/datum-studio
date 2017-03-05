@@ -34,7 +34,7 @@
        <item>
         <widget class="QLabel" name="Copyright">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Peter Niekamp, June 2016&lt;/p&gt;&lt;p&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, &lt;br/&gt;INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND &lt;br/&gt;FITNESS FOR A PARTICULAR PURPOSE.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Peter Niekamp, February 2017&lt;/p&gt;&lt;p&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, &lt;br/&gt;INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND &lt;br/&gt;FITNESS FOR A PARTICULAR PURPOSE.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>

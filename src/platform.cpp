@@ -417,6 +417,9 @@ void initialise_platform(QWindow *window)
 
   auto core = game->m_assets.load(platform, "core.pack");
 
+  if (!core)
+    throw runtime_error("Core Assets Load Failure");
+
   if (core->magic != CoreAsset::magic || core->version != CoreAsset::version)
     throw runtime_error("Core Assets Version Mismatch");
 
