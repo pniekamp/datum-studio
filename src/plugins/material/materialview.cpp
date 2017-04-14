@@ -55,8 +55,8 @@ MaterialView::MaterialView(QWidget *parent)
       if (auto lump = resources.acquire_lump(mesh->vertexbuffer.size))
       {
         fin.seekg(mhdr.dataoffset + sizeof(PackChunk));
-        fin.read((char*)lump->transfermemory + mesh->vertexbuffer.verticesoffset, mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
-        fin.read((char*)lump->transfermemory + mesh->vertexbuffer.indicesoffset, mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
+        fin.read(lump->memory<char>(mesh->vertexbuffer.verticesoffset), mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
+        fin.read(lump->memory<char>(mesh->vertexbuffer.indicesoffset), mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
 
         resources.update<Mesh>(mesh, lump);
 
@@ -129,21 +129,26 @@ void MaterialView::refresh()
 ///////////////////////// MaterialView::material_build_complete /////////////
 void MaterialView::on_material_build_complete(Studio::Document *document, QString const &path)
 {
-  ifstream fin(path.toUtf8(), ios::binary);
+  if (m_buildpath != path)
+  {
+    ifstream fin(path.toUtf8(), ios::binary);
 
-  auto color = m_document.color();
-  auto metalness = m_document.metalness();
-  auto roughness = m_document.roughness();
-  auto reflectivity = m_document.reflectivity();
-  auto emissive = m_document.emissive();
+    auto color = m_document.color();
+    auto metalness = m_document.metalness();
+    auto roughness = m_document.roughness();
+    auto reflectivity = m_document.reflectivity();
+    auto emissive = m_document.emissive();
 
-  m_albedomap = resources.load<Texture>(fin, 1, Texture::Format::SRGBA);
-  m_specularmap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
-  m_normalmap = resources.load<Texture>(fin, 3, Texture::Format::RGBA);
+    m_albedomap = resources.load<Texture>(fin, 1, Texture::Format::SRGBA);
+    m_specularmap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
+    m_normalmap = resources.load<Texture>(fin, 3, Texture::Format::RGBA);
 
-  resources.update<Material>(m_material, color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_specularmap, *m_normalmap);
+    resources.update<Material>(m_material, color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_specularmap, *m_normalmap);
 
-  invalidate();
+    m_buildpath = path;
+
+    invalidate();
+  }
 }
 
 

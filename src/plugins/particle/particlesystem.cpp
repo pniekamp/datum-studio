@@ -334,7 +334,7 @@ void ParticleSystemDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
   uint32_t spritesheet = asset.add_dependant(particledocument.spritesheet(), "SpriteSheet");
 
-  write_ptsm_asset(fout, asset.id, particledocument.bound(), spritesheet, particledocument.maxparticles(), particledocument.emitters(), emitters);
+  write_part_asset(fout, asset.id, particledocument.bound(), spritesheet, particledocument.maxparticles(), particledocument.emitters(), emitters);
 }
 
 

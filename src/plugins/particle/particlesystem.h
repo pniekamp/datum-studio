@@ -45,7 +45,7 @@ class ParticleSystemDocument : public QObject
 
     lml::Bound3 bound() { return m_bound; }
 
-    size_t maxparticles() const { return m_definition["maxparticles"].toInt(); }
+    int maxparticles() const { return m_definition["maxparticles"].toInt(); }
 
     Studio::Document *spritesheet() const { return m_spritesheet; }
 

@@ -80,10 +80,11 @@ class ParticleView : public Viewport
     bool m_showbound;
 
     DatumPlatform::GameMemory m_particlememory;
-    FreeList m_particlefreelist;
 
-    ParticleSystem *m_system;
-    ParticleSystem::Instance const *m_instance;
+    lml::Transform m_transform;
+
+    unique_resource<ParticleSystem> m_system;
+    ParticleSystem::Instance *m_instance;
 
     Studio::Document *m_spritesheetdocument;
 

@@ -246,11 +246,13 @@ void MaterialDocument::build_hash(Studio::Document *document, size_t *key)
 
   document->unlock();
 
-  hash_combine(*key, std::hash<int>{}(definition["albedooutput"].toInt()));
-  hash_combine(*key, std::hash<int>{}(definition["metalnessoutput"].toInt()));
-  hash_combine(*key, std::hash<int>{}(definition["roughnessoutput"].toInt()));
-  hash_combine(*key, std::hash<int>{}(definition["reflectivityoutput"].toInt()));
-  hash_combine(*key, std::hash<int>{}(definition["normaloutput"].toInt()));
+  *key = 0;
+
+  hash_combine(*key, std::hash<int>{}(definition["albedooutput"].toInt(0)));
+  hash_combine(*key, std::hash<int>{}(definition["metalnessoutput"].toInt(0)));
+  hash_combine(*key, std::hash<int>{}(definition["roughnessoutput"].toInt(3)));
+  hash_combine(*key, std::hash<int>{}(definition["reflectivityoutput"].toInt(1)));
+  hash_combine(*key, std::hash<int>{}(definition["normaloutput"].toInt(0)));
 
   for(auto &name : ImageNames)
   {

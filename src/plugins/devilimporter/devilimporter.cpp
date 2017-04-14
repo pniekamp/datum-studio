@@ -78,6 +78,8 @@ void DevILImporter::shutdown()
 bool DevILImporter::try_import(QString const &src, QString const &dst, QJsonObject metadata)
 {
   ilInit();
+  ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
+  ilEnable(IL_ORIGIN_SET);
 
   if (!ilLoadImage(src.toUtf8()))
     return false;
@@ -92,6 +94,11 @@ bool DevILImporter::try_import(QString const &src, QString const &dst, QJsonObje
   if (width != image.width() || height != image.height())
   {
     image = image.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  }
+
+  if (image.format() != QImage::Format_ARGB32)
+  {
+    image = image.convertToFormat(QImage::Format_ARGB32);
   }
 
   metadata["src"] = src;

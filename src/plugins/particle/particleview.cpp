@@ -40,11 +40,12 @@ ParticleView::ParticleView(QWidget *parent)
 
   m_spritesheet = resources.load<Texture>(CoreAsset::default_particle, Texture::Format::SRGBA);
 
-  m_system = new ParticleSystem({ m_particlememory, m_particlefreelist });
+  ParticleEmitter emitter;
+  m_system = resources.create<ParticleSystem>(1000, Bound3(Vec3(-1, -1, -1), Vec3(1, 1, 1)), *m_spritesheet, 1, &emitter);
 
-  m_system->spritesheet = m_spritesheet;
+  m_instance = m_system->create(m_particlememory);
 
-  m_instance = m_system->create();
+  m_transform = Transform::rotation(Vec3(0, 0, 1), pi<float>()/2);
 
   m_linecube = resources.load<Mesh>(CoreAsset::line_cube);
 
@@ -57,10 +58,6 @@ ParticleView::ParticleView(QWidget *parent)
 ///////////////////////// ParticleView::Destructor //////////////////////////
 ParticleView::~ParticleView()
 {
-  m_system->destroy(m_instance);
-
-  delete m_system;
-
   delete static_cast<char*>(m_particlememory.data);
 }
 
@@ -87,13 +84,20 @@ void ParticleView::invalidate()
 ///////////////////////// ParticleView::refresh /////////////////////////////
 void ParticleView::refresh()
 {
-  if (m_document.maxparticles() != m_system->maxparticles)
+  vector<ParticleEmitter> emitters(m_document.emitters());
+
+  for(int i = 0; i < m_document.emitters(); ++i)
   {
-    m_system->destroy(m_instance);
+    emitters[i] = make_emitter(m_document.emitter(i));
+  }
 
-    m_system->maxparticles = m_document.maxparticles();
+  m_system = resources.create<ParticleSystem>(m_document.maxparticles(), m_document.bound(), *m_spritesheet, emitters.size(), emitters.data());
 
-    m_instance = m_system->create();
+  if (m_system->maxparticles != m_document.maxparticles())
+  {
+    rewind(m_particlememory, 0);
+
+    m_instance = m_system->create(m_particlememory);
   }
 
   if (m_document.spritesheet() != m_spritesheetdocument)
@@ -106,13 +110,6 @@ void ParticleView::refresh()
 
       buildmanager->request_build(m_spritesheetdocument, this, &ParticleView::on_spritesheet_build_complete);
     }
-  }
-
-  m_system->emitters.resize(m_document.emitters());
-
-  for(int i = 0; i < m_document.emitters(); ++i)
-  {
-    m_system->emitters[i] = make_emitter(m_document.emitter(i));
   }
 
   invalidate();
@@ -132,17 +129,15 @@ void ParticleView::on_spritesheet_build_complete(Studio::Document *document, QSt
 
     if (auto lump = resources.acquire_lump(imag.datasize))
     {
-      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
+      read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
 
       resources.update<Texture>(m_spritesheet, lump);
 
       resources.release_lump(lump);
     }
-
-    m_system->spritesheet = m_spritesheet;
   }
 
-  invalidate();
+  refresh();
 }
 
 
@@ -320,7 +315,7 @@ void ParticleView::timerEvent(QTimerEvent *event)
   {
     if (isVisible())
     {
-      m_system->update(m_instance, camera, Transform::rotation(Vec3(0, 0, 1), pi<float>()/2), 1.0f/60.0f);
+      m_system->update(m_instance, camera, m_transform, 1.0f/60.0f);
 
       update();
     }
@@ -340,7 +335,7 @@ void ParticleView::paintEvent(QPaintEvent *event)
 
   if (begin(objects, buildstate))
   {
-    objects.push_particlesystem(buildstate, m_instance);
+    objects.push_particlesystem(buildstate, m_system, m_instance);
 
     objects.finalise(buildstate);
   }
@@ -354,7 +349,7 @@ void ParticleView::paintEvent(QPaintEvent *event)
 
     if (begin(overlay, buildstate))
     {
-      overlay.push_volume(buildstate, m_document.bound(), m_linecube, Color4(0.8f, 0.80f, 0.8f, 0.8f));
+      overlay.push_volume(buildstate, m_transform * m_document.bound(), m_linecube, Color4(0.8f, 0.80f, 0.8f, 0.8f));
 
       overlay.finalise(buildstate);
     }

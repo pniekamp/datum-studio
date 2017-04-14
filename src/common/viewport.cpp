@@ -53,8 +53,8 @@ unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *docu
     {
       uint64_t position = mhdr.dataoffset + sizeof(PackChunk);
 
-      position += document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.verticesoffset, mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
-      position += document->read(position, (uint8_t*)lump->transfermemory + mesh->vertexbuffer.indicesoffset, mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
+      position += document->read(position, lump->memory(mesh->vertexbuffer.verticesoffset), mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
+      position += document->read(position, lump->memory(mesh->vertexbuffer.indicesoffset), mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
 
       update<Mesh>(mesh, lump);
 
@@ -104,7 +104,7 @@ unique_resource<Texture> Viewport::ResourceProxy::load<Texture>(istream &fin, si
 
     if (auto lump = acquire_lump(imag.datasize))
     {
-      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
+      read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
 
       update<Texture>(texture, lump);
 
@@ -130,7 +130,7 @@ unique_resource<SkyBox> Viewport::ResourceProxy::load<SkyBox>(istream &fin, size
 
     if (auto lump = acquire_lump(imag.datasize))
     {
-      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
+      read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
 
       update<SkyBox>(skybox, lump);
 
@@ -149,8 +149,8 @@ unique_resource<SkyBox> Viewport::ResourceProxy::load<SkyBox>(istream &fin, size
 Viewport::Viewport(size_t slabsize, size_t storagesize, QWidget *parent)
   : QWidget(parent),
     resources(Studio::Core::instance()->find_object<Studio::Platform>()->resources()),
-    scratchmemory{0, slabsize, new char[slabsize]},
-    m_pushbuffer(scratchmemory, slabsize)
+    pushbuffermemory{0, slabsize, new char[slabsize]},
+    m_pushbuffer(pushbuffermemory, slabsize)
 { 
   setAttribute(Qt::WA_NativeWindow);
   setAttribute(Qt::WA_DontCreateNativeAncestors);
@@ -160,9 +160,7 @@ Viewport::Viewport(size_t slabsize, size_t storagesize, QWidget *parent)
 
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  initialise_resource_pool(*platform->instance(), m_rendercontext.resourcepool, storagesize);
-
-  initialise_render_context(*platform->instance(), m_rendercontext);
+  initialise_render_context(*platform->instance(), m_rendercontext, storagesize, Studio::Platform::RenderQueue);
 
   surface = platform->create_surface(winId());
 
@@ -180,7 +178,7 @@ Viewport::~Viewport()
 
   platform->resources()->release(platform->resources()->token());
 
-  delete static_cast<char*>(scratchmemory.data);
+  delete static_cast<char*>(pushbuffermemory.data);
 
   vkDeviceWaitIdle(m_rendercontext.vulkan);
 }
@@ -287,7 +285,7 @@ bool Viewport::begin(SpriteList &sprites, SpriteList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return sprites.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
+  return sprites.begin(buildstate, m_rendercontext, platform->resources());
 }
 
 
@@ -307,7 +305,7 @@ bool Viewport::begin(GeometryList &geometry, GeometryList::BuildState &buildstat
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return geometry.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
+  return geometry.begin(buildstate, m_rendercontext, platform->resources());
 }
 
 
@@ -326,7 +324,7 @@ bool Viewport::begin(ForwardList &objects, ForwardList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return objects.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
+  return objects.begin(buildstate, m_rendercontext, platform->resources());
 }
 
 
@@ -345,7 +343,7 @@ bool Viewport::begin(OverlayList &overlays, OverlayList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return overlays.begin(buildstate, *platform->instance(), m_rendercontext, platform->resources());
+  return overlays.begin(buildstate, m_rendercontext, platform->resources());
 }
 
 

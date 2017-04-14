@@ -160,7 +160,7 @@ namespace
     {
       Bound3 bound = Bound3(Vec3(mesh->mincorner[0], mesh->mincorner[1], mesh->mincorner[2]), Vec3(mesh->maxcorner[0], mesh->maxcorner[1], mesh->maxcorner[2]));
 
-      write_mesh_asset(fout, 2, mesh->vertexcount, mesh->indexcount, bound, payload.data());
+      write_mesh_asset(fout, 2, mesh->vertexcount, mesh->indexcount, mesh->bonecount, bound, payload.data());
     }
 
     write_asset_footer(fout);

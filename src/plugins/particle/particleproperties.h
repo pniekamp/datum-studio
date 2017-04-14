@@ -36,7 +36,7 @@ class ParticleProperties : public QDockWidget
 
     void refresh();
 
-    void on_MaxParticles_textEdited(QString const &text);
+    void on_MaxParticles_valueChanged(int value);
     void on_SpriteSheet_itemDropped(QString const &path);
 
     void on_Bound1_valueChanged(double value);

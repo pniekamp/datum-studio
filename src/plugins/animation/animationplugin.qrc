@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/animationplugin">
+        <file>reset.png</file>
+    </qresource>
+</RCC>

@@ -25,6 +25,8 @@ uint64_t read_asset_header(std::istream &fin, uint32_t id, PackTextHeader *text)
 uint64_t read_asset_header(std::istream &fin, uint32_t id, PackFontHeader *font);
 uint64_t read_asset_header(std::istream &fin, uint32_t id, PackImageHeader *imag);
 uint64_t read_asset_header(std::istream &fin, uint32_t id, PackMeshHeader *mesh);
+uint64_t read_asset_header(std::istream &fin, uint32_t id, PackMaterialHeader *matl);
+uint64_t read_asset_header(std::istream &fin, uint32_t id, PackAnimationHeader *anim);
 uint64_t read_asset_header(std::istream &fin, uint32_t id, PackModelHeader *modl);
 uint64_t read_asset_payload(std::istream &fin, uint64_t offset, void *data, uint32_t size);
 
@@ -45,6 +47,8 @@ void write_asset_footer(std::ostream &fout);
 uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackTextHeader *text);
 uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackImageHeader *imag);
 uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackMeshHeader *mesh);
+uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackMaterialHeader *matl);
+uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackAnimationHeader *anim);
 uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackModelHeader *modl);
 uint64_t read_asset_payload(Studio::Document *document, uint64_t offset, void *data, uint32_t size);
 

@@ -322,6 +322,7 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   devicefeatures.geometryShader = true;
   devicefeatures.shaderTessellationAndGeometryPointSize = true;
   devicefeatures.shaderStorageImageWriteWithoutFormat = true;
+  devicefeatures.samplerAnisotropy = true;
 
   VkDeviceCreateInfo deviceinfo = {};
   deviceinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -372,8 +373,6 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   platform.renderdevice.physicaldevice = physicaldevice;
   platform.renderdevice.queues[0] = { renderqueue, queueindex };
   platform.renderdevice.queues[1] = { transferqueue, queueindex };
-  platform.renderdevice.renderqueue = 0;
-  platform.renderdevice.transferqueue = 1;
 }
 
 
@@ -413,7 +412,7 @@ void initialise_platform(QWindow *window)
 
   initialise_asset_system(platform, game->m_assets, 1*1024, 2*1024*1024);
 
-  initialise_resource_system(platform, game->m_resources, 2*1024*1024, 8*1024*1024, 64*1024*1024);
+  initialise_resource_system(platform, game->m_resources, 2*1024*1024, 8*1024*1024, 64*1024*1024, Studio::Platform::TransferQueue);
 
   auto core = game->m_assets.load(platform, "core.pack");
 

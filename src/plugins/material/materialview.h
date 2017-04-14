@@ -89,6 +89,7 @@ class MaterialView : public Viewport
     QPoint m_mousepresspos, m_mousemovepos;
 
     size_t m_buildhash;
+    QString m_buildpath;
 
     unique_resource<Texture> m_albedomap;
     unique_resource<Texture> m_specularmap;

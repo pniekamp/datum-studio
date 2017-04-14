@@ -20,6 +20,9 @@ namespace Studio
 
     public:
 
+      static const uint32_t RenderQueue = 0;
+      static const uint32_t TransferQueue = 1;
+
       static DatumPlatform::PlatformInterface *instance();
 
     public:

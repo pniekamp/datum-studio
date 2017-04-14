@@ -132,6 +132,20 @@ uint64_t read_asset_header(istream &fin, uint32_t id, PackMeshHeader *mesh)
 }
 
 
+///////////////////////// read_asset_header ////////////////////////////////
+uint64_t read_asset_header(istream &fin, uint32_t id, PackMaterialHeader *matl)
+{
+  return read_asset_header(fin, id, "MATL"_packchunktype, matl, sizeof(*matl));
+}
+
+
+///////////////////////// read_asset_header ////////////////////////////////
+uint64_t read_asset_header(istream &fin, uint32_t id, PackAnimationHeader *anim)
+{
+  return read_asset_header(fin, id, "ANIM"_packchunktype, anim, sizeof(*anim));
+}
+
+
 ///////////////////////// read_asset_header /////////////////////////////////
 uint64_t read_asset_header(istream &fin, uint32_t id, PackModelHeader *modl)
 {
@@ -346,6 +360,20 @@ uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackImageHea
 uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackMeshHeader *mesh)
 {
   return read_asset_header(document, id, "MESH"_packchunktype, mesh, sizeof(*mesh));
+}
+
+
+///////////////////////// read_asset_header /////////////////////////////////
+uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackMaterialHeader *matl)
+{
+  return read_asset_header(document, id, "MATL"_packchunktype, matl, sizeof(*matl));
+}
+
+
+///////////////////////// read_asset_header /////////////////////////////////
+uint64_t read_asset_header(Studio::Document *document, uint32_t id, PackAnimationHeader *anim)
+{
+  return read_asset_header(document, id, "ANIM"_packchunktype, anim, sizeof(*anim));
 }
 
 

@@ -93,7 +93,7 @@ class Viewport : public QWidget
 
   private:
 
-    DatumPlatform::GameMemory scratchmemory;
+    DatumPlatform::GameMemory pushbuffermemory;
 
     PushBuffer m_pushbuffer;
 

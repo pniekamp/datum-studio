@@ -19,6 +19,33 @@
 
 using namespace std;
 
+class QcApplication : public QApplication
+{
+  public:
+    QcApplication(int &argc, char **argv)
+      : QApplication(argc, argv)
+    {
+    }
+
+    bool notify(QObject *receiver, QEvent *event)
+    {
+      try
+      {
+        return QApplication::notify(receiver, event);
+      }
+      catch(exception &e)
+      {
+        qDebug() << "Exception:" << e.what();
+      }
+      catch(...)
+      {
+        qDebug() << "Exception: Unknown";
+      }
+
+      return false;
+    }
+};
+
 void usage()
 {
   QString msg;
@@ -58,7 +85,7 @@ QStringList select_plugins(QDir pluginpath)
 
 int main(int argc, char **argv)
 {
-  QApplication app(argc, argv);
+  QcApplication app(argc, argv);
 
   if (app.arguments().contains("-h", Qt::CaseInsensitive))
   {

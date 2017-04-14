@@ -255,6 +255,8 @@ void EmitterListWidget::on_Delete_triggered()
     if (QMessageBox::question(this, "Remove Emitter", "Remove Selected Emitter\n\nSure ?", QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok)
     {
       m_document.erase_emitter(currentRow());
+
+      emit selection_changed(currentRow());
     }
   }
 }

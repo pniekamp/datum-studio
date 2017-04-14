@@ -266,6 +266,8 @@ void MeshListWidget::on_Delete_triggered()
     if (QMessageBox::question(this, "Remove Mesh", "Remove Selected Mesh\n\nSure ?", QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok)
     {
       m_document->erase_mesh(currentRow());
+
+      emit selection_changed(currentRow());
     }
   }
 }

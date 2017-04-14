@@ -30,6 +30,9 @@ void MeshDocument::pack(Studio::PackerState &asset, ofstream &fout)
   {
     vector<PackVertex> vertices;
     vector<uint32_t> indices;
+    vector<PackMeshPayload::Rig> rig;
+    vector<PackMeshPayload::Bone> bones;
+    map<string, uint32_t> bonemap;
 
     asset.document->lock();
 
@@ -51,15 +54,13 @@ void MeshDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
         position += asset.document->read(position, indextable.data(), indextable.size() * sizeof(uint32_t));
 
-        auto transform = instance.transform;
-
         uint32_t base = vertices.size();
 
         for(auto &vertex : vertextable)
         {
-          auto position = transform * Vec3(vertex.position[0], vertex.position[1], vertex.position[2]);
-          auto normal = transform.rotation() * Vec3(vertex.normal[0], vertex.normal[1], vertex.normal[2]);
-          auto tangent = transform.rotation() * Vec3(vertex.tangent[0], vertex.tangent[1], vertex.tangent[2]);
+          auto position = instance.transform * Vec3(vertex.position[0], vertex.position[1], vertex.position[2]);
+          auto normal = instance.transform.rotation() * Vec3(vertex.normal[0], vertex.normal[1], vertex.normal[2]);
+          auto tangent = instance.transform.rotation() * Vec3(vertex.tangent[0], vertex.tangent[1], vertex.tangent[2]);
 
           vertices.push_back({ position.x, position.y, position.z, vertex.texcoord[0], vertex.texcoord[1], normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z, vertex.tangent[3] });
         }
@@ -68,12 +69,41 @@ void MeshDocument::pack(Studio::PackerState &asset, ofstream &fout)
         {
           indices.push_back(index + base);
         }
+
+        if (mesh.bonecount != 0)
+        {
+          vector<PackMeshPayload::Rig> rigtable(mesh.vertexcount);
+
+          position += asset.document->read(position, rigtable.data(), rigtable.size() * sizeof(PackMeshPayload::Rig));
+
+          vector<PackMeshPayload::Bone> bonetable(mesh.bonecount);
+
+          position += asset.document->read(position, bonetable.data(), bonetable.size() * sizeof(PackMeshPayload::Bone));
+
+          for(auto &bone : bonetable)
+          {
+            if (bonemap.find(bone.name) == bonemap.end())
+            {
+              auto transform = Transform{ { bone.transform[0], bone.transform[1], bone.transform[2], bone.transform[3] }, { bone.transform[4], bone.transform[5], bone.transform[6], bone.transform[7] } } * inverse(instance.transform);
+
+              memcpy(bone.transform, &transform, sizeof(bone.transform));
+
+              bones.push_back(bone);
+              bonemap.emplace(bone.name, bones.size() - 1);
+            }
+          }
+
+          for(auto &rigquad : rigtable)
+          {
+            rig.push_back({ bonemap[bonetable[rigquad.bone[0]].name], bonemap[bonetable[rigquad.bone[1]].name], bonemap[bonetable[rigquad.bone[2]].name], bonemap[bonetable[rigquad.bone[3]].name], rigquad.weight[0], rigquad.weight[1], rigquad.weight[2], rigquad.weight[3] });
+          }
+        }
       }
     }
 
     asset.document->unlock();
 
-    write_mesh_asset(fout, asset.id, vertices, indices);
+    write_mesh_asset(fout, asset.id, vertices, indices, rig, bones);
   }
 
   if (asset.index > 0)
@@ -88,7 +118,7 @@ void MeshDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
       read_asset_payload(asset.document, mesh.dataoffset, payload.data(), payload.size());
 
-      write_mesh_asset(fout, asset.id, mesh.vertexcount, mesh.indexcount, Bound3(Vec3(mesh.mincorner[0], mesh.mincorner[1], mesh.mincorner[2]), Vec3(mesh.maxcorner[0], mesh.maxcorner[1], mesh.maxcorner[2])), payload.data());
+      write_mesh_asset(fout, asset.id, mesh.vertexcount, mesh.indexcount, mesh.bonecount, Bound3(Vec3(mesh.mincorner[0], mesh.mincorner[1], mesh.mincorner[2]), Vec3(mesh.maxcorner[0], mesh.maxcorner[1], mesh.maxcorner[2])), payload.data());
     }
 
     asset.document->unlock();

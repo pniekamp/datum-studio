@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/assimporter">
-        <file>icon.png</file>
+        <file>model.png</file>
+        <file>actor.png</file>
+        <file>animation.png</file>
     </qresource>
 </RCC>

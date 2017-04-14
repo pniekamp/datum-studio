@@ -94,7 +94,7 @@ void SpriteView::on_sprite_build_complete(Studio::Document *document, QString co
 
     if (auto lump = viewport()->resources.acquire_lump(imag.datasize))
     {
-      read_asset_payload(fin, imag.dataoffset, lump->transfermemory, imag.datasize);
+      read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
 
       viewport()->resources.update<Texture>(m_image, lump);
 

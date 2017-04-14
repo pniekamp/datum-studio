@@ -154,6 +154,8 @@ void SpriteSheetDocument::build_hash(Studio::Document *document, size_t *key)
 
   document->unlock();
 
+  *key = 0;
+
   for(auto i : definition["layers"].toArray())
   {
     auto layer = i.toObject();

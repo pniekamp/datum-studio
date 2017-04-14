@@ -25,8 +25,6 @@ ParticleProperties::ParticleProperties(QWidget *parent)
 {
   ui.setupUi(this);
 
-  ui.MaxParticles->setValidator(new QIntValidator(0, 9999, this));
-
   ui.SpriteSheet->set_droptype("SpriteSheet");
 
   ui.Emitter->setVisible(false);
@@ -65,7 +63,7 @@ void ParticleProperties::set_selection(int index)
 ///////////////////////// ParticleProperties::refresh ///////////////////////
 void ParticleProperties::refresh()
 { 
-  ui.MaxParticles->setText(QString::number(m_document.maxparticles()));
+  ui.MaxParticles->updateValue(m_document.maxparticles());
 
   ui.SpriteSheet->setPixmap(m_document.spritesheet());
 
@@ -79,9 +77,9 @@ void ParticleProperties::refresh()
 
 
 ///////////////////////// ParticleProperties::MaxParticles //////////////////
-void ParticleProperties::on_MaxParticles_textEdited(QString const &text)
+void ParticleProperties::on_MaxParticles_valueChanged(int value)
 {
-  m_document.set_maxparticles(text.toInt());
+  m_document.set_maxparticles(value);
 }
 
 
