@@ -185,7 +185,12 @@ void PackPlugin::build_export()
       QProgressDialog progress("Export Build", "Abort", 0, 100, mainwindow->handle());
 
       QFile::remove(exportfile);
-      QFile::copy(QDir(projectmanager->basepath()).filePath("Build/asset.pack"), exportfile);
+
+      for(int k = 0; k < 2; ++k)
+      {
+        if (QFile::copy(QDir(projectmanager->basepath()).filePath("Build/asset.pack"), exportfile))
+          break;
+      }
     }
     catch(exception &e)
     {

@@ -247,22 +247,25 @@ namespace
 
     joint.parent = parent;
 
+    joint.index = 0;
+    joint.count = 2;
+
     anim.joints.push_back(joint);
 
     auto k = anim.joints.size() - 1;
 
     for(size_t i = 0; i < node->mNumChildren; ++i)
     {
-      if (node->mChildren[i]->mNumChildren != 0)
-      {
-        build_heirarchy(anim, scene, node->mChildren[i], k);
-      }
+      build_heirarchy(anim, scene, node->mChildren[i], k);
     }
   }
 
   void build_animation(Animation &anim, aiScene const *scene, aiAnimation *animation)
   {
     anim.duration = animation->mDuration / animation->mTicksPerSecond;
+
+    anim.transforms.push_back({ 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f });
+    anim.transforms.push_back({ 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f });
 
     build_heirarchy(anim, scene, scene->mRootNode, 0);
 
@@ -273,11 +276,14 @@ namespace
       if (joint == anim.joints.end())
         throw runtime_error("Animation joint not found in heirarchy");
 
-      joint->count = 0;
-      joint->index = anim.transforms.size();
+      if (animation->mChannels[i]->mNumScalingKeys < 2 || animation->mChannels[i]->mNumRotationKeys < 2 || animation->mChannels[i]->mNumPositionKeys < 2)
+        throw runtime_error("Insufficient Animation keyframes");
 
       if (animation->mChannels[i]->mNumScalingKeys != animation->mChannels[i]->mNumRotationKeys || animation->mChannels[i]->mNumRotationKeys != animation->mChannels[i]->mNumPositionKeys)
         throw runtime_error("Animation keyframes not baked");
+
+      joint->count = 0;
+      joint->index = anim.transforms.size();
 
       for(size_t k = 0; k < animation->mChannels[i]->mNumRotationKeys; ++k)
       {

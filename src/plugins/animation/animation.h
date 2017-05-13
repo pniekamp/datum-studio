@@ -40,6 +40,25 @@ class AnimationDocument : public QObject
 
   public:
 
+    float duration() const;
+
+    int jointcount() const;
+
+    struct Joint
+    {
+      char name[32];
+      size_t parent;
+
+      struct Transform
+      {
+        float time;
+        lml::Transform transform;
+      };
+
+      std::vector<Transform> transforms;
+    };
+
+    std::vector<Joint> joints() const;
 
   signals:
 

@@ -292,10 +292,14 @@ bool Viewport::begin(SpriteList &sprites, SpriteList::BuildState &buildstate)
 ///////////////////////// Viewport::push_sprites ////////////////////////////
 void Viewport::push_sprites(SpriteList const &sprites)
 {
-  if (auto entry = m_pushbuffer.push<Renderable::Sprites>())
+  if (sprites)
   {
-    entry->viewport = Rect2(Vec2(0, 0), Vec2(width(), height()));
-    entry->commandlist = sprites.commandlist();
+    if (auto entry = m_pushbuffer.push<Renderable::Sprites>())
+    {
+      sprites.viewport(Rect2(Vec2(0, 0), Vec2(width(), height())));
+
+      entry->commandlist = sprites.commandlist();
+    }
   }
 }
 
@@ -312,9 +316,12 @@ bool Viewport::begin(GeometryList &geometry, GeometryList::BuildState &buildstat
 ///////////////////////// Viewport::push_geometry ///////////////////////////
 void Viewport::push_geometry(GeometryList const &geometry)
 {
-  if (auto entry = m_pushbuffer.push<Renderable::Geometry>())
+  if (geometry)
   {
-    entry->commandlist = geometry.commandlist();
+    if (auto entry = m_pushbuffer.push<Renderable::Geometry>())
+    {
+      entry->commandlist = geometry.commandlist();
+    }
   }
 }
 
@@ -331,9 +338,12 @@ bool Viewport::begin(ForwardList &objects, ForwardList::BuildState &buildstate)
 ///////////////////////// Viewport::push_objects ////////////////////////////
 void Viewport::push_objects(ForwardList const &objects)
 {
-  if (auto entry = m_pushbuffer.push<Renderable::Objects>())
+  if (objects)
   {
-    entry->commandlist = objects.commandlist();
+    if (auto entry = m_pushbuffer.push<Renderable::Objects>())
+    {
+      entry->commandlist = objects.commandlist();
+    }
   }
 }
 
@@ -350,9 +360,12 @@ bool Viewport::begin(OverlayList &overlays, OverlayList::BuildState &buildstate)
 ///////////////////////// Viewport::push_overlays ///////////////////////////
 void Viewport::push_overlays(OverlayList const &overlays)
 {
-  if (auto entry = m_pushbuffer.push<Renderable::Overlays>())
+  if (overlays)
   {
-    entry->commandlist = overlays.commandlist();
+    if (auto entry = m_pushbuffer.push<Renderable::Overlays>())
+    {
+      entry->commandlist = overlays.commandlist();
+    }
   }
 }
 

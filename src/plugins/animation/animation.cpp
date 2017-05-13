@@ -92,6 +92,86 @@ AnimationDocument AnimationDocument::operator =(AnimationDocument const &documen
 }
 
 
+///////////////////////// AnimationDocument::duration ///////////////////////
+float AnimationDocument::duration() const
+{
+  float duration = 0;
+
+  m_document->lock();
+
+  PackAnimationHeader anim;
+
+  if (read_asset_header(m_document, 1, &anim))
+  {
+    duration = anim.duration;
+  }
+
+  m_document->unlock();
+
+  return duration;
+}
+
+
+///////////////////////// AnimationDocument::jointcount /////////////////////
+int AnimationDocument::jointcount() const
+{
+  int joints = 0;
+
+  m_document->lock();
+
+  PackAnimationHeader anim;
+
+  if (read_asset_header(m_document, 1, &anim))
+  {
+    joints = anim.jointcount;
+  }
+
+  m_document->unlock();
+
+  return joints;
+}
+
+
+///////////////////////// AnimationDocument::joints//////////////////////////
+vector<AnimationDocument::Joint> AnimationDocument::joints() const
+{
+  vector<Joint> joints;
+
+  m_document->lock();
+
+  PackAnimationHeader anim;
+
+  if (read_asset_header(m_document, 1, &anim))
+  {
+    vector<char> payload(pack_payload_size(anim));
+
+    read_asset_payload(m_document, anim.dataoffset, payload.data(), payload.size());
+
+    auto jointtable = PackAnimationPayload::jointtable(payload.data(), anim.jointcount, anim.transformcount);
+    auto transformtable = PackAnimationPayload::transformtable(payload.data(), anim.jointcount, anim.transformcount);
+
+    for(size_t i = 0; i < anim.jointcount; ++i)
+    {
+      Joint joint;
+
+      memcpy(joint.name, jointtable[i].name, sizeof(joint.name));
+      joint.parent = jointtable[i].parent;
+
+      for(size_t j = jointtable[i].index; j < jointtable[i].index + jointtable[i].count; ++j)
+      {
+        joint.transforms.push_back({ transformtable[j].time, Transform{ { transformtable[j].transform[0], transformtable[j].transform[1], transformtable[j].transform[2], transformtable[j].transform[3] }, { transformtable[j].transform[4], transformtable[j].transform[5], transformtable[j].transform[6], transformtable[j].transform[7] } } });
+      }
+
+      joints.push_back(joint);
+    }
+  }
+
+  m_document->unlock();
+
+  return joints;
+}
+
+
 ///////////////////////// AnimationDocument::attach /////////////////////////
 void AnimationDocument::attach(Studio::Document *document)
 {

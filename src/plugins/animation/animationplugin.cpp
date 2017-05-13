@@ -8,6 +8,7 @@
 
 #include "animationplugin.h"
 #include "animation.h"
+#include "animationviewer.h"
 #include "buildapi.h"
 #include <QtPlugin>
 
@@ -55,7 +56,7 @@ void AnimationPlugin::shutdown()
 ///////////////////////// AnimationPlugin::create_view //////////////////////
 QWidget *AnimationPlugin::create_view(QString const &type)
 {
-  return nullptr;
+  return new AnimationViewer;
 }
 
 
