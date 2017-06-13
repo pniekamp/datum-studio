@@ -323,6 +323,7 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   devicefeatures.shaderTessellationAndGeometryPointSize = true;
   devicefeatures.shaderStorageImageWriteWithoutFormat = true;
   devicefeatures.samplerAnisotropy = true;
+  devicefeatures.textureCompressionBC = true;
 
   VkDeviceCreateInfo deviceinfo = {};
   deviceinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

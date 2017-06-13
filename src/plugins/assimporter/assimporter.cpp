@@ -155,7 +155,7 @@ namespace
 
         if (scene->mMeshes[i]->HasTangentsAndBitangents())
         {
-          mesh.vertices[k].tangent[0] = isnormal(scene->mMeshes[i]->mTangents[k].x) ?  scene->mMeshes[i]->mTangents[k].x : 0;
+          mesh.vertices[k].tangent[0] = isnormal(scene->mMeshes[i]->mTangents[k].x) ? scene->mMeshes[i]->mTangents[k].x : 0;
           mesh.vertices[k].tangent[1] = isnormal(scene->mMeshes[i]->mTangents[k].y) ? scene->mMeshes[i]->mTangents[k].y : 0;
           mesh.vertices[k].tangent[2] = isnormal(scene->mMeshes[i]->mTangents[k].z) ? scene->mMeshes[i]->mTangents[k].z : 0;
           mesh.vertices[k].tangent[3] = (dot(cross(vec(scene->mMeshes[i]->mNormals[k]), vec(scene->mMeshes[i]->mTangents[k])), vec(scene->mMeshes[i]->mBitangents[k])) < 0.0f) ? -1.0f : 1.0f;

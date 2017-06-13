@@ -218,7 +218,7 @@ bool Viewport::prepare()
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  while (!prepare_render_context(*platform->instance(), m_rendercontext, platform->assets()))
+  while (!prepare_render_context(*platform->instance(), m_rendercontext, *platform->assets()))
     ;
 
   camera.set_projection(60.0f*pi<float>()/180.0f, (float)width() / (float)height());
@@ -285,7 +285,7 @@ bool Viewport::begin(SpriteList &sprites, SpriteList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return sprites.begin(buildstate, m_rendercontext, platform->resources());
+  return sprites.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
@@ -296,8 +296,6 @@ void Viewport::push_sprites(SpriteList const &sprites)
   {
     if (auto entry = m_pushbuffer.push<Renderable::Sprites>())
     {
-      sprites.viewport(Rect2(Vec2(0, 0), Vec2(width(), height())));
-
       entry->commandlist = sprites.commandlist();
     }
   }
@@ -309,7 +307,7 @@ bool Viewport::begin(GeometryList &geometry, GeometryList::BuildState &buildstat
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return geometry.begin(buildstate, m_rendercontext, platform->resources());
+  return geometry.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
@@ -331,7 +329,7 @@ bool Viewport::begin(ForwardList &objects, ForwardList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return objects.begin(buildstate, m_rendercontext, platform->resources());
+  return objects.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
@@ -353,7 +351,7 @@ bool Viewport::begin(OverlayList &overlays, OverlayList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return overlays.begin(buildstate, m_rendercontext, platform->resources());
+  return overlays.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
