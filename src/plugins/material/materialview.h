@@ -92,7 +92,7 @@ class MaterialView : public Viewport
     QString m_buildpath;
 
     unique_resource<Texture> m_albedomap;
-    unique_resource<Texture> m_specularmap;
+    unique_resource<Texture> m_surfacemap;
     unique_resource<Texture> m_normalmap;
     unique_resource<Material> m_material;
 

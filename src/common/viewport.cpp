@@ -235,7 +235,7 @@ bool Viewport::prepare()
     swapchaininfo.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
     swapchaininfo.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
     swapchaininfo.imageExtent = surfacecapabilities.currentExtent;
-    swapchaininfo.imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    swapchaininfo.imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     swapchaininfo.preTransform = surfacecapabilities.currentTransform;
     swapchaininfo.imageArrayLayers = 1;
     swapchaininfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -281,88 +281,89 @@ bool Viewport::prepare()
 
 
 ///////////////////////// Viewport::begin ///////////////////////////////////
-bool Viewport::begin(SpriteList &sprites, SpriteList::BuildState &buildstate)
+bool Viewport::begin(SpriteList &apritelist, SpriteList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return sprites.begin(buildstate, m_rendercontext, *platform->resources());
+  return apritelist.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
 ///////////////////////// Viewport::push_sprites ////////////////////////////
-void Viewport::push_sprites(SpriteList const &sprites)
+void Viewport::push_sprites(SpriteList const &apritelist)
 {
-  if (sprites)
+  if (apritelist)
   {
     if (auto entry = m_pushbuffer.push<Renderable::Sprites>())
     {
-      entry->commandlist = sprites.commandlist();
+      entry->spritecommands = apritelist.spritecommands;
     }
   }
 }
 
 
 ///////////////////////// Viewport::begin ///////////////////////////////////
-bool Viewport::begin(GeometryList &geometry, GeometryList::BuildState &buildstate)
+bool Viewport::begin(GeometryList &geometrylist, GeometryList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return geometry.begin(buildstate, m_rendercontext, *platform->resources());
+  return geometrylist.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
 ///////////////////////// Viewport::push_geometry ///////////////////////////
-void Viewport::push_geometry(GeometryList const &geometry)
+void Viewport::push_geometry(GeometryList const &geometrylist)
 {
-  if (geometry)
+  if (geometrylist)
   {
     if (auto entry = m_pushbuffer.push<Renderable::Geometry>())
     {
-      entry->commandlist = geometry.commandlist();
+      entry->prepasscommands = geometrylist.prepasscommands;
+      entry->geometrycommands = geometrylist.geometrycommands;
     }
   }
 }
 
 
 ///////////////////////// Viewport::begin ///////////////////////////////////
-bool Viewport::begin(ForwardList &objects, ForwardList::BuildState &buildstate)
+bool Viewport::begin(ForwardList &forwardlist, ForwardList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return objects.begin(buildstate, m_rendercontext, *platform->resources());
+  return forwardlist.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
-///////////////////////// Viewport::push_objects ////////////////////////////
-void Viewport::push_objects(ForwardList const &objects)
+///////////////////////// Viewport::push_forward ////////////////////////////
+void Viewport::push_forward(ForwardList const &forwardlist)
 {
-  if (objects)
+  if (forwardlist)
   {
-    if (auto entry = m_pushbuffer.push<Renderable::Objects>())
+    if (auto entry = m_pushbuffer.push<Renderable::Forward>())
     {
-      entry->commandlist = objects.commandlist();
+      entry->forwardcommands = forwardlist.forwardcommands;
     }
   }
 }
 
 
 ///////////////////////// Viewport::begin ///////////////////////////////////
-bool Viewport::begin(OverlayList &overlays, OverlayList::BuildState &buildstate)
+bool Viewport::begin(OverlayList &overlaylist, OverlayList::BuildState &buildstate)
 {
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 
-  return overlays.begin(buildstate, m_rendercontext, *platform->resources());
+  return overlaylist.begin(buildstate, m_rendercontext, *platform->resources());
 }
 
 
 ///////////////////////// Viewport::push_overlays ///////////////////////////
-void Viewport::push_overlays(OverlayList const &overlays)
+void Viewport::push_overlays(OverlayList const &overlaylist)
 {
-  if (overlays)
+  if (overlaylist)
   {
     if (auto entry = m_pushbuffer.push<Renderable::Overlays>())
     {
-      entry->commandlist = overlays.commandlist();
+      entry->overlaycommands = overlaylist.overlaycommands;
     }
   }
 }
@@ -373,7 +374,7 @@ void Viewport::render()
 {
   using ::render;
 
-  assert(m_rendercontext.framebuffer);
+  assert(m_rendercontext.ready);
 
   auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
 

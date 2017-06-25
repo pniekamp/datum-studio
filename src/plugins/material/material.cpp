@@ -109,7 +109,7 @@ namespace
     return id + 1;
   }
 
-  uint32_t write_specularmap(ostream &fout, uint32_t id, HDRImage const &image)
+  uint32_t write_surfacemap(ostream &fout, uint32_t id, HDRImage const &image)
   {
     int width = image.width;
     int height = image.height;
@@ -299,159 +299,159 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
     auto roughnessmap = ImageDocument(materialdocument.image(MaterialDocument::Image::RoughnessMap)).data(ImageDocument::raw);
     auto reflectivitymap = ImageDocument(materialdocument.image(MaterialDocument::Image::ReflectivityMap)).data(ImageDocument::raw);
 
-    HDRImage specularmap;
-    specularmap.width = max({ metalnessmap.width, roughnessmap.width, reflectivitymap.width });;
-    specularmap.height = max({ metalnessmap.height, roughnessmap.height, reflectivitymap.height });
-    specularmap.bits = vector<Color4>(specularmap.width * specularmap.height, Color4(1, 1, 1, 1));
+    HDRImage surfacemap;
+    surfacemap.width = max({ metalnessmap.width, roughnessmap.width, reflectivitymap.width });;
+    surfacemap.height = max({ metalnessmap.height, roughnessmap.height, reflectivitymap.height });
+    surfacemap.bits = vector<Color4>(surfacemap.width * surfacemap.height, Color4(1, 1, 1, 1));
 
     if (materialdocument.image(MaterialDocument::Image::MetalnessMap))
     {
-      if (metalnessmap.width != specularmap.width || metalnessmap.height != specularmap.height)
+      if (metalnessmap.width != surfacemap.width || metalnessmap.height != surfacemap.height)
         throw runtime_error("Material build failed - metalness map size mismatch");
 
       switch(materialdocument.metalnessoutput())
       {
         case MaterialDocument::MetalnessOutput::r:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = metalnessmap.bits[i].r;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = metalnessmap.bits[i].r;
           break;
 
         case MaterialDocument::MetalnessOutput::g:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = metalnessmap.bits[i].g;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = metalnessmap.bits[i].g;
           break;
 
         case MaterialDocument::MetalnessOutput::b:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = metalnessmap.bits[i].b;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = metalnessmap.bits[i].b;
           break;
 
         case MaterialDocument::MetalnessOutput::a:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = metalnessmap.bits[i].a;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = metalnessmap.bits[i].a;
           break;
 
         case MaterialDocument::MetalnessOutput::invr:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = 1 - metalnessmap.bits[i].r;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = 1 - metalnessmap.bits[i].r;
           break;
 
         case MaterialDocument::MetalnessOutput::invg:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = 1 - metalnessmap.bits[i].g;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = 1 - metalnessmap.bits[i].g;
           break;
 
         case MaterialDocument::MetalnessOutput::invb:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = 1 - metalnessmap.bits[i].b;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = 1 - metalnessmap.bits[i].b;
           break;
 
         case MaterialDocument::MetalnessOutput::inva:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].r = 1 - metalnessmap.bits[i].a;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].r = 1 - metalnessmap.bits[i].a;
           break;
       }
     }
 
     if (materialdocument.image(MaterialDocument::Image::RoughnessMap))
     {
-      if (roughnessmap.width != specularmap.width || roughnessmap.height != specularmap.height)
+      if (roughnessmap.width != surfacemap.width || roughnessmap.height != surfacemap.height)
         throw runtime_error("Material build failed - roughness map size mismatch");
 
       switch(materialdocument.roughnessoutput())
       {
         case MaterialDocument::RoughnessOutput::r:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = roughnessmap.bits[i].r;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = roughnessmap.bits[i].r;
           break;
 
         case MaterialDocument::RoughnessOutput::g:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = roughnessmap.bits[i].g;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = roughnessmap.bits[i].g;
           break;
 
         case MaterialDocument::RoughnessOutput::b:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = roughnessmap.bits[i].b;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = roughnessmap.bits[i].b;
           break;
 
         case MaterialDocument::RoughnessOutput::a:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = roughnessmap.bits[i].a;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = roughnessmap.bits[i].a;
           break;
 
         case MaterialDocument::RoughnessOutput::invr:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = 1 - roughnessmap.bits[i].r;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = 1 - roughnessmap.bits[i].r;
           break;
 
         case MaterialDocument::RoughnessOutput::invg:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = 1 - roughnessmap.bits[i].g;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = 1 - roughnessmap.bits[i].g;
           break;
 
         case MaterialDocument::RoughnessOutput::invb:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = 1 - roughnessmap.bits[i].b;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = 1 - roughnessmap.bits[i].b;
           break;
 
         case MaterialDocument::RoughnessOutput::inva:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].a = 1 - roughnessmap.bits[i].a;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].a = 1 - roughnessmap.bits[i].a;
           break;
       }
     }
 
     if (materialdocument.image(MaterialDocument::Image::ReflectivityMap))
     {
-      if (reflectivitymap.width != specularmap.width || reflectivitymap.height != specularmap.height)
+      if (reflectivitymap.width != surfacemap.width || reflectivitymap.height != surfacemap.height)
         throw runtime_error("Material build failed - reflectivity map size mismatch");
 
       switch(materialdocument.reflectivityoutput())
       {
         case MaterialDocument::ReflectivityOutput::r:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = reflectivitymap.bits[i].r;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = reflectivitymap.bits[i].r;
           break;
 
         case MaterialDocument::ReflectivityOutput::g:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = reflectivitymap.bits[i].g;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = reflectivitymap.bits[i].g;
           break;
 
         case MaterialDocument::ReflectivityOutput::b:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = reflectivitymap.bits[i].b;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = reflectivitymap.bits[i].b;
           break;
 
         case MaterialDocument::ReflectivityOutput::a:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = reflectivitymap.bits[i].a;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = reflectivitymap.bits[i].a;
           break;
 
         case MaterialDocument::ReflectivityOutput::invr:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = 1 - reflectivitymap.bits[i].r;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = 1 - reflectivitymap.bits[i].r;
           break;
 
         case MaterialDocument::ReflectivityOutput::invg:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = 1 - reflectivitymap.bits[i].g;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = 1 - reflectivitymap.bits[i].g;
           break;
 
         case MaterialDocument::ReflectivityOutput::invb:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = 1 - reflectivitymap.bits[i].b;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = 1 - reflectivitymap.bits[i].b;
           break;
 
         case MaterialDocument::ReflectivityOutput::inva:
-          for(size_t i = 0; i < specularmap.bits.size(); ++i)
-            specularmap.bits[i].g = 1 - reflectivitymap.bits[i].a;
+          for(size_t i = 0; i < surfacemap.bits.size(); ++i)
+            surfacemap.bits[i].g = 1 - reflectivitymap.bits[i].a;
           break;
       }
     }
 
-    write_specularmap(fout, 2, specularmap);
+    write_surfacemap(fout, 2, surfacemap);
   }
 
   if (materialdocument.image(MaterialDocument::Image::NormalMap))
@@ -504,15 +504,15 @@ void MaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
     if (materialdocument.image(MaterialDocument::Image::AlbedoMap))
       albedomap = asset.add_dependant(asset.document, "Material.AlbedoMap");
 
-    auto specularmap = 0;
+    auto surfacemap = 0;
     if (materialdocument.image(MaterialDocument::Image::MetalnessMap) || materialdocument.image(MaterialDocument::Image::RoughnessMap) || materialdocument.image(MaterialDocument::Image::ReflectivityMap))
-      specularmap = asset.add_dependant(asset.document, "Material.SpecularMap");
+      surfacemap = asset.add_dependant(asset.document, "Material.SpecularMap");
 
     auto normalmap = 0;
     if (materialdocument.image(MaterialDocument::Image::NormalMap))
       normalmap = asset.add_dependant(asset.document, "Material.NormalMap");
 
-    write_matl_asset(fout, asset.id, color, metalness, roughness, reflectivity, emissive, albedomap, specularmap, normalmap);
+    write_matl_asset(fout, asset.id, color, metalness, roughness, reflectivity, emissive, albedomap, surfacemap, normalmap);
   }
 
   if (asset.type == "Material.AlbedoMap")

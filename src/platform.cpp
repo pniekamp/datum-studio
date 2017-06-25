@@ -293,27 +293,6 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   VkPhysicalDevice physicaldevice;
   physicaldevice = physicaldevices[0];
 
-  uint32_t queuecount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(physicaldevice, &queuecount, nullptr);
-
-  if (queuecount == 0)
-    throw runtime_error("Vulkan vkGetPhysicalDeviceQueueFamilyProperties failed");
-
-  vector<VkQueueFamilyProperties> queueproperties(queuecount);
-  vkGetPhysicalDeviceQueueFamilyProperties(physicaldevice, &queuecount, queueproperties.data());
-
-  uint32_t queueindex = 0;
-  while (queueindex < queuecount && !(queueproperties[queueindex].queueFlags & VK_QUEUE_GRAPHICS_BIT))
-    ++queueindex;
-
-  float queuepriorities[] = { 0.0f, 0.0f };
-
-  VkDeviceQueueCreateInfo queueinfo = {};
-  queueinfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueinfo.queueFamilyIndex = queueindex;
-  queueinfo.queueCount = extentof(queuepriorities);
-  queueinfo.pQueuePriorities = queuepriorities;
-
   const char* deviceextensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
   VkPhysicalDeviceFeatures devicefeatures = {};
@@ -325,10 +304,43 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   devicefeatures.samplerAnisotropy = true;
   devicefeatures.textureCompressionBC = true;
 
+  uint32_t queuecount = 0;
+  vkGetPhysicalDeviceQueueFamilyProperties(physicaldevice, &queuecount, nullptr);
+
+  if (queuecount == 0)
+    throw runtime_error("Vulkan vkGetPhysicalDeviceQueueFamilyProperties failed");
+
+  vector<VkQueueFamilyProperties> queueproperties(queuecount);
+  vkGetPhysicalDeviceQueueFamilyProperties(physicaldevice, &queuecount, queueproperties.data());
+
+  uint32_t graphicsqueueindex = 0;
+  uint32_t transferqueueindex = queuecount;
+
+  for(auto &queue : queueproperties)
+  {
+    if ((queue.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
+      graphicsqueueindex = indexof(queueproperties, queue);
+
+    if ((queue.queueFlags & (VK_QUEUE_GRAPHICS_BIT|VK_QUEUE_TRANSFER_BIT)) == VK_QUEUE_TRANSFER_BIT)
+      transferqueueindex = indexof(queueproperties, queue);
+  }
+
+  float queuepriorities[] = { 0.0f, 0.0f };
+
+  VkDeviceQueueCreateInfo queueinfo[2] = {};
+  queueinfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueinfo[0].queueFamilyIndex = graphicsqueueindex;
+  queueinfo[0].queueCount = extentof(queuepriorities) - 1;
+  queueinfo[0].pQueuePriorities = queuepriorities;
+  queueinfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueinfo[1].queueFamilyIndex = transferqueueindex;
+  queueinfo[1].queueCount = 1;
+  queueinfo[1].pQueuePriorities = queuepriorities + queueinfo[0].queueCount;
+
   VkDeviceCreateInfo deviceinfo = {};
   deviceinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  deviceinfo.queueCreateInfoCount = 1;
-  deviceinfo.pQueueCreateInfos = &queueinfo;
+  deviceinfo.queueCreateInfoCount = extentof(queueinfo);
+  deviceinfo.pQueueCreateInfos = queueinfo;
   deviceinfo.pEnabledFeatures = &devicefeatures;
   deviceinfo.enabledExtensionCount = extentof(deviceextensions);
   deviceinfo.ppEnabledExtensionNames = deviceextensions;
@@ -338,6 +350,12 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   VkDevice device;
   if (vkCreateDevice(physicaldevice, &deviceinfo, nullptr, &device) != VK_SUCCESS)
     throw runtime_error("Vulkan vkCreateDevice failed");
+
+  VkQueue renderqueue;
+  vkGetDeviceQueue(device, graphicsqueueindex, 0, &renderqueue);
+
+  VkQueue transferqueue;
+  vkGetDeviceQueue(device, transferqueueindex, 0, &transferqueue);
 
 #if VALIDATION
 
@@ -363,17 +381,11 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
 
 #endif
 
-  VkQueue renderqueue;
-  vkGetDeviceQueue(device, queueindex, 0, &renderqueue);
-
-  VkQueue transferqueue;
-  vkGetDeviceQueue(device, queueindex, 1, &transferqueue);
-
   platform.instance = instance;
   platform.renderdevice.device = device;
   platform.renderdevice.physicaldevice = physicaldevice;
-  platform.renderdevice.queues[0] = { renderqueue, queueindex };
-  platform.renderdevice.queues[1] = { transferqueue, queueindex };
+  platform.renderdevice.queues[0] = { renderqueue, graphicsqueueindex };
+  platform.renderdevice.queues[1] = { transferqueue, transferqueueindex };
 }
 
 

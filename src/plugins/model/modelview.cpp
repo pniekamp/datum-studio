@@ -173,7 +173,7 @@ Material const *ModelView::find_or_create_material(Studio::Document *document, C
       emissive = materialdocument.emissive();
     }
 
-    j = materialdata.tints.insert(materialdata.tints.end(), { tint, resources.create<Material>(color, metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.specularmap, *materialdata.normalmap) });
+    j = materialdata.tints.insert(materialdata.tints.end(), { tint, resources.create<Material>(color, metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.surfacemap, *materialdata.normalmap) });
   }
 
   return j->material;
@@ -188,7 +188,7 @@ void ModelView::on_material_build_complete(Studio::Document *document, QString c
   auto &materialdata = m_materials[document];
 
   materialdata.albedomap = resources.load<Texture>(fin, 1, Texture::Format::SRGBA);
-  materialdata.specularmap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
+  materialdata.surfacemap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
   materialdata.normalmap = resources.load<Texture>(fin, 3, Texture::Format::RGBA);
 
   if (auto materialdocument = MaterialDocument(document))
@@ -201,7 +201,7 @@ void ModelView::on_material_build_complete(Studio::Document *document, QString c
 
     for(auto &tintdata : materialdata.tints)
     {
-      resources.update<Material>(tintdata.material, hada(tintdata.tint, color), metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.specularmap, *materialdata.normalmap);
+      resources.update<Material>(tintdata.material, hada(tintdata.tint, color), metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.surfacemap, *materialdata.normalmap);
     }
   }
 
@@ -607,7 +607,7 @@ void ModelView::paintEvent(QPaintEvent *event)
       objects.finalise(buildstate);
     }
 
-    push_objects(objects);
+    push_forward(objects);
   }
 
   if (m_selection != -1)

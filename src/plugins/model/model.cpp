@@ -166,7 +166,7 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
       entry.reflectivity = 0.5f;
       entry.emissive = 0.0f;
       entry.albedomap = 0;
-      entry.specularmap = 0;
+      entry.surfacemap = 0;
       entry.normalmap = 0;
 
       if (auto materialdocument = MaterialDocument(instance.material->document))
@@ -207,7 +207,7 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
           {
             PackModelPayload::Texture entry;
 
-            entry.type = PackModelPayload::Texture::specularmap;
+            entry.type = PackModelPayload::Texture::surfacemap;
             entry.texture = asset.add_dependant(instance.material->document, "Material.SpecularMap");;
 
             textures.push_back(entry);
@@ -215,7 +215,7 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
             texture = texturemap.insert({ make_texturekey(instance.material->document, 2), textures.size() - 1 }).first;
           }
 
-          entry.specularmap = texture->second;
+          entry.surfacemap = texture->second;
         }
 
         if (materialdocument.image(MaterialDocument::Image::NormalMap))

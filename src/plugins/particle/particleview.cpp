@@ -340,7 +340,7 @@ void ParticleView::paintEvent(QPaintEvent *event)
     objects.finalise(buildstate);
   }
 
-  push_objects(objects);
+  push_forward(objects);
 
   if (m_showbound)
   {

@@ -88,7 +88,7 @@ class ModelView : public Viewport
       size_t hash = 0;
 
       unique_resource<Texture> albedomap;
-      unique_resource<Texture> specularmap;
+      unique_resource<Texture> surfacemap;
       unique_resource<Texture> normalmap;
 
       struct TintData

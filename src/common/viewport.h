@@ -65,21 +65,21 @@ class Viewport : public QWidget
 
     bool prepare();
 
-    bool begin(SpriteList &sprites, SpriteList::BuildState &buildstate);
+    bool begin(SpriteList &apritelist, SpriteList::BuildState &buildstate);
 
-    void push_sprites(SpriteList const &sprites);
+    void push_sprites(SpriteList const &apritelist);
 
-    bool begin(GeometryList &geometry, GeometryList::BuildState &buildstate);
+    bool begin(GeometryList &geometrylist, GeometryList::BuildState &buildstate);
 
-    void push_geometry(GeometryList const &geometry);
+    void push_geometry(GeometryList const &geometrylist);
 
-    bool begin(ForwardList &objects, ForwardList::BuildState &buildstate);
+    bool begin(ForwardList &forwardlist, ForwardList::BuildState &buildstate);
 
-    void push_objects(ForwardList const &objects);
+    void push_forward(ForwardList const &forwardlist);
 
-    bool begin(OverlayList &overlays, OverlayList::BuildState &buildstate);
+    bool begin(OverlayList &overlaylist, OverlayList::BuildState &buildstate);
 
-    void push_overlays(OverlayList const &overlays);
+    void push_overlays(OverlayList const &overlaylist);
 
     void render();
 

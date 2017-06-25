@@ -140,10 +140,10 @@ void MaterialView::on_material_build_complete(Studio::Document *document, QStrin
     auto emissive = m_document.emissive();
 
     m_albedomap = resources.load<Texture>(fin, 1, Texture::Format::SRGBA);
-    m_specularmap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
+    m_surfacemap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
     m_normalmap = resources.load<Texture>(fin, 3, Texture::Format::RGBA);
 
-    resources.update<Material>(m_material, color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_specularmap, *m_normalmap);
+    resources.update<Material>(m_material, color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_surfacemap, *m_normalmap);
 
     m_buildpath = path;
 
@@ -392,7 +392,7 @@ void MaterialView::paintEvent(QPaintEvent *event)
       objects.finalise(buildstate);
     }
 
-    push_objects(objects);
+    push_forward(objects);
   }
 
   render();

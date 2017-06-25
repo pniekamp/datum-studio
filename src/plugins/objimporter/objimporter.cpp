@@ -194,7 +194,7 @@ namespace
     material.reflectivity = 0.5f;
     material.emissive = 0.0f;
     material.albedomap = 0;
-    material.specularmap = 0;
+    material.surfacemap = 0;
     material.normalmap = 0;
 
     PackModelPayload::Mesh mesh;
