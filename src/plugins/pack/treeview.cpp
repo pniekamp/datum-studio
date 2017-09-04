@@ -184,7 +184,7 @@ QVariant TreeModel::data(QModelIndex const &index, int role) const
 
     if (auto asset = node_cast<PackModel::Asset>(node(index)))
     {
-      result = QFileInfo(asset->path()).completeBaseName();
+      result = asset->name();
     }
   }
 

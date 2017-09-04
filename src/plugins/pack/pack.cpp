@@ -41,6 +41,7 @@ namespace
 
     uint32_t signature;
     uint32_t version;
+    vector<tuple<uint32_t, string>> catalog;
 
     vector<unique_ptr<Asset>> assets;
 
@@ -129,6 +130,8 @@ void PackManager::build(PackModel const *model, QString const &filename, Ui::Bui
     if (auto asset = node_cast<PackModel::Asset>(node))
     {
       pack.add(asset->document());
+
+      pack.catalog.push_back(make_tuple(pack.assets.back()->id, asset->fullname().toStdString()));
     }
   }
 
@@ -139,7 +142,7 @@ void PackManager::build(PackModel const *model, QString const &filename, Ui::Bui
 
   write_header(fout);
 
-  write_catl_asset(fout, 0, pack.signature, pack.version);
+  write_catl_asset(fout, 0, pack.signature, pack.version, pack.catalog);
 
   dlg->Message->setText("Building...");
 

@@ -87,6 +87,30 @@ PackModel::Asset::Asset(QString const &path)
 }
 
 
+///////////////////////// Asset::name ///////////////////////////////
+QString PackModel::Asset::name() const
+{
+  return QFileInfo(m_path).completeBaseName();
+}
+
+
+///////////////////////// Asset::fullname /////////////////////////
+QString PackModel::Asset::fullname() const
+{
+  QString name = QFileInfo(m_path).completeBaseName();
+
+  for(auto node = parent(); node && node->parent(); node = node->parent())
+  {
+    if (auto group = node_cast<Group>(node))
+    {
+      name = group->name() + "/" + name;
+    }
+  }
+
+  return name;
+}
+
+
 ///////////////////////// Asset::set_data ///////////////////////////
 void PackModel::Asset::set_data(PackModel::DataRole role, QVariant const &value)
 {

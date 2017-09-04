@@ -126,12 +126,12 @@ void ImageView::set_scale(float scale, QPoint const &focus)
 
     m_scale = scale;
 
+    invalidate();
+
     horizontalScrollBar()->setValue(locus.x()*m_scale - focus.x());
     verticalScrollBar()->setValue(locus.y()*m_scale - focus.y());
 
     emit zoom_changed(sqrt(10.0 * m_scale) - 1);
-
-    invalidate();
   }
 }
 

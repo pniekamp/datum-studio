@@ -73,6 +73,9 @@ class PackModel : public QObject
         NodeType type() const { return NodeType::Asset; }
         std::type_info const &type_info() const { return typeid(*this); }
 
+        QString name() const;
+        QString fullname() const;
+
         QString path() const { return m_path; }
 
         Studio::Document *document() const { return m_document; }
