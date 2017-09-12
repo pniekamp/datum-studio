@@ -2,5 +2,6 @@
   "Name" : "Material",
   "Version" : "1.0",
   "Description" : "Material Editor",
-  "Url" : ""
+  "Url" : "",
+  "LoadOrder" : 52
 }

@@ -61,7 +61,7 @@ bool MaterialPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   packmanager->register_packer("Material", this);
   packmanager->register_packer("Material.AlbedoMap", this);
-  packmanager->register_packer("Material.SpecularMap", this);
+  packmanager->register_packer("Material.SurfaceMap", this);
   packmanager->register_packer("Material.NormalMap", this);
 
   return true;

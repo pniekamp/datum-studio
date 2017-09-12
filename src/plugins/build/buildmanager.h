@@ -78,13 +78,13 @@ class BuildManager : public Studio::BuildManager
     struct Build
     {
       QUuid id;
-      QString doc;
+      QString file;
       size_t hash;
     };
 
     std::vector<Build> m_builds;
 
-    QUuid find_build(QString const &doc, size_t key) const;
+    QUuid find_build(QString const &file, size_t key) const;
 
     std::vector<Studio::Document*> m_pending;
 

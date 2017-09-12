@@ -113,9 +113,9 @@ void BuildManager::on_project_changed(QString const &projectfile)
 
     QUuid id = buffer.substr(0, i).c_str();
     size_t hash = stoull(buffer.substr(i+1, j));
-    QString doc = m_path.filePath(buffer.substr(j+1).c_str());
+    QString file = m_path.filePath(buffer.substr(j+1).c_str());
 
-    m_builds.push_back({ id, doc, hash });
+    m_builds.push_back({ id, file, hash });
   }
 }
 
@@ -131,7 +131,7 @@ void BuildManager::on_project_closing(bool *cancel)
 
   for(auto &build : m_builds)
   {
-    fout << build.id.toString().toStdString() << " " << build.hash << " " << m_path.relativeFilePath(build.doc).toStdString() << '\n';
+    fout << build.id.toString().toStdString() << " " << build.hash << " " << m_path.relativeFilePath(build.file).toStdString() << '\n';
   }
 
   fout << '\n';
@@ -145,9 +145,9 @@ void BuildManager::on_document_renamed(Studio::Document *document, QString const
 
   for(auto &build : m_builds)
   {
-    if (build.doc == src)
+    if (build.file == src)
     {
-      build.doc = dst;
+      build.file = dst;
     }
   }
 }
@@ -181,13 +181,13 @@ void BuildManager::register_builder(QString const &type, QObject *builder)
 
 
 ///////////////////////// BuildManager::find_build //////////////////////////
-QUuid BuildManager::find_build(QString const &doc, size_t hash) const
+QUuid BuildManager::find_build(QString const &file, size_t hash) const
 {
   SyncLock lock(m_mutex);
 
   for(auto &build : m_builds)
   {
-    if (build.doc == doc && build.hash == hash)
+    if (build.file == file && build.hash == hash)
     {
       return build.id;
     }
@@ -222,10 +222,6 @@ bool BuildManager::build(Studio::Document *document, QString *path)
 
   if (builder)
   {
-    document->lock();
-
-    QString doc = Studio::Core::instance()->find_object<Studio::DocumentManager>()->path(document);
-
     size_t hash = 0;
 
     try
@@ -237,7 +233,11 @@ bool BuildManager::build(Studio::Document *document, QString *path)
       qDebug() << "Hash Error:" << e.what();
     }
 
-    auto id = find_build(doc, hash);
+    document->lock();
+
+    QString file = Studio::Core::instance()->find_object<Studio::DocumentManager>()->path(document);
+
+    auto id = find_build(file, hash);
 
     if (id.isNull())
     {
@@ -245,7 +245,7 @@ bool BuildManager::build(Studio::Document *document, QString *path)
 
       id = QUuid::createUuid();
 
-      m_builds.push_back({ id, doc, hash });
+      m_builds.push_back({ id, file, hash });
     }
 
     document->unlock();
@@ -259,7 +259,7 @@ bool BuildManager::build(Studio::Document *document, QString *path)
 
     if (!result)
     {
-      qInfo() << "Building" << doc;
+      qInfo() << "Building" << file;
 
       emit build_started(document);
 

@@ -235,7 +235,7 @@ QRadioButton::indicator
              </layout>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_8">
+             <widget class="QGroupBox" name="Tint">
               <property name="styleSheet">
                <string notr="true">QGroupBox::title
 {
@@ -429,7 +429,7 @@ QRadioButton::indicator
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_3">
+             <widget class="QGroupBox" name="Emissive">
               <property name="styleSheet">
                <string notr="true">QGroupBox::title
 {

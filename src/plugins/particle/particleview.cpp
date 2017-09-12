@@ -131,7 +131,7 @@ void ParticleView::on_spritesheet_build_complete(Studio::Document *document, QSt
     {
       read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
 
-      resources.update<Texture>(m_spritesheet, lump);
+      resources.update(m_spritesheet, lump);
 
       resources.release_lump(lump);
     }

@@ -201,7 +201,7 @@ void ModelView::on_material_build_complete(Studio::Document *document, QString c
 
     for(auto &tintdata : materialdata.tints)
     {
-      resources.update<Material>(tintdata.material, hada(tintdata.tint, color), metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.surfacemap, *materialdata.normalmap);
+      resources.update(tintdata.material, hada(tintdata.tint, color), metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.surfacemap, *materialdata.normalmap);
     }
   }
 

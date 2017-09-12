@@ -98,7 +98,7 @@ void ImageView::refresh()
     { 
       read_asset_payload(m_document, imag.dataoffset, lump->memory(), imag.datasize);
 
-      viewport()->resources.update<Texture>(m_image, lump);
+      viewport()->resources.update(m_image, lump);
 
       viewport()->resources.release_lump(lump);
     }

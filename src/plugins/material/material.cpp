@@ -117,7 +117,7 @@ namespace
     int levels = min(4, image_maxlevels(width, height));
 
     if (image.bits.size() == 0)
-      throw runtime_error("SpecularMap build failed - null image");
+      throw runtime_error("SurfaceMap build failed - null image");
 
     vector<char> payload(image_datasize(width, height, layers, levels));
 
@@ -506,7 +506,7 @@ void MaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
     auto surfacemap = 0;
     if (materialdocument.image(MaterialDocument::Image::MetalnessMap) || materialdocument.image(MaterialDocument::Image::RoughnessMap) || materialdocument.image(MaterialDocument::Image::ReflectivityMap))
-      surfacemap = asset.add_dependant(asset.document, "Material.SpecularMap");
+      surfacemap = asset.add_dependant(asset.document, "Material.SurfaceMap");
 
     auto normalmap = 0;
     if (materialdocument.image(MaterialDocument::Image::NormalMap))
@@ -531,7 +531,7 @@ void MaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
     }
   }
 
-  if (asset.type == "Material.SpecularMap")
+  if (asset.type == "Material.SurfaceMap")
   {
     PackImageHeader imag;
 
@@ -634,7 +634,7 @@ void MaterialDocument::attach(Studio::Document *document)
 }
 
 
-///////////////////////// MaterialDocument::touch /////////////////////////////
+///////////////////////// MaterialDocument::touch ///////////////////////////
 void MaterialDocument::touch(Studio::Document *document, QString const &path)
 {
   for(auto &image : m_images)

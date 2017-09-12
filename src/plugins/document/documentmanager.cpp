@@ -365,9 +365,9 @@ void Document::lock()
 ///////////////////////// Document::unlock //////////////////////////////////
 void Document::unlock()
 {
-  m_lock.readrelease();
-
   assert((m_locked -= 1) >= 0);
+
+  m_lock.readrelease();
 }
 
 
@@ -384,10 +384,10 @@ void Document::lock_exclusive()
 ///////////////////////// Document::unlock_exclusive ////////////////////////
 void Document::unlock_exclusive(bool changed)
 {
-  m_lock.writerelease();
-
   assert((m_locked -= 1) == 0);
   assert((m_exclusive -= 1) == 0);
+
+  m_lock.writerelease();
 
   if (changed)
   {

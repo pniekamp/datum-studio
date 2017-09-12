@@ -1101,9 +1101,6 @@ QRadioButton::indicator
                <height>16777215</height>
               </size>
              </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
              <property name="styleSheet">
               <string notr="true">QPushButton
 {
@@ -1132,9 +1129,6 @@ QRadioButton::indicator
                <width>80</width>
                <height>16777215</height>
               </size>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton
@@ -1906,9 +1900,6 @@ QRadioButton::indicator
                <height>16777215</height>
               </size>
              </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
              <property name="styleSheet">
               <string notr="true">QPushButton
 {
@@ -1937,9 +1928,6 @@ QRadioButton::indicator
                <width>80</width>
                <height>16777215</height>
               </size>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton

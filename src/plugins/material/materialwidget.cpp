@@ -297,7 +297,7 @@ void MaterialWidget::on_RoughnessSlider_valueChanged(double value)
 }
 
 
-///////////////////////// MaterialWidget::RouchnessSpinner //////////////////
+///////////////////////// MaterialWidget::RoughnessSpinner //////////////////
 void MaterialWidget::on_RoughnessSpinner_valueChanged(double value)
 {
   m_document.set_roughness(value);

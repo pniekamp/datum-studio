@@ -208,7 +208,7 @@ void ModelDocument::pack(Studio::PackerState &asset, ofstream &fout)
             PackModelPayload::Texture entry;
 
             entry.type = PackModelPayload::Texture::surfacemap;
-            entry.texture = asset.add_dependant(instance.material->document, "Material.SpecularMap");;
+            entry.texture = asset.add_dependant(instance.material->document, "Material.SurfaceMap");;
 
             textures.push_back(entry);
 

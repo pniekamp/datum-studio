@@ -252,11 +252,11 @@ void ContentPlugin::on_Create_triggered(QAction *action)
 
   QString suffix = (type == "Folder") ? "" : ".asset";
 
-  QString path = ui.Folders->selected_path() + "/" + type + suffix;
+  QString path = ui.Folders->selected_path() + "/" + QString(type).remove("\\") + suffix;
 
   for(int k = 1; k < 256 && QFileInfo(path).exists(); ++k)
   {
-    path = ui.Folders->selected_path() + "/" + type + "_" + QString::number(k) + suffix;
+    path = ui.Folders->selected_path() + "/" + QString(type).remove("\\") + "_" + QString::number(k) + suffix;
   }
 
   if (contentmanager->create(type, path))

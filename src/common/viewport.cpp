@@ -15,58 +15,157 @@
 using namespace std;
 using namespace lml;
 
-///////////////////////// Resource::load_mesh ///////////////////////////////
-template<>
-unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(size_t asset)
-{ 
-  auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
-
-  auto mesh = create<Mesh>(platform->assets()->find(asset));
-
-  if (mesh)
+namespace
+{
+  void lock(istream &)
   {
-    asset_guard lock(platform->assets());
-
-    while (!mesh->ready())
-      platform->resources()->request(*platform->instance(), *mesh);
   }
 
-  return mesh;
+  void unlock(istream &)
+  {
+  }
+
+  void lock(Studio::Document *document)
+  {
+    document->lock();
+  }
+
+  void unlock(Studio::Document *document)
+  {
+    document->unlock();
+  }
+
+  ///////////////////////// load_asset //////////////////////////////////////
+  template<typename Resource, typename ...Args>
+  unique_resource<Resource> load_asset(Viewport::ResourceProxy &resources, size_t id, Args... args)
+  {
+    auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
+
+    auto asset = resources.create<Resource>(platform->assets()->find(id), args...);
+
+    if (asset)
+    {
+      asset_guard lock(platform->assets());
+
+      while (!asset->ready())
+      {
+        platform->resources()->request(*platform->instance(), *asset);
+      }
+    }
+
+    return asset;
+  }
+
+  ///////////////////////// load_mesh ///////////////////////////////////////
+  template<typename File>
+  unique_resource<Mesh> load_mesh(Viewport::ResourceProxy &resources, File &fin, size_t index)
+  {
+    unique_resource<Mesh> mesh;
+
+    lock(fin);
+
+    PackMeshHeader mhdr;
+
+    if (read_asset_header(fin, index, &mhdr))
+    {
+      mesh = resources.create<Mesh>(mhdr.vertexcount, mhdr.indexcount);
+
+      if (auto lump = resources.acquire_lump(mesh->vertexbuffer.size))
+      {
+        read_asset_payload(fin, mhdr.dataoffset, lump->memory(mesh->vertexbuffer.verticesoffset), mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
+        read_asset_payload(fin, mhdr.dataoffset + mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize, lump->memory(mesh->vertexbuffer.indicesoffset), mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
+
+        resources.update(mesh, lump);
+
+        resources.release_lump(lump);
+      }
+
+      resources.update(mesh, Bound3(Vec3(mhdr.mincorner[0], mhdr.mincorner[1], mhdr.mincorner[2]), Vec3(mhdr.maxcorner[0], mhdr.maxcorner[1], mhdr.maxcorner[2])));
+    }
+
+    unlock(fin);
+
+    return mesh;
+  }
+
+  ///////////////////////// load_texture ////////////////////////////////////
+  template<typename File>
+  unique_resource<Texture> load_texture(Viewport::ResourceProxy &resources, File &fin, size_t index, Texture::Format format)
+  {
+    unique_resource<Texture> texture;
+
+    lock(fin);
+
+    PackImageHeader imag;
+
+    if (read_asset_header(fin, index, &imag))
+    {
+      texture = resources.create<Texture>(imag.width, imag.height, imag.layers, imag.levels, format);
+
+      if (auto lump = resources.acquire_lump(imag.datasize))
+      {
+        read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
+
+        resources.update(texture, lump);
+
+        resources.release_lump(lump);
+      }
+    }
+
+    unlock(fin);
+
+    return texture;
+  }
+
+  ///////////////////////// load_skybox /////////////////////////////////////
+  template<typename File>
+  unique_resource<SkyBox> load_skybox(Viewport::ResourceProxy &resources, File &fin, size_t index)
+  {
+    unique_resource<SkyBox> skybox;
+
+    lock(fin);
+
+    PackImageHeader imag;
+
+    if (read_asset_header(fin, index, &imag))
+    {
+      skybox = resources.create<SkyBox>(imag.width, imag.height, EnvMap::Format::RGBE);
+
+      if (auto lump = resources.acquire_lump(imag.datasize))
+      {
+        read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
+
+        resources.update(skybox, lump);
+
+        resources.release_lump(lump);
+      }
+    }
+
+    unlock(fin);
+
+    return skybox;
+  }
 }
 
 
 ///////////////////////// Resource::load_mesh ///////////////////////////////
 template<>
+unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(size_t asset)
+{
+  return load_asset<Mesh>(*this, asset);
+}
+
+template<>
+unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(istream &fin, size_t index)
+{
+  return load_mesh(*this, fin, index);
+}
+
+template<>
 unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *document, size_t index)
 {
-  unique_resource<Mesh> mesh;
+  return load_mesh(*this, document, index);
 
-  document->lock();
-
-  PackMeshHeader mhdr;
-
-  if (read_asset_header(document, index, &mhdr))
-  {
-    mesh = create<Mesh>(mhdr.vertexcount, mhdr.indexcount);
-
-    if (auto lump = acquire_lump(mesh->vertexbuffer.size))
-    {
-      uint64_t position = mhdr.dataoffset + sizeof(PackChunk);
-
-      position += document->read(position, lump->memory(mesh->vertexbuffer.verticesoffset), mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
-      position += document->read(position, lump->memory(mesh->vertexbuffer.indicesoffset), mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
-
-      update<Mesh>(mesh, lump);
-
-      release_lump(lump);
-    }
-
-    update<Mesh>(mesh, Bound3(Vec3(mhdr.mincorner[0], mhdr.mincorner[1], mhdr.mincorner[2]), Vec3(mhdr.maxcorner[0], mhdr.maxcorner[1], mhdr.maxcorner[2])));
-  }
-
-  document->unlock();
-
-  return mesh;
 }
 
 
@@ -74,71 +173,39 @@ unique_resource<Mesh> Viewport::ResourceProxy::load<Mesh>(Studio::Document *docu
 template<>
 unique_resource<Texture> Viewport::ResourceProxy::load<Texture>(size_t asset, Texture::Format format)
 {
-  auto platform = Studio::Core::instance()->find_object<Studio::Platform>();
-
-  auto texture = create<Texture>(platform->assets()->find(asset), format);
-
-  if (texture)
-  {
-    asset_guard lock(platform->assets());
-
-    while (!texture->ready())
-      platform->resources()->request(*platform->instance(), *texture);
-  }
-
-  return texture;
+  return load_asset<Texture>(*this, asset, format);
 }
 
-
-///////////////////////// Resource::load_texture ////////////////////////////
 template<>
 unique_resource<Texture> Viewport::ResourceProxy::load<Texture>(istream &fin, size_t index, Texture::Format format)
 {
-  unique_resource<Texture> texture;
+  return load_texture(*this, fin, index, format);
+}
 
-  PackImageHeader imag;
-
-  if (read_asset_header(fin, index, &imag))
-  {
-    texture = create<Texture>(imag.width, imag.height, imag.layers, imag.levels, format);
-
-    if (auto lump = acquire_lump(imag.datasize))
-    {
-      read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
-
-      update<Texture>(texture, lump);
-
-      release_lump(lump);
-    }
-  }
-
-  return texture;
+template<>
+unique_resource<Texture> Viewport::ResourceProxy::load<Texture>(Studio::Document *document, size_t index, Texture::Format format)
+{
+  return load_texture(*this, document, index, format);
 }
 
 
 ///////////////////////// Resource::load_skybox /////////////////////////////
 template<>
+unique_resource<SkyBox> Viewport::ResourceProxy::load<SkyBox>(size_t asset)
+{
+  return load_asset<SkyBox>(*this, asset);
+}
+
+template<>
 unique_resource<SkyBox> Viewport::ResourceProxy::load<SkyBox>(istream &fin, size_t index)
 {
-  unique_resource<SkyBox> skybox;
+  return load_skybox(*this, fin, index);
+}
 
-  PackImageHeader imag;
-
-  if (read_asset_header(fin, index, &imag))
-  {
-    skybox = create<SkyBox>(imag.width, imag.height, EnvMap::Format::RGBE);
-
-    if (auto lump = acquire_lump(imag.datasize))
-    {
-      read_asset_payload(fin, imag.dataoffset, lump->memory(), imag.datasize);
-
-      update<SkyBox>(skybox, lump);
-
-      release_lump(lump);
-    }
-  }
-
-  return skybox;
+template<>
+unique_resource<SkyBox> Viewport::ResourceProxy::load<SkyBox>(Studio::Document *document, size_t index)
+{
+  return load_skybox(*this, document, index);
 }
 
 

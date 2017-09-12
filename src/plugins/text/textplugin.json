@@ -2,5 +2,6 @@
   "Name" : "Text",
   "Version" : "1.0",
   "Description" : "Text",
-  "Url" : ""
+  "Url" : "",
+  "LoadOrder": 50
 }

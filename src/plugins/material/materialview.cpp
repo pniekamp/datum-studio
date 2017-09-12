@@ -46,30 +46,14 @@ MaterialView::MaterialView(QWidget *parent)
   {
     ifstream fin(pathstring("sphere.pack").c_str(), ios::binary);
 
-    PackMeshHeader mhdr;
-
-    if (read_asset_header(fin, 0, &mhdr))
-    {
-      auto mesh = resources.create<Mesh>(mhdr.vertexcount, mhdr.indexcount);
-
-      if (auto lump = resources.acquire_lump(mesh->vertexbuffer.size))
-      {
-        fin.seekg(mhdr.dataoffset + sizeof(PackChunk));
-        fin.read(lump->memory<char>(mesh->vertexbuffer.verticesoffset), mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
-        fin.read(lump->memory<char>(mesh->vertexbuffer.indicesoffset), mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
-
-        resources.update<Mesh>(mesh, lump);
-
-        resources.release_lump(lump);
-      }
-
-      m_meshes.push_back({ Transform::identity(), std::move(mesh) });
-    }
+    m_meshes.push_back({ Transform::identity(), resources.load<Mesh>(fin, 0) });
   }
   catch(exception &e)
   {
     qCritical() << "Error loading default mesh:" << e.what();
   }
+
+  m_buildhash = 0;
 
   m_updatetimer = new QTimer(this);
   m_updatetimer->setSingleShot(true);
@@ -108,7 +92,7 @@ void MaterialView::refresh()
   auto reflectivity = m_document.reflectivity();
   auto emissive = m_document.emissive();
 
-  resources.update<Material>(*m_material, color, metalness, roughness, reflectivity, emissive);
+  resources.update(m_material, color, metalness, roughness, reflectivity, emissive);
 
   size_t hash;
   MaterialDocument::build_hash(m_document, &hash);
@@ -143,7 +127,7 @@ void MaterialView::on_material_build_complete(Studio::Document *document, QStrin
     m_surfacemap = resources.load<Texture>(fin, 2, Texture::Format::RGBA);
     m_normalmap = resources.load<Texture>(fin, 3, Texture::Format::RGBA);
 
-    resources.update<Material>(m_material, color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_surfacemap, *m_normalmap);
+    resources.update(m_material, color, metalness, roughness, reflectivity, emissive, *m_albedomap, *m_surfacemap, *m_normalmap);
 
     m_buildpath = path;
 
