@@ -47,6 +47,10 @@ namespace Studio
 
       virtual void register_builder(QString const &type, QObject *builder) = 0;
 
+    public:
+
+      virtual bool build(Studio::Document *document, QString *path) = 0;
+
     signals:
 
       void builder_added(QString const &type);

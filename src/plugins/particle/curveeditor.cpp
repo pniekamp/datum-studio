@@ -94,12 +94,12 @@ ParticleSystemDocument::Distribution<float> CurveEditor::distribution<float>()
   switch(ui.DistributionType->currentIndex())
   {
     case Constant:
-      distribution.ya.push_back(m_components[0].curves[0].ya[0]);
+      distribution.ya.emplace_back(m_components[0].curves[0].ya[0]);
       break;
 
     case Uniform:
-      distribution.ya.push_back(min(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]));
-      distribution.ya.push_back(max(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]));
+      distribution.ya.emplace_back(min(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]));
+      distribution.ya.emplace_back(max(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]));
       break;
 
     case Curve:
@@ -128,12 +128,12 @@ ParticleSystemDocument::Distribution<Vec3> CurveEditor::distribution<Vec3>()
   switch(ui.DistributionType->currentIndex())
   {
     case Constant:
-      distribution.ya.push_back(Vec3(m_components[0].curves[0].ya[0], m_components[1].curves[0].ya[0], m_components[2].curves[0].ya[0]));
+      distribution.ya.emplace_back(m_components[0].curves[0].ya[0], m_components[1].curves[0].ya[0], m_components[2].curves[0].ya[0]);
       break;
 
     case Uniform:
-      distribution.ya.push_back(Vec3(min(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), min(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), min(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0])));
-      distribution.ya.push_back(Vec3(max(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), max(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), max(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0])));
+      distribution.ya.emplace_back(min(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), min(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), min(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0]));
+      distribution.ya.emplace_back(max(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), max(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), max(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0]));
       break;
 
     case Curve:
@@ -163,12 +163,12 @@ ParticleSystemDocument::Distribution<Color4> CurveEditor::distribution<Color4>()
   switch(ui.DistributionType->currentIndex())
   {
     case Constant:
-      distribution.ya.push_back(Color4(m_components[0].curves[0].ya[0], m_components[1].curves[0].ya[0], m_components[2].curves[0].ya[0], m_components[3].curves[0].ya[0]));
+      distribution.ya.emplace_back(m_components[0].curves[0].ya[0], m_components[1].curves[0].ya[0], m_components[2].curves[0].ya[0], m_components[3].curves[0].ya[0]);
       break;
 
     case Uniform:
-      distribution.ya.push_back(Color4(min(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), min(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), min(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0]), min(m_components[3].curves[0].ya[0], m_components[3].curves[1].ya[0])));
-      distribution.ya.push_back(Color4(max(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), max(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), max(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0]), max(m_components[3].curves[0].ya[0], m_components[3].curves[1].ya[0])));
+      distribution.ya.emplace_back(min(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), min(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), min(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0]), min(m_components[3].curves[0].ya[0], m_components[3].curves[1].ya[0]));
+      distribution.ya.emplace_back(max(m_components[0].curves[0].ya[0], m_components[0].curves[1].ya[0]), max(m_components[1].curves[0].ya[0], m_components[1].curves[1].ya[0]), max(m_components[2].curves[0].ya[0], m_components[2].curves[1].ya[0]), max(m_components[3].curves[0].ya[0], m_components[3].curves[1].ya[0]));
       break;
 
     case Curve:

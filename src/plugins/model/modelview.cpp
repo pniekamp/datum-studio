@@ -56,7 +56,7 @@ ModelView::ModelView(QWidget *parent)
   m_updatetimer = new QTimer(this);
   m_updatetimer->setSingleShot(true);
 
-  connect(m_updatetimer, SIGNAL(timeout()), this, SLOT(update()));
+  connect(m_updatetimer, &QTimer::timeout, this, static_cast<void (QWidget::*)()>(&QWidget::update));
 
   setMouseTracking(true);
 

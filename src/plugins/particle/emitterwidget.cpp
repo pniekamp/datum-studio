@@ -121,6 +121,13 @@ void EmitterWidget::refresh()
     ui.Duration->updateValue(m_emitter.duration);
     ui.Looping->setChecked(m_emitter.looping);
 
+    ui.dx->updateValue(m_emitter.transform.translation().x);
+    ui.dy->updateValue(m_emitter.transform.translation().y);
+    ui.dz->updateValue(m_emitter.transform.translation().z);
+    ui.ax->updateValue(m_emitter.transform.rotation().ax() * rad2deg);
+    ui.ay->updateValue(m_emitter.transform.rotation().ay() * rad2deg);
+    ui.az->updateValue(m_emitter.transform.rotation().az() * rad2deg);
+
     ui.Rate->updateValue(m_emitter.rate);
 
     QcDoubleSpinBox *bursttimes[] = { ui.Burst1Time, ui.Burst2Time, ui.Burst3Time, ui.Burst4Time };
@@ -204,6 +211,60 @@ void EmitterWidget::on_Duration_valueChanged(double value)
 void EmitterWidget::on_Looping_clicked(bool value)
 {
   m_emitter.looping = value;
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::dx /////////////////////////////////
+void EmitterWidget::on_dx_valueChanged(double value)
+{
+  m_emitter.transform = Transform::translation(value, m_emitter.transform.translation().y, m_emitter.transform.translation().z) * Transform::rotation(m_emitter.transform.rotation());
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::dy /////////////////////////////////
+void EmitterWidget::on_dy_valueChanged(double value)
+{
+  m_emitter.transform = Transform::translation(m_emitter.transform.translation().x, value, m_emitter.transform.translation().z) * Transform::rotation(m_emitter.transform.rotation());
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::dz /////////////////////////////////
+void EmitterWidget::on_dz_valueChanged(double value)
+{
+  m_emitter.transform = Transform::translation(m_emitter.transform.translation().x, m_emitter.transform.translation().y, value) * Transform::rotation(m_emitter.transform.rotation());
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::ax /////////////////////////////////
+void EmitterWidget::on_ax_valueChanged(double value)
+{
+  m_emitter.transform = Transform::translation(m_emitter.transform.translation()) * Transform::rotation(Vec3(0, 0, 1), m_emitter.transform.rotation().az()) * Transform::rotation(Vec3(0, 1, 0), m_emitter.transform.rotation().ay()) * Transform::rotation(Vec3(1, 0, 0), value * deg2rad);
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::ay /////////////////////////////////
+void EmitterWidget::on_ay_valueChanged(double value)
+{
+  m_emitter.transform = Transform::translation(m_emitter.transform.translation()) * Transform::rotation(Vec3(0, 0, 1), m_emitter.transform.rotation().az()) * Transform::rotation(Vec3(0, 1, 0), value * deg2rad) * Transform::rotation(Vec3(1, 0, 0), m_emitter.transform.rotation().ax());
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::az /////////////////////////////////
+void EmitterWidget::on_az_valueChanged(double value)
+{
+  m_emitter.transform = Transform::translation(m_emitter.transform.translation()) * Transform::rotation(Vec3(0, 0, 1), value * deg2rad) * Transform::rotation(Vec3(0, 1, 0), m_emitter.transform.rotation().ay()) * Transform::rotation(Vec3(1, 0, 0), m_emitter.transform.rotation().ax());
 
   m_document.update_emitter(m_index, m_emitter);
 }

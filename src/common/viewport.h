@@ -87,9 +87,15 @@ class Viewport : public QWidget
 
     void hideEvent(QHideEvent *event) override;
 
+    void resizeEvent(QResizeEvent *event) override;
+
     QPaintEngine *paintEngine() const override;
 
     void paintEvent(QPaintEvent *event);
+
+  protected slots:
+
+    void resizedEvent();
 
   private:
 
@@ -106,6 +112,8 @@ class Viewport : public QWidget
     Vulkan::Semaphore rendercomplete;
 
     VkImage presentimages[2];
+
+    QTimer *m_resizetimer;
 
     size_t m_resourcetoken;
 };

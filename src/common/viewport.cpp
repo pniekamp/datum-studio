@@ -9,6 +9,7 @@
 
 #include "viewport.h"
 #include "assetfile.h"
+#include <QTimer>
 
 #include <QtDebug>
 
@@ -235,6 +236,11 @@ Viewport::Viewport(size_t slabsize, size_t storagesize, QWidget *parent)
   rendercomplete = create_semaphore(m_rendercontext.vulkan);
 
   camera.set_projection(60.0f*pi<float>()/180.0f, 1920.0f/1080.0f);
+
+  m_resizetimer = new QTimer(this);
+  m_resizetimer->setSingleShot(true);
+
+  connect(m_resizetimer, &QTimer::timeout, this, &Viewport::resizedEvent);
 }
 
 
@@ -262,6 +268,24 @@ void Viewport::hideEvent(QHideEvent *event)
   }
 
   QWidget::hideEvent(event);
+}
+
+
+///////////////////////// Viewport::resizeEvent /////////////////////////////
+void Viewport::resizeEvent(QResizeEvent *event)
+{
+  setUpdatesEnabled(false);
+
+  m_resizetimer->start(250);
+
+  QWidget::resizeEvent(event);
+}
+
+
+///////////////////////// Viewport::resizedEvent ////////////////////////////
+void Viewport::resizedEvent()
+{
+  setUpdatesEnabled(true);
 }
 
 

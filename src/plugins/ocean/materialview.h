@@ -58,6 +58,8 @@ class MaterialView : public Viewport
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
 
+    void timerEvent(QTimerEvent *event);
+
     void paintEvent(QPaintEvent *event);
 
   private:
@@ -80,9 +82,11 @@ class MaterialView : public Viewport
 
     unique_resource<Material> m_meshmaterial;
 
-    QTimer *m_updatetimer;
-
   private:
+
+    int m_timerid;
+
+    float m_time;
 
     float m_yawsign;
 

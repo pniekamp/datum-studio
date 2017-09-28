@@ -58,8 +58,8 @@ void MaterialWidget::edit(Studio::Document *document)
 void MaterialWidget::refresh()
 {
   ui.ShallowColor->setStyleSheet("background-color: " + qcolor(m_document.shallowcolor()).name() + ";border: 1px solid black;");
-  ui.DeepColor->setStyleSheet("background-color: " + qcolor(m_document.deepcolor() * 10).name() + ";border: 1px solid black;");
-  ui.FresnelColor->setStyleSheet("background-color: " + qcolor(m_document.fresnelcolor() * 10).name() + ";border: 1px solid black;");
+  ui.DeepColor->setStyleSheet("background-color: " + qcolor(m_document.deepcolor() * 3.33f).name() + ";border: 1px solid black;");
+  ui.FresnelColor->setStyleSheet("background-color: " + qcolor(m_document.fresnelcolor() * 3.33f).name() + ";border: 1px solid black;");
 
   ui.DepthScale->updateValue(m_document.depthscale());
 
@@ -99,11 +99,11 @@ void MaterialWidget::on_DeepColor_clicked()
 {
   QColorDialog dlg(this);
 
-  dlg.setCurrentColor(qcolor(m_document.deepcolor() * 10));
+  dlg.setCurrentColor(qcolor(m_document.deepcolor() * 3.33f));
 
   if (dlg.exec() == QDialog::Accepted)
   {
-    m_document.set_deepcolor(qcolor(dlg.currentColor()).rgb / 10);
+    m_document.set_deepcolor(qcolor(dlg.currentColor()).rgb / 3.33f);
   }
 }
 
@@ -113,11 +113,11 @@ void MaterialWidget::on_FresnelColor_clicked()
 {
   QColorDialog dlg(this);
 
-  dlg.setCurrentColor(qcolor(m_document.fresnelcolor() * 10));
+  dlg.setCurrentColor(qcolor(m_document.fresnelcolor() * 3.33f));
 
   if (dlg.exec() == QDialog::Accepted)
   {
-    m_document.set_fresnelcolor(qcolor(dlg.currentColor()).rgb / 10);
+    m_document.set_fresnelcolor(qcolor(dlg.currentColor()).rgb / 3.33f);
   }
 }
 

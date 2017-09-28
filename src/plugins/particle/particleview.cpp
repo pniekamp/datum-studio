@@ -45,8 +45,6 @@ ParticleView::ParticleView(QWidget *parent)
 
   m_instance = m_system->create(m_particlememory);
 
-  m_transform = Transform::rotation(Vec3(0, 0, 1), pi<float>()/2);
-
   m_linecube = resources.load<Mesh>(CoreAsset::line_cube);
 
   setAcceptDrops(true);
@@ -315,7 +313,7 @@ void ParticleView::timerEvent(QTimerEvent *event)
   {
     if (isVisible())
     {
-      m_system->update(m_instance, camera, m_transform, 1.0f/60.0f);
+      m_system->update(m_instance, camera, Transform::identity(), 1.0f/60.0f);
 
       update();
     }
@@ -349,7 +347,7 @@ void ParticleView::paintEvent(QPaintEvent *event)
 
     if (begin(overlay, buildstate))
     {
-      overlay.push_volume(buildstate, m_transform * m_document.bound(), m_linecube, Color4(0.8f, 0.80f, 0.8f, 0.8f));
+      overlay.push_volume(buildstate, m_document.bound(), m_linecube, Color4(0.8f, 0.80f, 0.8f, 0.8f));
 
       overlay.finalise(buildstate);
     }

@@ -9,6 +9,7 @@
 #include "layerlistwidget.h"
 #include <QDragMoveEvent>
 #include <QMimeData>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QDebug>
 
@@ -55,7 +56,14 @@ void LayerListWidget::refresh()
 
   for(int i = 0; i < m_document.layers(); ++i)
   {
-    QListWidgetItem *item = new QListWidgetItem(QString("Layer %1").arg(i), this);
+    auto name = QString("Layer %1").arg(i);
+
+    if (m_document.layer(i))
+    {
+      name = QFileInfo(Studio::Core::instance()->find_object<Studio::DocumentManager>()->path(m_document.layer(i))).completeBaseName();
+    }
+
+    QListWidgetItem *item = new QListWidgetItem(name, this);
 
     item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
 

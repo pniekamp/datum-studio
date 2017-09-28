@@ -66,6 +66,7 @@ bool EditPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   ui.Editor2->hide();
 
+
   m_manager->register_editor(ui.Editor1);
   m_manager->register_editor(ui.Editor2);
   m_manager->set_current_editor(ui.Editor1);

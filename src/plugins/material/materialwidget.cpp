@@ -59,8 +59,8 @@ void MaterialWidget::refresh()
   ui.TintBlueSpinner->updateValue(m_document.color().b);  
   ui.TintAlphaSlider->updateValue(m_document.color().a);
   ui.TintAlphaSpinner->updateValue(m_document.color().a);
-  ui.EmissiveSlider->updateValue(m_document.emissive());
-  ui.EmissiveSpinner->updateValue(m_document.emissive());
+  ui.EmissiveSlider->updateValue(128*pow(m_document.emissive(), 3));
+  ui.EmissiveSpinner->updateValue(128*pow(m_document.emissive(), 3));
   ui.AlbedoOutput->setChecked(true);
 
   ui.MetalnessMap->setPixmap(m_document.image(MaterialDocument::Image::MetalnessMap));
@@ -188,14 +188,14 @@ void MaterialWidget::on_TintAlphaSpinner_valueChanged(double value)
 ///////////////////////// MaterialWidget::EmissiveSlider ////////////////////
 void MaterialWidget::on_EmissiveSlider_valueChanged(double value)
 {
-  m_document.set_emissive(value);
+  m_document.set_emissive(cbrt(value/128));
 }
 
 
 ///////////////////////// MaterialWidget::EmissiveSpinner ///////////////////
 void MaterialWidget::on_EmissiveSpinner_valueChanged(double value)
 {
-  m_document.set_emissive(value);
+  m_document.set_emissive(cbrt(value/128));
 }
 
 

@@ -274,12 +274,12 @@ void OceanMaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
     auto albedomap = asset.add_dependant(asset.document, "Material\\Ocean.AlbedoMap");
 
     auto surfacemap = 0;
-//    if (materialdocument.image(OceanMaterialDocument::Image::SurfaceMap))
-//      surfacemap = asset.add_dependant(asset.document, "Material\\Ocean.SurfaceMap");
+    if (materialdocument.image(OceanMaterialDocument::Image::SurfaceMap))
+      surfacemap = asset.add_dependant(asset.document, "Material\\Ocean.SurfaceMap");
 
     auto normalmap = 0;
-//    if (materialdocument.image(OceanMaterialDocument::Image::NormalMap))
-//      normalmap = asset.add_dependant(asset.document, "Material\\Ocean.NormalMap");
+    if (materialdocument.image(OceanMaterialDocument::Image::NormalMap))
+      normalmap = asset.add_dependant(asset.document, "Material\\Ocean.NormalMap");
 
     write_matl_asset(fout, asset.id, color, metalness, roughness, reflectivity, emissive, albedomap, surfacemap, normalmap);
   }

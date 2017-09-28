@@ -110,7 +110,7 @@ void ImageDocument::attach(Studio::Document *document)
 
 
 ///////////////////////// data //////////////////////////////////////////////
-HDRImage ImageDocument::data(long flags)
+HDRImage ImageDocument::data(long flags) const
 {
   HDRImage image = {};
 

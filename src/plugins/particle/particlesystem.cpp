@@ -63,6 +63,11 @@ namespace
     return QJsonObject({ { "r", value.r }, { "g", value.g }, { "b", value.b }, { "a", value.a } });
   }
 
+  QJsonObject to_json(Transform const &value)
+  {
+    return QJsonObject({ { "real.x", value.real.x }, { "real.y", value.real.y }, { "real.z", value.real.z }, { "real.w", value.real.w }, { "dual.x", value.dual.x }, { "dual.y", value.dual.y }, { "dual.z", value.dual.z }, { "dual.w", value.dual.w } });
+  }
+
   template<typename T>
   QJsonArray to_json(vector<T> const &values)
   {
@@ -95,6 +100,12 @@ namespace
   Color4 from_json<Color4>(QJsonObject const &value)
   {
     return Color4(value["r"].toDouble(), value["g"].toDouble(), value["b"].toDouble(), value["a"].toDouble());
+  }
+
+  template<>
+  Transform from_json<Transform>(QJsonObject const &value)
+  {
+    return Transform{ { (float)value["real.w"].toDouble(), (float)value["real.x"].toDouble(), (float)value["real.y"].toDouble(), (float)value["real.z"].toDouble() }, { (float)value["dual.w"].toDouble(), (float)value["dual.x"].toDouble(), (float)value["dual.y"].toDouble(), (float)value["dual.z"].toDouble() } };
   }
 
   template<typename T>
@@ -200,6 +211,8 @@ ParticleEmitter make_emitter(ParticleSystemDocument::Emitter const &source)
 
   emitter.duration = source.duration;
   emitter.looping = source.looping;
+
+  emitter.transform = source.transform;
 
   emitter.rate = source.rate;
   emitter.bursts = source.bursttime.size();
@@ -472,6 +485,7 @@ void ParticleSystemDocument::update_emitter(int index, Emitter const &value)
   emitter["name"] = value.name;
   emitter["duration"] = value.duration;
   emitter["looping"] = value.looping;
+  emitter["transform"] = to_json(value.transform);
   emitter["rate"] = value.rate;
   emitter["bursttime"] = to_json(value.bursttime);
   emitter["burstcount"] = to_json(value.burstcount);
@@ -602,6 +616,7 @@ void ParticleSystemDocument::refresh()
     ed.name = emitter["name"].toString();
     ed.duration = emitter["duration"].toDouble(2.0);
     ed.looping = emitter["looping"].toBool(true);
+    ed.transform = from_json<Transform>(emitter.value("transform").toObject(to_json(Transform::rotation(Vec3(0, 0, 1), pi<float>()/2))));
     ed.rate = emitter["rate"].toDouble(1.0);
     ed.bursttime = from_json<float>(emitter["bursttime"].toArray());
     ed.burstcount = from_json<int>(emitter["burstcount"].toArray());

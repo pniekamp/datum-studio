@@ -131,7 +131,7 @@ void PackManager::build(PackModel const *model, QString const &filename, Ui::Bui
     {
       pack.add(asset->document());
 
-      pack.catalog.push_back(make_tuple(pack.assets.back()->id, asset->fullname().toStdString()));
+      pack.catalog.emplace_back(pack.assets.back()->id, asset->fullname().toStdString());
     }
   }
 

@@ -160,11 +160,11 @@ void BuildManager::request_build(Studio::Document *document, QObject *receiver, 
 
   auto builder = new Builder(this, document);
 
-  connect(builder, &Builder::build_complete, receiver, notify, Qt::BlockingQueuedConnection);
+  connect(builder, &Builder::build_complete, receiver, notify, Qt::QueuedConnection);
 
   if (failure)
   {
-    connect(builder, &Builder::build_failure, receiver, failure, Qt::BlockingQueuedConnection);
+    connect(builder, &Builder::build_failure, receiver, failure, Qt::QueuedConnection);
   }
 
   QThreadPool::globalInstance()->start(builder);

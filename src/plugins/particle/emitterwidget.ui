@@ -148,7 +148,7 @@ QRadioButton::indicator
        </property>
       </widget>
      </item>
-     <item row="4" column="0" colspan="2">
+     <item row="5" column="0" colspan="2">
       <widget class="QGroupBox" name="Emission">
        <property name="minimumSize">
         <size>
@@ -1308,7 +1308,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="5" column="0" colspan="2">
+     <item row="6" column="0" colspan="2">
       <widget class="QGroupBox" name="Accelerated">
        <property name="minimumSize">
         <size>
@@ -1442,7 +1442,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="6" column="0" colspan="2">
+     <item row="7" column="0" colspan="2">
       <widget class="QGroupBox" name="Shaped">
        <property name="minimumSize">
         <size>
@@ -1568,7 +1568,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="8" column="0" colspan="2">
+     <item row="9" column="0" colspan="2">
       <widget class="QGroupBox" name="Scaled">
        <property name="minimumSize">
         <size>
@@ -1695,7 +1695,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="9" column="0" colspan="2">
+     <item row="10" column="0" colspan="2">
       <widget class="QGroupBox" name="Rotated">
        <property name="minimumSize">
         <size>
@@ -1828,7 +1828,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="10" column="0" colspan="2">
+     <item row="11" column="0" colspan="2">
       <widget class="QGroupBox" name="Colored">
        <property name="minimumSize">
         <size>
@@ -1981,7 +1981,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="11" column="0" colspan="2">
+     <item row="12" column="0" colspan="2">
       <widget class="QGroupBox" name="Animated">
        <property name="minimumSize">
         <size>
@@ -2169,7 +2169,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="12" column="0" colspan="2">
+     <item row="13" column="0" colspan="2">
       <widget class="QGroupBox" name="Stretched">
        <property name="minimumSize">
         <size>
@@ -2260,7 +2260,7 @@ QRadioButton::indicator
        </layout>
       </widget>
      </item>
-     <item row="13" column="0" colspan="2">
+     <item row="14" column="0" colspan="2">
       <widget class="QGroupBox" name="Aligned">
        <property name="minimumSize">
         <size>
@@ -2393,6 +2393,137 @@ QRadioButton::indicator
         </item>
        </layout>
       </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <layout class="QFormLayout" name="Transform">
+       <property name="labelAlignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="horizontalSpacing">
+        <number>4</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>4</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item row="0" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_16">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QcDoubleSpinBox" name="dx">
+           <property name="minimum">
+            <double>-9999.989999999999782</double>
+           </property>
+           <property name="maximum">
+            <double>9999.989999999999782</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QcDoubleSpinBox" name="dy">
+           <property name="minimum">
+            <double>-9999.989999999999782</double>
+           </property>
+           <property name="maximum">
+            <double>9999.989999999999782</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QcDoubleSpinBox" name="dz">
+           <property name="minimum">
+            <double>-9999.989999999999782</double>
+           </property>
+           <property name="maximum">
+            <double>9999.989999999999782</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="TransformPositionLabel">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Position :</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="TransformRotationLabel">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Rotation :</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_17">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QcDoubleSpinBox" name="ax">
+           <property name="minimum">
+            <double>-360.990000000000009</double>
+           </property>
+           <property name="maximum">
+            <double>360.990000000000009</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QcDoubleSpinBox" name="ay">
+           <property name="minimum">
+            <double>-360.990000000000009</double>
+           </property>
+           <property name="maximum">
+            <double>360.990000000000009</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QcDoubleSpinBox" name="az">
+           <property name="minimum">
+            <double>-360.990000000000009</double>
+           </property>
+           <property name="maximum">
+            <double>360.990000000000009</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

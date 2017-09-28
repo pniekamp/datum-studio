@@ -46,7 +46,7 @@ class ImageDocument : public QObject
       srgb = 0x01
     };
 
-    HDRImage data(long flags = srgb);
+    HDRImage data(long flags = srgb) const;
 
   signals:
 

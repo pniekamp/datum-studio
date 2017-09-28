@@ -81,8 +81,6 @@ class ParticleView : public Viewport
 
     DatumPlatform::GameMemory m_particlememory;
 
-    lml::Transform m_transform;
-
     unique_resource<ParticleSystem> m_system;
     ParticleSystem::Instance *m_instance;
 

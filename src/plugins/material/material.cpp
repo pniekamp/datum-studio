@@ -80,7 +80,7 @@ namespace
     return id + 1;
   }
 
-  uint32_t write_albedomap(ostream &fout, uint32_t id, HDRImage const &image)
+  uint32_t write_albedomap(ostream &fout, uint32_t id, HDRImage const &image, bool cutout)
   {
     int width = image.width;
     int height = image.height;
@@ -102,7 +102,10 @@ namespace
       }
     }
 
-    image_buildmips_srgb_a(0.5, width, height, layers, levels, payload.data());
+    if (cutout)
+      image_buildmips_srgb_a(0.5, width, height, layers, levels, payload.data());
+    else
+      image_buildmips_srgb(width, height, layers, levels, payload.data());
 
     write_imag_asset(fout, id, width, height, layers, levels, PackImageHeader::rgba, payload.data());
 
@@ -290,7 +293,7 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
       }
     }
 
-    write_albedomap(fout, 1, albedomap);
+    write_albedomap(fout, 1, albedomap, (materialdocument.shader() == MaterialDocument::Shader::Deferred));
   }
 
   if (materialdocument.image(MaterialDocument::Image::MetalnessMap) || materialdocument.image(MaterialDocument::Image::RoughnessMap) || materialdocument.image(MaterialDocument::Image::ReflectivityMap))

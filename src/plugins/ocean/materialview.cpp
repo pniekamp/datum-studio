@@ -34,7 +34,7 @@ MaterialView::MaterialView(QWidget *parent)
   m_focuspoint = Vec3(0, 0, 0);
 
   renderparams.ssaoscale = 0;
-  renderparams.ssrstrength = 0;
+  renderparams.ssrstrength = 1;
 
   camera.lookat(Vec3(0, 1, 2), m_focuspoint, Vec3(0, 1, 0));
 
@@ -68,10 +68,9 @@ MaterialView::MaterialView(QWidget *parent)
 
   m_buildhash = 0;
 
-  m_updatetimer = new QTimer(this);
-  m_updatetimer->setSingleShot(true);
+  m_time = 0;
 
-  connect(m_updatetimer, SIGNAL(timeout()), this, SLOT(update()));
+  m_timerid = startTimer(16.67, Qt::PreciseTimer);
 
   setAcceptDrops(true);
 }
@@ -92,7 +91,7 @@ void MaterialView::view(Studio::Document *document)
 ///////////////////////// MaterialView::invalidate //////////////////////////
 void MaterialView::invalidate()
 {
-  m_updatetimer->start();
+  update();
 }
 
 
@@ -351,6 +350,23 @@ void MaterialView::dropEvent(QDropEvent *event)
 }
 
 
+///////////////////////// MaterialView::timerEvent //////////////////////////
+void MaterialView::timerEvent(QTimerEvent *event)
+{
+  if (event->timerId() == m_timerid)
+  {
+    if (isVisible())
+    {
+      m_time += 1.0f/60.0f;
+
+      update();
+    }
+  }
+
+  Viewport::timerEvent(event);
+}
+
+
 ///////////////////////// MaterialView::paintEvent //////////////////////////
 void MaterialView::paintEvent(QPaintEvent *event)
 {
@@ -368,7 +384,7 @@ void MaterialView::paintEvent(QPaintEvent *event)
 
     if (m_surface)
     {
-      geometry.push_ocean(buildstate, Transform::identity(), m_surface, m_material, Vec2(0, 0));
+      geometry.push_ocean(buildstate, Transform::identity(), m_surface, m_material, m_time*Vec2(0.002), Vec3(16.0, 16.0, 0.2));
     }
 
     geometry.finalise(buildstate);

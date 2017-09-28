@@ -35,6 +35,13 @@ class EmitterWidget : public QWidget
     void on_Duration_valueChanged(double value);
     void on_Looping_clicked(bool value);
 
+    void on_dx_valueChanged(double value);
+    void on_dy_valueChanged(double value);
+    void on_dz_valueChanged(double value);
+    void on_ax_valueChanged(double value);
+    void on_ay_valueChanged(double value);
+    void on_az_valueChanged(double value);
+
     void on_Rate_valueChanged(double value);
     void on_Burst1Time_valueChanged(double value);
     void on_Burst1Count_valueChanged(int value);

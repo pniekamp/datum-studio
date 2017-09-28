@@ -46,8 +46,10 @@ namespace
     return id + 1;
   }
 
-  uint32_t write_spritesheet(ostream &fout, uint32_t id, int width, int height, vector<HDRImage> const &images)
+  uint32_t write_spritesheet(ostream &fout, uint32_t id, vector<HDRImage> const &images)
   {
+    int width = max_element(images.begin(), images.end(), [](auto &lhs, auto &rhs) { return lhs.width < rhs.width; })->width;
+    int height = max_element(images.begin(), images.end(), [](auto &lhs, auto &rhs) { return lhs.height < rhs.height; })->height;
     int layers = images.size();
     int levels = min(4, image_maxlevels(width, height));
 
@@ -170,23 +172,15 @@ void SpriteSheetDocument::build(Studio::Document *document, string const &path)
 {
   auto spritesheetdocument = SpriteSheetDocument(document);
 
-  int width = 0;
-  int height = 0;
+  if (spritesheetdocument.layers() == 0)
+    throw runtime_error("Spritesheet build failed - no layers");
 
   vector<HDRImage> images;
 
   for(int i = 0; i < spritesheetdocument.layers(); ++i)
   {
-    auto image = ImageDocument(spritesheetdocument.layer(i)).data();
-
-    width = max(width, image.width);
-    height = max(height, image.height);
-
-    images.push_back(image);
+    images.push_back(ImageDocument(spritesheetdocument.layer(i)).data());
   }
-
-  if (width == 0 || height == 0)
-    throw runtime_error("Spritesheet build failed - invalid size");
 
   ofstream fout(path, ios::binary | ios::trunc);
 
@@ -194,7 +188,7 @@ void SpriteSheetDocument::build(Studio::Document *document, string const &path)
 
   write_catalog(fout, 0);
 
-  write_spritesheet(fout, 1, width, height, images);
+  write_spritesheet(fout, 1, images);
 
   write_chunk(fout, "HEND", 0, nullptr);
 
@@ -376,7 +370,7 @@ void SpriteSheetDocument::refresh()
     auto layer = i.toObject();
     auto path = fullpath(m_document, layer["path"].toString());
 
-    m_images.push_back(documentmanager->open(path));
+    m_images.push_back((path != "") ? documentmanager->open(path) : nullptr);
   }
 
   emit document_changed();

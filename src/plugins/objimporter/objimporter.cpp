@@ -130,17 +130,17 @@ namespace
 
       if (fields[0] == "v")
       {
-        points.push_back({ ato<float>(fields[1]), ato<float>(fields[2]), ato<float>(fields[3]) });
+        points.emplace_back(ato<float>(fields[1]), ato<float>(fields[2]), ato<float>(fields[3]));
       }
 
       if (fields[0] == "vn")
       {
-        normals.push_back({ ato<float>(fields[1]), ato<float>(fields[2]), ato<float>(fields[3]) });
+        normals.emplace_back(ato<float>(fields[1]), ato<float>(fields[2]), ato<float>(fields[3]));
       }
 
       if (fields[0] == "vt")
       {
-        texcoords.push_back({ ato<float>(fields[1]), ato<float>(fields[2]) });
+        texcoords.emplace_back(ato<float>(fields[1]), ato<float>(fields[2]));
       }
 
       if (fields[0] == "f")

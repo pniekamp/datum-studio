@@ -73,6 +73,8 @@ class ParticleSystemDocument : public QObject
       float duration;
       bool looping;
 
+      lml::Transform transform;
+
       float rate;
       std::vector<float> bursttime;
       std::vector<int> burstcount;
