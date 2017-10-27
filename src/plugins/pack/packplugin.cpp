@@ -186,7 +186,7 @@ void PackPlugin::build_export()
 
       QFile::remove(exportfile);
 
-      for(int k = 0; k < 2; ++k)
+      for(int k = 0; k < 5; ++k)
       {
         if (QFile::copy(QDir(projectmanager->basepath()).filePath("Build/asset.pack"), exportfile))
           break;

@@ -316,6 +316,9 @@ bool Viewport::prepare()
 
   if (m_rendercontext.width != width() || m_rendercontext.height != height())
   {
+    auto setuppool = create_commandpool(m_rendercontext.vulkan, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT);
+    auto setupbuffer = allocate_commandbuffer(m_rendercontext.vulkan, setuppool, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
     VkSurfaceCapabilitiesKHR surfacecapabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_rendercontext.vulkan.physicaldevice, surface, &surfacecapabilities);
 
@@ -324,7 +327,7 @@ bool Viewport::prepare()
     swapchaininfo.surface = surface;
     swapchaininfo.minImageCount = surfacecapabilities.minImageCount;
     swapchaininfo.imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
-    swapchaininfo.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+    swapchaininfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     swapchaininfo.imageExtent = surfacecapabilities.currentExtent;
     swapchaininfo.imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     swapchaininfo.preTransform = surfacecapabilities.currentTransform;
@@ -351,10 +354,37 @@ bool Viewport::prepare()
 
     vkGetSwapchainImagesKHR(m_rendercontext.vulkan.device, swapchain, &imagescount, presentimages);
 
-    for(size_t i = 0; i < imagescount; ++i)
+    VkCommandBufferBeginInfo begininfo = {};
+    begininfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(setupbuffer, &begininfo) != VK_SUCCESS)
+      throw runtime_error("Vulkan vkBeginCommandBuffer failed");
+
+    for (size_t i = 0; i < imagescount; ++i)
     {
-      setimagelayout(m_rendercontext.vulkan, presentimages[i], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+      VkImageMemoryBarrier memorybarrier = {};
+      memorybarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+      memorybarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+      memorybarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+      memorybarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+      memorybarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+      memorybarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+      memorybarrier.image = presentimages[i];
+      memorybarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+
+      vkCmdPipelineBarrier(setupbuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &memorybarrier);
     }
+
+    vkEndCommandBuffer(setupbuffer);
+
+    VkSubmitInfo submitinfo = {};
+    submitinfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitinfo.commandBufferCount = 1;
+    submitinfo.pCommandBuffers = setupbuffer.data();
+
+    vkQueueSubmit(m_rendercontext.vulkan.queue, 1, &submitinfo, VK_NULL_HANDLE);
+
+    vkQueueWaitIdle(m_rendercontext.vulkan.queue);
 
     renderparams.width = width();
     renderparams.height = height();
