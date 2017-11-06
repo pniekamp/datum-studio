@@ -103,9 +103,13 @@ namespace
     }
 
     if (cutout)
+    {
       image_buildmips_srgb_a(0.5, width, height, layers, levels, payload.data());
+    }
     else
+    {
       image_buildmips_srgb(width, height, layers, levels, payload.data());
+    }
 
     write_imag_asset(fout, id, width, height, layers, levels, PackImageHeader::rgba, payload.data());
 

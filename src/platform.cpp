@@ -411,7 +411,7 @@ class Game : public Studio::Platform
 ///////////////////////// Game::Contructor //////////////////////////////////
 Game::Game(StackAllocator<> const &allocator)
   : m_assets(allocator),
-    m_resources(&m_assets, allocator)
+    m_resources(m_assets, allocator)
 {
 }
 
