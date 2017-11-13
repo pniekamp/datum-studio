@@ -549,9 +549,9 @@ void EmitterWidget::on_ColorMin_clicked()
   QColorDialog dlg(this);
   dlg.setOptions(QColorDialog::ShowAlphaChannel | QColorDialog::NoButtons);
 
-  dlg.setCurrentColor(qcolor(unpremultiply(m_emitter.color.ya.front())));
+  dlg.setCurrentColor(qcolor(m_emitter.color.ya.front()));
 
-  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.color.ya.front() = premultiply(qcolor(color)); m_document.update_emitter(m_index, m_emitter); });
+  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.color.ya.front() = qcolor(color); m_document.update_emitter(m_index, m_emitter); });
 
   dlg.exec();
 }
@@ -563,9 +563,9 @@ void EmitterWidget::on_ColorMax_clicked()
   QColorDialog dlg(this);
   dlg.setOptions(QColorDialog::ShowAlphaChannel | QColorDialog::NoButtons);
 
-  dlg.setCurrentColor(qcolor(unpremultiply(m_emitter.color.ya.back())));
+  dlg.setCurrentColor(qcolor(m_emitter.color.ya.back()));
 
-  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.color.ya.back() = premultiply(qcolor(color)); m_document.update_emitter(m_index, m_emitter); });
+  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.color.ya.back() = qcolor(color); m_document.update_emitter(m_index, m_emitter); });
 
   dlg.exec();
 }
@@ -782,9 +782,9 @@ void EmitterWidget::on_ColorOverLifeMin_clicked()
   QColorDialog dlg(this);
   dlg.setOptions(QColorDialog::ShowAlphaChannel | QColorDialog::NoButtons);
 
-  dlg.setCurrentColor(qcolor(unpremultiply(m_emitter.coloroverlife.ya.front())));
+  dlg.setCurrentColor(qcolor(m_emitter.coloroverlife.ya.front()));
 
-  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.coloroverlife.ya.front() = premultiply(qcolor(color)); m_document.update_emitter(m_index, m_emitter); });
+  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.coloroverlife.ya.front() = qcolor(color); m_document.update_emitter(m_index, m_emitter); });
 
   dlg.exec();
 }
@@ -796,9 +796,9 @@ void EmitterWidget::on_ColorOverLifeMax_clicked()
   QColorDialog dlg(this);
   dlg.setOptions(QColorDialog::ShowAlphaChannel | QColorDialog::NoButtons);
 
-  dlg.setCurrentColor(qcolor(unpremultiply(m_emitter.coloroverlife.ya.back())));
+  dlg.setCurrentColor(qcolor(m_emitter.coloroverlife.ya.back()));
 
-  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.coloroverlife.ya.back() = premultiply(qcolor(color)); m_document.update_emitter(m_index, m_emitter); });
+  connect(&dlg, &QColorDialog::currentColorChanged, this, [&](QColor const &color) { m_emitter.coloroverlife.ya.back() = qcolor(color); m_document.update_emitter(m_index, m_emitter); });
 
   dlg.exec();
 }

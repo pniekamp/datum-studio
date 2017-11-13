@@ -46,7 +46,7 @@ MaterialView::MaterialView(QWidget *parent)
 
   try
   {
-    ifstream fin(pathstring("sphere.pack").c_str(), ios::binary);
+    ifstream fin(pathstring("sphere.pack"), ios::binary);
 
     m_meshes.push_back({ Transform::identity(), resources.load<Mesh>(fin, 0) });
   }
@@ -57,7 +57,7 @@ MaterialView::MaterialView(QWidget *parent)
 
   try
   {
-    ifstream fin(pathstring("plane.pack").c_str(), ios::binary);
+    ifstream fin(pathstring("plane.pack"), ios::binary);
 
     m_surface = resources.load<Mesh>(fin, 0);
   }
