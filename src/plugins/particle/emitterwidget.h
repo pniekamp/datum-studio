@@ -80,6 +80,10 @@ class EmitterWidget : public QWidget
     void on_ColorMax_clicked();
     void on_ColorEdit_clicked();
 
+    void on_EmissiveMin_valueChanged(double value);
+    void on_EmissiveMax_valueChanged(double value);
+    void on_EmissiveEdit_clicked();
+
     void on_LayerMin_valueChanged(double value);
     void on_LayerMax_valueChanged(double value);
     void on_LayerEdit_clicked();

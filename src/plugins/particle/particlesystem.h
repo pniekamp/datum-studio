@@ -86,6 +86,7 @@ class ParticleSystemDocument : public QObject
       Distribution<float> rotation;
       Distribution<lml::Vec3> velocity;
       Distribution<lml::Color4> color;
+      Distribution<float> emissive;
       Distribution<float> layer;
 
       bool accelerated;

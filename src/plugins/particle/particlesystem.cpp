@@ -226,6 +226,7 @@ ParticleEmitter make_emitter(ParticleSystemDocument::Emitter const &source)
   emitter.rotation = make_distribution(source.rotation);
   emitter.velocity = make_distribution(source.velocity);
   emitter.color = make_distribution(source.color);
+  emitter.emissive = make_distribution(source.emissive);
   emitter.layer = make_distribution(source.layer);
 
   emitter.acceleration = source.accelerated ? source.acceleration : Vec3(0);
@@ -505,6 +506,9 @@ void ParticleSystemDocument::update_emitter(int index, Emitter const &value)
   emitter["color.type"] = value.color.type;
   emitter["color.xa"] = to_json(value.color.xa);
   emitter["color.ya"] = to_json(value.color.ya);
+  emitter["emissive.type"] = value.emissive.type;
+  emitter["emissive.xa"] = to_json(value.emissive.xa);
+  emitter["emissive.ya"] = to_json(value.emissive.ya);
   emitter["layer.type"] = value.layer.type;
   emitter["layer.xa"] = to_json(value.layer.xa);
   emitter["layer.ya"] = to_json(value.layer.ya);
@@ -636,6 +640,9 @@ void ParticleSystemDocument::refresh()
     ed.color.type = emitter["color.type"].toInt(0);
     ed.color.xa = from_json<float>(emitter["color.xa"].toArray());
     ed.color.ya = from_json<Color4>(emitter.value("color.ya").toArray(QJsonArray({ to_json(Color4(1.0f, 1.0f, 1.0f, 1.0f)) })));
+    ed.emissive.type = emitter["emissive.type"].toInt(0);
+    ed.emissive.xa = from_json<float>(emitter["emissive.xa"].toArray());
+    ed.emissive.ya = from_json<float>(emitter.value("emissive.ya").toArray(QJsonArray({ 0.0f })));
     ed.layer.type = emitter["layer.type"].toInt(0);
     ed.layer.xa = from_json<float>(emitter["layer.xa"].toArray());
     ed.layer.ya = from_json<float>(emitter.value("layer.ya").toArray(QJsonArray({ 0.0f })));

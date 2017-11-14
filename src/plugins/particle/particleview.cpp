@@ -34,6 +34,7 @@ ParticleView::ParticleView(QWidget *parent)
   camera.lookat(Vec3(0, 1, 10), m_focuspoint, Vec3(0, 1, 0));
 
   renderparams.ssaoscale = 0;
+  renderparams.fogdensity = 1;
   renderparams.ssrstrength = 0;
 
   m_showbound = true;

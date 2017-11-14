@@ -9,6 +9,7 @@
 #include "homeplugin.h"
 #include "projectapi.h"
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QSettings>
 #include <QtPlugin>
 
@@ -113,12 +114,23 @@ void HomePlugin::on_NewProject_triggered()
 ///////////////////////// HomePlugin::OpenProject ///////////////////////////
 void HomePlugin::on_OpenProject_triggered(QString const &link)
 {
+  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
   auto projectmanager = Studio::Core::instance()->find_object<Studio::ProjectManager>();
 
-  QProgressDialog progress(m_container);
+  if (projectmanager->close_project())
+  {
+    try
+    {
+      QProgressDialog progress("Open Project", "Abort", 0, 100, mainwindow->handle());
 
-  projectmanager->open_project(link, &progress);
+      projectmanager->open_project(link, &progress);
 
-  Studio::Core::instance()->find_object<Studio::ModeManager>()->set_metamode("Pack");
+      Studio::Core::instance()->find_object<Studio::ModeManager>()->set_metamode("Pack");
+    }
+    catch(exception &e)
+    {
+      QMessageBox::information(mainwindow->handle(), "Project Error", e.what());
+    }
+  }
 }
 

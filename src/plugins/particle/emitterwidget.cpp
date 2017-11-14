@@ -158,6 +158,7 @@ void EmitterWidget::refresh()
     update_distribution(m_emitter.rotation, ui.RotationMin, ui.RotationMax, rad2deg);
     update_distribution(m_emitter.velocity, ui.VelocityMin, ui.VelocityMax);
     update_distribution(m_emitter.color, ui.ColorMin, ui.ColorMax);
+    update_distribution(m_emitter.emissive, ui.EmissiveMin, ui.EmissiveMax);
     update_distribution(m_emitter.layer, ui.LayerMin, ui.LayerMax);
 
     ui.Accelerated->setChecked(m_emitter.accelerated);
@@ -579,6 +580,37 @@ void EmitterWidget::on_ColorEdit_clicked()
   dlg.set_distribution(m_emitter.color, Color4(0.0f, 0.0f, 0.0f, 0.0f), Color4(500.0f, 500.0f, 500.0f, 1.0f));
 
   connect(&dlg, &CurveEditor::distribution_changed, this, [&]() { m_emitter.color = dlg.distribution<Color4>(); m_document.update_emitter(m_index, m_emitter); });
+
+  dlg.exec();
+}
+
+
+///////////////////////// EmitterWidget::EmissiveMin ///////////////////////////
+void EmitterWidget::on_EmissiveMin_valueChanged(double value)
+{
+  m_emitter.emissive.ya.front() = value;
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::EmissiveMax ///////////////////////////
+void EmitterWidget::on_EmissiveMax_valueChanged(double value)
+{
+  m_emitter.emissive.ya.back() = value;
+
+  m_document.update_emitter(m_index, m_emitter);
+}
+
+
+///////////////////////// EmitterWidget::EmissiveEdit //////////////////////////
+void EmitterWidget::on_EmissiveEdit_clicked()
+{
+  CurveEditor dlg(this);
+
+  dlg.set_distribution(m_emitter.emissive, 0.0f, 1.0f);
+
+  connect(&dlg, &CurveEditor::distribution_changed, this, [&]() { m_emitter.emissive = dlg.distribution<float>(); m_document.update_emitter(m_index, m_emitter); });
 
   dlg.exec();
 }
