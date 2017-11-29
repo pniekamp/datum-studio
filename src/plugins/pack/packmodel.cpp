@@ -301,9 +301,9 @@ void PackModel::load(string const &projectfile)
 
   while (getline(fin, buffer))
   {
-    buffer = trim(buffer);
+    auto line = trim(buffer);
 
-    if (buffer == "[Pack]")
+    if (line == "[Pack]")
       break;
   }
 
@@ -313,32 +313,34 @@ void PackModel::load(string const &projectfile)
 
   while (getline(fin, buffer))
   {
-    buffer = trim(buffer);
+    auto line = trim(buffer);
 
-    if (buffer.empty())
+    if (line.empty())
       break;
 
-    if (buffer[0] == '#' || buffer[0] == '/')
+    if (line[0] == '#' || line[0] == '/')
       continue;
 
-    if (buffer[0] == '<' && buffer[buffer.length()-1] == '>')
+    if (line[0] == '<' && line[line.size()-1] == '>')
     {
-      if (buffer.substr(1, 9) == "Parameter")
+      if (line.substr(1, 9) == "Parameter")
       {
-        auto name = string(buffer.begin() + buffer.find_first_of("'") + 1, buffer.begin() + buffer.find_last_of("'"));
-        auto value = string(buffer.begin() + name.length() + 19, buffer.begin() + buffer.length() - 12);
+        auto name = line.substr(line.find_first_of("'") + 1, line.find_last_of("'")).to_string();
+        auto value = line.substr(name.size() + 19, line.size() - 12).to_string();
 
         set_parameter(name.c_str(), value.c_str());
       }
 
-      if (buffer.substr(1, 5) == "Group")
+      if (line.substr(1, 5) == "Group")
       {
-        auto group = add_group(groupstack.back(), groupstack.back()->children(), buffer.substr(13, buffer.length()-15).c_str());
+        auto name = line.substr(13, line.size() - 15).to_string();
+
+        auto group = add_group(groupstack.back(), groupstack.back()->children(), name.c_str());
 
         groupstack.push_back(group);
       }
 
-      if (buffer.substr(1, 6) == "/Group")
+      if (line.substr(1, 6) == "/Group")
       {
         groupstack.pop_back();
       }

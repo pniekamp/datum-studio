@@ -92,28 +92,28 @@ void BuildManager::on_project_changed(QString const &projectfile)
 
   while (getline(fin, buffer))
   {
-    buffer = trim(buffer);
+    auto line = trim(buffer);
 
-    if (buffer == "[Builds]")
+    if (line == "[Builds]")
       break;
   }
 
   while (getline(fin, buffer))
   {
-    buffer = trim(buffer);
+    auto line = trim(buffer);
 
-    if (buffer.empty())
+    if (line.empty())
       break;
 
-    if (buffer[0] == '#' || buffer[0] == '/')
+    if (line[0] == '#' || line[0] == '/')
       continue;
 
-    auto i = buffer.find_first_of(' ');
-    auto j = buffer.find_first_of(' ', i+1);
+    auto i = line.find_first_of(' ');
+    auto j = line.find_first_of(' ', i+1);
 
-    QUuid id = buffer.substr(0, i).c_str();
-    size_t hash = stoull(buffer.substr(i+1, j));
-    QString file = m_path.filePath(buffer.substr(j+1).c_str());
+    QUuid id = line.substr(0, i).to_string().c_str();
+    size_t hash = stoull(line.substr(i+1, j).to_string());
+    QString file = m_path.filePath(line.substr(j+1).to_string().c_str());
 
     m_builds.push_back({ id, file, hash });
   }

@@ -23,14 +23,14 @@ using namespace leap;
 
 namespace
 {
-  vector<string> seperate(string const &str, const char *delimiters = " \t\r\n")
+  vector<string_view> seperate(string_view str, const char *delimiters = " \t\r\n")
   {
-    vector<string> result;
+    vector<string_view> result;
 
     size_t i = 0;
     size_t j = 0;
 
-    while (j != string::npos)
+    while (j != string_view::npos)
     {
       j = str.find_first_of(delimiters, i);
 
@@ -42,7 +42,7 @@ namespace
     return result;
   }
 
-  void calculatetangents(vector<PackVertex> &vertices, vector<uint32_t> &indices)
+  void calculate_tangents(vector<PackVertex> &vertices, vector<uint32_t> &indices)
   {
     vector<Vec3> tan1(vertices.size(), Vec3(0));
     vector<Vec3> tan2(vertices.size(), Vec3(0));
@@ -120,13 +120,13 @@ namespace
 
     while (getline(fin, buffer))
     {
-      buffer = trim(buffer);
+      auto line = trim(buffer);
 
       // skip comments
-      if (buffer.empty() || buffer[0] == '#' || buffer[0] == '/')
+      if (line.empty() || line[0] == '#' || line[0] == '/')
         continue;
 
-      auto fields = split(buffer);
+      auto fields = split(line);
 
       if (fields[0] == "v")
       {
@@ -145,7 +145,7 @@ namespace
 
       if (fields[0] == "f")
       {
-        vector<string> face[] = { seperate(fields[1], "/"), seperate(fields[2], "/"), seperate(fields[3], "/") };
+        vector<string_view> face[] = { seperate(fields[1], "/"), seperate(fields[2], "/"), seperate(fields[3], "/") };
 
         for(auto &v : face)
         {
@@ -179,7 +179,7 @@ namespace
       vertex.position[2] *= scale;
     }
 
-    calculatetangents(vertices, indices);
+    calculate_tangents(vertices, indices);
 
     PackModelPayload::Texture texture;
     texture.type = PackModelPayload::Texture::nullmap;
