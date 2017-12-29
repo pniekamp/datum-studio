@@ -404,7 +404,7 @@ void MaterialView::paintEvent(QPaintEvent *event)
     {
       for(auto &instance : m_meshes)
       {
-        geometry.push_terrain(buildstate, instance.transform, instance.mesh, m_material, m_blendmap, Vec2(16, 16));
+        geometry.push_terrain(buildstate, instance.transform, instance.mesh, m_material, m_blendmap, 4 * m_blendmap->layers, Vec2(16, 16));
       }
 
       geometry.finalise(buildstate);
