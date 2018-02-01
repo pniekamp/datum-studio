@@ -94,6 +94,7 @@ class MaterialDocument : public QObject
     float metalness() const { return m_definition["metalness"].toDouble(0); }
     float roughness() const { return m_definition["roughness"].toDouble(1); }
     float reflectivity() const { return m_definition["reflectivity"].toDouble(0.5); }
+    float normalscale() const { return m_definition["normalscale"].toDouble(1.0); }
     float emissive() const { return m_definition["emissive"].toDouble(0); }
 
     Studio::Document *image(int image) const { return m_images[image]; }
@@ -114,6 +115,7 @@ class MaterialDocument : public QObject
     void set_metalness(float metalness);
     void set_roughness(float roughness);
     void set_reflectivity(float reflectivity);
+    void set_normalscale(float normalscale);
     void set_emissive(float emissive);
 
     void set_image(Image image, QString const &path);

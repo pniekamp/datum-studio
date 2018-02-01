@@ -260,6 +260,7 @@ void MaterialDocument::build_hash(Studio::Document *document, size_t *key)
   hash_combine(*key, std::hash<int>{}(definition["roughnessoutput"].toInt(3)));
   hash_combine(*key, std::hash<int>{}(definition["reflectivityoutput"].toInt(1)));
   hash_combine(*key, std::hash<int>{}(definition["normaloutput"].toInt(0)));
+  hash_combine(*key, std::hash<double>{}(definition["normalscale"].toDouble(1.0)));
 
   for(auto &name : ImageNames)
   {
@@ -480,6 +481,18 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
         break;
     }
 
+    if (materialdocument.normalscale() != 1.0)
+    {
+      for(size_t i = 0; i < normalmap.bits.size(); ++i)
+      {
+        Vec3 normal = Vec3(2.0f*normalmap.bits[i].r-1.0f, 2.0f*normalmap.bits[i].g-1.0f, 2.0f*normalmap.bits[i].b-1.0f);
+
+        normal = normalise(Vec3(materialdocument.normalscale() * normal.xy, normal.z));
+
+        normalmap.bits[i].rgb = Color3(0.5f*normal.x+0.5f, 0.5f*normal.y+0.5f, 0.5f*normal.z+0.5f);
+      }
+    }
+
     write_normalmap(fout, 3, normalmap);
   }
 
@@ -697,6 +710,15 @@ void MaterialDocument::set_roughness(float roughness)
 void MaterialDocument::set_reflectivity(float reflectivity)
 {
   m_definition["reflectivity"] = reflectivity;
+
+  update();
+}
+
+
+///////////////////////// MaterialDocument::set_normalscale /////////////////
+void MaterialDocument::set_normalscale(float normalscale)
+{
+  m_definition["normalscale"] = normalscale;
 
   update();
 }

@@ -79,7 +79,7 @@ void ContentView::trigger_rename(QListWidgetItem *item)
 
   setCurrentItem(item);
 
-  editItem(item);
+  QTimer::singleShot(50, this, [=]() { editItem(item); });
 }
 
 

@@ -24,9 +24,6 @@ using namespace lml;
 SkyboxView::SkyboxView(QWidget *parent)
   : Viewport(8*1024, 2*1024*1024, parent)
 {
-  renderparams.ssaoscale = 0;
-  renderparams.ssrstrength = 0;
-  renderparams.bloomstrength = 0;  
 }
 
 

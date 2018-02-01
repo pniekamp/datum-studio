@@ -53,10 +53,6 @@ class MaterialWidget : public QWidget
     void on_ResetSurface_clicked();
     void on_ResetNormal_clicked();
 
-  protected:
-
-    void paintEvent(QPaintEvent *event);
-
   private:
 
     Ui::MaterialWidget ui;

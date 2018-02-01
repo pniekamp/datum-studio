@@ -44,8 +44,8 @@ ModelView::ModelView(QWidget *parent)
 
   m_focuspoint = Vec3(0, 0, 0);
 
-//  renderparams.ssaoscale = 0;
-//  renderparams.ssrstrength = 0;
+  renderparams.ssaoscale = 1;
+  renderparams.ssrstrength = 1;
 
   camera.lookat(Vec3(0, 1, 10), m_focuspoint, Vec3(0, 1, 0));
 

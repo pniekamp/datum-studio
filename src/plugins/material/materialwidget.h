@@ -83,6 +83,8 @@ class MaterialWidget : public QWidget
     void on_ReflectivityOutput8_clicked();
 
     void on_NormalMap_itemDropped(QString const &path);
+    void on_NormalScaleSlider_valueChanged(double value);
+    void on_NormalScaleSpinner_valueChanged(double value);
     void on_NormalOutput1_clicked();
     void on_NormalOutput2_clicked();
     void on_NormalOutput3_clicked();
@@ -92,10 +94,6 @@ class MaterialWidget : public QWidget
     void on_ResetRoughness_clicked();
     void on_ResetReflectivity_clicked();
     void on_ResetNormal_clicked();
-
-  protected:
-
-    void paintEvent(QPaintEvent *event);
 
   private:
 

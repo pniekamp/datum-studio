@@ -241,7 +241,7 @@ void initialise_platform(Platform &platform, size_t gamememorysize)
   appinfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appinfo.pApplicationName = "Datum Test";
   appinfo.pEngineName = "Datum";
-  appinfo.apiVersion = VK_MAKE_VERSION(1, 0, 8);
+  appinfo.apiVersion = VK_MAKE_VERSION(1, 0, 65);
 
 #ifdef _WIN32
 #if VALIDATION

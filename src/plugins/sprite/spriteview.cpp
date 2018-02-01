@@ -32,10 +32,6 @@ SpriteView::SpriteView(QWidget *parent)
 
   setViewport(new Viewport);
 
-  viewport()->renderparams.ssaoscale = 0;
-  viewport()->renderparams.ssrstrength = 0;
-  viewport()->renderparams.bloomstrength = 0;
-
   m_image = viewport()->resources.create<Texture>(1, 1, 1, 1, Texture::Format::SRGBA);
 }
 

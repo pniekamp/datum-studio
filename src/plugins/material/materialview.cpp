@@ -33,9 +33,6 @@ MaterialView::MaterialView(QWidget *parent)
 {
   m_focuspoint = Vec3(0, 0, 0);
 
-  renderparams.ssaoscale = 0;
-  renderparams.ssrstrength = 0;
-
   camera.lookat(Vec3(0, 1, 2), m_focuspoint, Vec3(0, 1, 0));
 
   renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());

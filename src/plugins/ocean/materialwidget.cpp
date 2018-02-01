@@ -212,31 +212,3 @@ void MaterialWidget::on_ResetNormal_clicked()
 {
   m_document.set_image(OceanMaterialDocument::Image::NormalMap, "");
 }
-
-
-///////////////////////// MaterialWidget::paintEvent ////////////////////////
-void MaterialWidget::paintEvent(QPaintEvent *event)
-{
-  QPainterPath path;
-
-  auto wire = [&](QWidget const *left, QWidget const *right, int in, int out) {
-
-    auto a = QPoint(ui.Wiring->pos().x(), left->mapTo(this, left->rect().center()).y() + 2);
-    auto b = QPoint(ui.Wiring->pos().x() + ui.Wiring->width(), right->mapTo(this, right->rect().center()).y() + 2);
-
-    path.moveTo(a);
-    path.cubicTo(a + QPoint(in, 0), b - QPoint(out, 0), b);
-  };
-
-  wire(ui.AlbedoOutput, ui.AlbedoInput, 20, 30);
-  wire(ui.SurfaceOutput, ui.SurfaceInput, 40, 90);
-  wire(ui.NormalOutput, ui.NormalInput, 60, 30);
-
-  QPainter painter(this);
-
-  painter.setRenderHint(QPainter::Antialiasing);
-
-  painter.setPen(QPen(Qt::darkGray, 2));
-
-  painter.drawPath(path);
-}

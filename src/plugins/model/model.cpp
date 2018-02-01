@@ -512,9 +512,17 @@ vector<ModelDocument::Instance> ModelDocument::instances() const
       {
         Instance instance;
 
+        size_t meshbase = 0;
+        size_t materialbase = 0;
+        for(int k = 0; k < meshinstance.index; ++k)
+        {
+          meshbase += modeldocument.mesh(k).submeshes.size();
+          materialbase += modeldocument.mesh(k).materials.size();
+        }
+
         instance.index = indexof(m_meshes, mesh);
-        instance.submesh = &mesh.submeshes[indexof(modeldocument.mesh(meshinstance.index).submeshes, meshinstance.submesh)];
-        instance.material = &mesh.materials[indexof(modeldocument.mesh(meshinstance.index).materials, meshinstance.material)];
+        instance.submesh = &mesh.submeshes[meshbase + indexof(modeldocument.mesh(meshinstance.index).submeshes, meshinstance.submesh)];
+        instance.material = &mesh.materials[materialbase + indexof(modeldocument.mesh(meshinstance.index).materials, meshinstance.material)];
         instance.transform = mesh.transform * meshinstance.transform;
 
         instances.push_back(instance);

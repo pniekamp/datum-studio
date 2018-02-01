@@ -230,6 +230,11 @@ Viewport::Viewport(size_t slabsize, size_t storagesize, QWidget *parent)
 
   initialise_render_context(*platform->instance(), m_rendercontext, storagesize, Studio::Platform::RenderQueue);
 
+  renderparams.ssaoscale = 0;
+  renderparams.ssrstrength = 0;
+  renderparams.fogdensity = 0;
+  renderparams.bloomstrength = 0;
+
   surface = platform->create_surface(winId());
 
   acquirecomplete = create_semaphore(m_rendercontext.vulkan);

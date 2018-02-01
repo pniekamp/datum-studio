@@ -36,10 +36,6 @@ AnimationView::AnimationView(QWidget *parent)
   m_time = 0.0f;
   m_duration = 0.0f;
 
-  renderparams.ssaoscale = 0;
-  renderparams.ssrstrength = 0;
-  renderparams.bloomstrength = 0;
-
   m_timerid = startTimer(16.67, Qt::PreciseTimer);
 }
 

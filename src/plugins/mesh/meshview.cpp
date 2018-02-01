@@ -36,7 +36,7 @@ MeshView::MeshView(QWidget *parent)
 
   m_material = resources.create<Material>(Color4(0.4f, 0.4f, 0.4f, 1.0f), 0.0f, 1.0f);
 
-  renderparams.ssaoscale = 0;
+  renderparams.ssaoscale = 1;
   renderparams.ssrstrength = 0;
   renderparams.bloomstrength = 0;
 }

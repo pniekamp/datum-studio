@@ -100,6 +100,8 @@ void MaterialWidget::refresh()
   ui.ReflectivityOutput8->setChecked(m_document.reflectivityoutput() == MaterialDocument::ReflectivityOutput::inva);
 
   ui.NormalMap->setPixmap(m_document.image(MaterialDocument::Image::NormalMap));
+  ui.NormalScaleSlider->updateValue(m_document.normalscale());
+  ui.NormalScaleSpinner->updateValue(m_document.normalscale());
   ui.NormalOutput1->setChecked(m_document.normaloutput() == MaterialDocument::NormalOutput::xyz);
   ui.NormalOutput2->setChecked(m_document.normaloutput() == MaterialDocument::NormalOutput::xinvyz);
   ui.NormalOutput3->setChecked(m_document.normaloutput() == MaterialDocument::NormalOutput::bump);
@@ -444,6 +446,20 @@ void MaterialWidget::on_NormalMap_itemDropped(QString const &path)
 }
 
 
+///////////////////////// MaterialWidget::NormalScaleSlider /////////////////
+void MaterialWidget::on_NormalScaleSlider_valueChanged(double value)
+{
+  m_document.set_normalscale(value);
+}
+
+
+///////////////////////// MaterialWidget::NormalScaleSpinner ////////////////
+void MaterialWidget::on_NormalScaleSpinner_valueChanged(double value)
+{
+  m_document.set_normalscale(value);
+}
+
+
 ///////////////////////// MaterialWidget::NormalOutput //////////////////////
 void MaterialWidget::on_NormalOutput1_clicked()
 {
@@ -507,64 +523,6 @@ void MaterialWidget::on_ResetReflectivity_clicked()
 void MaterialWidget::on_ResetNormal_clicked()
 {
   m_document.set_image(MaterialDocument::Image::NormalMap, "");
+  m_document.set_normalscale(1.0f);
   m_document.set_normaloutput(MaterialDocument::NormalOutput::xyz);
-}
-
-
-///////////////////////// MaterialWidget::paintEvent ////////////////////////
-void MaterialWidget::paintEvent(QPaintEvent *event)
-{
-  QPainterPath path;
-
-  auto wire = [&](QWidget const *left, QWidget const *right, int in, int out) {
-
-    auto a = QPoint(ui.Wiring->pos().x(), left->mapTo(this, left->rect().center()).y() + 2);
-    auto b = QPoint(ui.Wiring->pos().x() + ui.Wiring->width(), right->mapTo(this, right->rect().center()).y() + 2);
-
-    path.moveTo(a);
-    path.cubicTo(a + QPoint(in, 0), b - QPoint(out, 0), b);
-  };
-
-  wire(ui.ShaderOutput, ui.ShaderInput, 10, 10);
-
-  wire(ui.AlbedoOutput, ui.AlbedoInput, 20, 30);
-
-  if (ui.MetalnessOutput1->isChecked()) wire(ui.MetalnessOutput1, ui.MetalnessInput, 40, 90);
-  if (ui.MetalnessOutput2->isChecked()) wire(ui.MetalnessOutput2, ui.MetalnessInput, 40, 90);
-  if (ui.MetalnessOutput3->isChecked()) wire(ui.MetalnessOutput3, ui.MetalnessInput, 40, 90);
-  if (ui.MetalnessOutput4->isChecked()) wire(ui.MetalnessOutput4, ui.MetalnessInput, 40, 90);
-  if (ui.MetalnessOutput5->isChecked()) wire(ui.MetalnessOutput5, ui.MetalnessInput, 40, 90);
-  if (ui.MetalnessOutput6->isChecked()) wire(ui.MetalnessOutput6, ui.MetalnessInput, 40, 90);
-  if (ui.MetalnessOutput7->isChecked()) wire(ui.MetalnessOutput7, ui.MetalnessInput, 40, 90);
-  if (ui.MetalnessOutput8->isChecked()) wire(ui.MetalnessOutput8, ui.MetalnessInput, 40, 90);
-
-  if (ui.RoughnessOutput1->isChecked()) wire(ui.RoughnessOutput1, ui.RoughnessInput, 60, 70);
-  if (ui.RoughnessOutput2->isChecked()) wire(ui.RoughnessOutput2, ui.RoughnessInput, 60, 70);
-  if (ui.RoughnessOutput3->isChecked()) wire(ui.RoughnessOutput3, ui.RoughnessInput, 60, 70);
-  if (ui.RoughnessOutput4->isChecked()) wire(ui.RoughnessOutput4, ui.RoughnessInput, 60, 70);
-  if (ui.RoughnessOutput5->isChecked()) wire(ui.RoughnessOutput5, ui.RoughnessInput, 60, 70);
-  if (ui.RoughnessOutput6->isChecked()) wire(ui.RoughnessOutput6, ui.RoughnessInput, 60, 70);
-  if (ui.RoughnessOutput7->isChecked()) wire(ui.RoughnessOutput7, ui.RoughnessInput, 60, 70);
-  if (ui.RoughnessOutput8->isChecked()) wire(ui.RoughnessOutput8, ui.RoughnessInput, 60, 70);
-
-  if (ui.ReflectivityOutput1->isChecked()) wire(ui.ReflectivityOutput1, ui.ReflectivityInput, 80, 50);
-  if (ui.ReflectivityOutput2->isChecked()) wire(ui.ReflectivityOutput2, ui.ReflectivityInput, 80, 50);
-  if (ui.ReflectivityOutput3->isChecked()) wire(ui.ReflectivityOutput3, ui.ReflectivityInput, 80, 50);
-  if (ui.ReflectivityOutput4->isChecked()) wire(ui.ReflectivityOutput4, ui.ReflectivityInput, 80, 50);
-  if (ui.ReflectivityOutput5->isChecked()) wire(ui.ReflectivityOutput5, ui.ReflectivityInput, 80, 50);
-  if (ui.ReflectivityOutput6->isChecked()) wire(ui.ReflectivityOutput6, ui.ReflectivityInput, 80, 50);
-  if (ui.ReflectivityOutput7->isChecked()) wire(ui.ReflectivityOutput7, ui.ReflectivityInput, 80, 50);
-  if (ui.ReflectivityOutput8->isChecked()) wire(ui.ReflectivityOutput8, ui.ReflectivityInput, 80, 50);
-
-  if (ui.NormalOutput1->isChecked()) wire(ui.NormalOutput1, ui.NormalInput, 100, 30);
-  if (ui.NormalOutput2->isChecked()) wire(ui.NormalOutput2, ui.NormalInput, 100, 30);
-  if (ui.NormalOutput3->isChecked()) wire(ui.NormalOutput3, ui.NormalInput, 100, 30);
-
-  QPainter painter(this);
-
-  painter.setRenderHint(QPainter::Antialiasing);
-
-  painter.setPen(QPen(Qt::darkGray, 2));
-
-  painter.drawPath(path);
 }
