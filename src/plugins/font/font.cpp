@@ -68,10 +68,10 @@ namespace
       if (!position)
         throw runtime_error("Font build failed - layout full");
 
-      x[codepoint] = position->x;
-      y[codepoint] = position->y;
-      width[codepoint] = position->width - 1;
-      height[codepoint] = position->height - 1;
+      x[codepoint] = position->x + 1;
+      y[codepoint] = position->y + 1;
+      width[codepoint] = position->width - 2;
+      height[codepoint] = position->height - 2;
       offsetx[codepoint] = 1 - tm.leftBearing(codepoint);
       offsety[codepoint] = 1 + tm.ascent();
     }

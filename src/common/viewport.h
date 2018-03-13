@@ -35,7 +35,7 @@ class Viewport : public QWidget
         unique_resource<Resource> create(Args... args) { return { m_manager, m_manager->create<Resource>(std::forward<Args>(args)...) }; }
 
         template<typename Resource, typename ...Args>
-        void update(unique_resource<Resource> &resource, Args... args) { m_manager->update(*resource, std::forward<Args>(args)...); }
+        void update(unique_resource<Resource> &resource, Args... args) { m_manager->update(resource, std::forward<Args>(args)...); }
 
         template<typename Resource, typename ...Args>
         unique_resource<Resource> load(size_t asset, Args... args);

@@ -118,7 +118,7 @@ namespace Studio
 class unique_document
 {
   public:
-    unique_document(Studio::Document *document = nullptr)
+    unique_document(Studio::Document *document = nullptr) noexcept
       : m_document(document)
     {
     }
@@ -128,10 +128,10 @@ class unique_document
     unique_document(unique_document &&other) noexcept
       : unique_document()
     {
-      *this = std::move(other);
+      std::swap(m_document, other.m_document);
     }
 
-    ~unique_document()
+    ~unique_document() noexcept
     {     
       if (m_document)
       {
@@ -148,10 +148,11 @@ class unique_document
       return *this;
     }
 
-    operator Studio::Document *() const { return m_document; }
+    Studio::Document *get() const noexcept { return m_document; }
+    Studio::Document *operator *() const noexcept { return m_document; }
+    Studio::Document *operator ->() const noexcept { return m_document; }
 
-    Studio::Document *operator *() const { return m_document; }
-    Studio::Document *operator ->() const { return m_document; }
+    operator Studio::Document *() const noexcept { return m_document; }
 
   private:
 

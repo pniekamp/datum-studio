@@ -34,7 +34,8 @@ class MaterialWidget : public QWidget
     void on_DeepColor_clicked();
     void on_FresnelColor_clicked();
 
-    void on_DepthScale_valueChanged(double value);
+    void on_DepthScaleSlider_valueChanged(double value);
+    void on_DepthScaleSpinner_valueChanged(double value);
 
     void on_RoughnessSlider_valueChanged(double value);
     void on_RoughnessSpinner_valueChanged(double value);

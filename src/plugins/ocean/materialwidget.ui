@@ -108,7 +108,133 @@ QRadioButton::indicator
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QGroupBox" name="Color">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="ShallowColor">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton
+{
+   background-color: white;
+   border: 1px solid black;
+}</string>
+            </property>
+            <property name="text">
+             <string>Shallow</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="DeepColor">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton
+{
+   background-color: white;
+   border: 1px solid black;
+}</string>
+            </property>
+            <property name="text">
+             <string>Deep</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="FresnelColor">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton
+{
+   background-color: white;
+   border: 1px solid black;
+}</string>
+            </property>
+            <property name="text">
+             <string>Fresnel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>47</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QToolButton" name="ResetAlbedo">
+              <property name="text">
+               <string>@</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../material/materialplugin.qrc">
+                <normaloff>:/materialplugin/reset.png</normaloff>:/materialplugin/reset.png</iconset>
+              </property>
+              <property name="autoRaise">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="DepthScale">
           <property name="styleSheet">
            <string notr="true">QGroupBox::title
 {
@@ -120,162 +246,26 @@ QRadioButton::indicator
 }</string>
           </property>
           <property name="title">
-           <string>Colour</string>
+           <string>Depth Scale</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6">
            <property name="topMargin">
             <number>14</number>
            </property>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QPushButton" name="ShallowColor">
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton
-{
-   background-color: white;
-   border: 1px solid black;
-}</string>
-               </property>
-               <property name="text">
-                <string>Shallow</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="DeepColor">
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton
-{
-   background-color: white;
-   border: 1px solid black;
-}</string>
-               </property>
-               <property name="text">
-                <string>Deep</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="FresnelColor">
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton
-{
-   background-color: white;
-   border: 1px solid black;
-}</string>
-               </property>
-               <property name="text">
-                <string>Fresnel</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>47</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_10">
-               <item>
-                <widget class="QToolButton" name="ResetAlbedo">
-                 <property name="text">
-                  <string>@</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="../material/materialplugin.qrc">
-                   <normaloff>:/materialplugin/reset.png</normaloff>:/materialplugin/reset.png</iconset>
-                 </property>
-                 <property name="autoRaise">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <spacer name="horizontalSpacer_4">
+              <widget class="QcDoubleSlider" name="DepthScaleSlider">
+               <property name="maximum">
+                <number>100</number>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="DepthScaleLabel">
-               <property name="text">
-                <string>Depth Scale :</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QcDoubleSpinBox" name="DepthScale">
+              <widget class="QcDoubleSpinBox" name="DepthScaleSpinner">
                <property name="minimumSize">
                 <size>
                  <width>52</width>
@@ -294,7 +284,7 @@ QRadioButton::indicator
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="DepthScaleLabel2">
+              <widget class="QLabel" name="DepthScaleLabel">
                <property name="minimumSize">
                 <size>
                  <width>8</width>

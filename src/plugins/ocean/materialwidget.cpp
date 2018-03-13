@@ -61,7 +61,8 @@ void MaterialWidget::refresh()
   ui.DeepColor->setStyleSheet("background-color: " + qcolor(m_document.deepcolor() * 3.33f).name() + ";border: 1px solid black;");
   ui.FresnelColor->setStyleSheet("background-color: " + qcolor(m_document.fresnelcolor() * 3.33f).name() + ";border: 1px solid black;");
 
-  ui.DepthScale->updateValue(m_document.depthscale());
+  ui.DepthScaleSlider->updateValue(m_document.depthscale());
+  ui.DepthScaleSpinner->updateValue(m_document.depthscale());
 
   ui.RoughnessSlider->updateValue(m_document.roughness());
   ui.RoughnessSpinner->updateValue(m_document.roughness());
@@ -122,8 +123,15 @@ void MaterialWidget::on_FresnelColor_clicked()
 }
 
 
-///////////////////////// MaterialWidget::DepthScale ////////////////////////
-void MaterialWidget::on_DepthScale_valueChanged(double value)
+///////////////////////// MaterialWidget::DepthScaleSlider //////////////////
+void MaterialWidget::on_DepthScaleSlider_valueChanged(double value)
+{
+  m_document.set_depthscale(value);
+}
+
+
+///////////////////////// MaterialWidget::DepthScaleSpinner /////////////////
+void MaterialWidget::on_DepthScaleSpinner_valueChanged(double value)
 {
   m_document.set_depthscale(value);
 }
@@ -192,6 +200,7 @@ void MaterialWidget::on_ResetAlbedo_clicked()
   m_document.set_shallowcolor(Color3(1.0f, 1.0f, 1.0f));
   m_document.set_deepcolor(Color3(1.0f, 1.0f, 1.0f));
   m_document.set_fresnelcolor(Color3(1.0f, 1.0f, 1.0f));
+  m_document.set_depthscale(1);
 
   m_document.set_metalness(0);
   m_document.set_roughness(0.4f);

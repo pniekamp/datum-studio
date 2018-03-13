@@ -50,7 +50,7 @@ namespace
 
       while (!asset->ready())
       {
-        platform->resources()->request(*platform->instance(), *asset);
+        platform->resources()->request(*platform->instance(), asset);
       }
     }
 

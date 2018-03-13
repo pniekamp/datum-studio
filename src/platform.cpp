@@ -51,7 +51,7 @@ class FileHandle
   public:
     FileHandle(const char *path);
 
-    void read(uint64_t position, void *buffer, std::size_t n);
+    size_t read(uint64_t position, void *buffer, std::size_t bytes);
 
   private:
 
@@ -72,16 +72,18 @@ FileHandle::FileHandle(const char *path)
 
 
 ///////////////////////// FileHandle::Read ////////////////////////////////
-void FileHandle::read(uint64_t position, void *buffer, size_t n)
+size_t FileHandle::read(uint64_t position, void *buffer, size_t bytes)
 {
   lock_guard<mutex> lock(m_lock);
 
   m_fio.seekg(position);
 
-  m_fio.read((char*)buffer, n);
+  m_fio.read((char*)buffer, bytes);
 
   if (!m_fio)
     throw runtime_error("FileHandle Read Error");
+
+  return bytes;
 }
 
 
@@ -175,7 +177,7 @@ class Platform : public PlatformInterface
 
     handle_t open_handle(const char *identifier) override;
 
-    void read_handle(handle_t handle, uint64_t position, void *buffer, size_t bytes) override;
+    size_t read_handle(handle_t handle, uint64_t position, void *buffer, size_t bytes) override;
 
     void close_handle(handle_t handle) override;
 
@@ -205,9 +207,9 @@ PlatformInterface::handle_t Platform::open_handle(const char *identifier)
   return new FileHandle(pathstring(identifier).c_str());
 }
 
-void Platform::read_handle(handle_t handle, uint64_t position, void *buffer, size_t bytes)
+size_t Platform::read_handle(handle_t handle, uint64_t position, void *buffer, size_t bytes)
 {
-  static_cast<FileHandle*>(handle)->read(position, buffer, bytes);
+  return static_cast<FileHandle*>(handle)->read(position, buffer, bytes);
 }
 
 void Platform::close_handle(PlatformInterface::handle_t handle)
