@@ -9,7 +9,7 @@
 #pragma once
 
 #include "core.h"
-#include "ui_datumstudio.h"
+#include "forms/ui_datumstudio.h"
 
 //-------------------------- DatumStudio ------------------------------------
 //---------------------------------------------------------------------------

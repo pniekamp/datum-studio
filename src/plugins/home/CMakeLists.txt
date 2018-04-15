@@ -16,6 +16,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -28,11 +30,7 @@ set(QRCS ${QRCS} homeplugin.qrc)
 set(SRCS ${SRCS} homeplugin.h homeplugin.cpp)
 set(SRCS ${SRCS} ${COMMON}/commandbar.h ${COMMON}/commandbar.cpp)
 
-qt5_wrap_ui(UIS_H ${FRMS})
-
-qt5_add_resources(QRCS_CXX ${QRCS})
-
-add_library(home SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
+add_library(home SHARED ${SRCS} ${QRCS} ${FRMS})
 
 set_target_properties(home PROPERTIES COMPILE_DEFINITIONS "HOMEPLUGIN")
 

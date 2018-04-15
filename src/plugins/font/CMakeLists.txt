@@ -16,6 +16,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -36,11 +38,7 @@ set(SRCS ${SRCS} ${COMMON}/assetfile.h ${COMMON}/assetfile.cpp)
 set(SRCS ${SRCS} ${COMMON}/qcdoubleslider.h ${COMMON}/qcdoubleslider.cpp)
 set(SRCS ${SRCS} ${DATUM_TOOLS}/assetpacker.h ${DATUM_TOOLS}/assetpacker.cpp ${DATUM_TOOLS}/bc3.cpp)
 
-qt5_wrap_ui(UIS_H ${FRMS})
-
-qt5_add_resources(QRCS_CXX ${QRCS})
-
-add_library(font SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
+add_library(font SHARED ${SRCS} ${QRCS} ${FRMS})
 
 set_target_properties(font PROPERTIES COMPILE_DEFINITIONS "FONTPLUGIN")
 

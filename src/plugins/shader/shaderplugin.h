@@ -1,5 +1,5 @@
 //
-// ShaderPlugin Plugin
+// Shader Plugin
 //
 
 //
@@ -11,7 +11,7 @@
 #include "api.h"
 #include "packapi.h"
 
-//-------------------------- ShaderPlugin -------------------------------------
+//-------------------------- ShaderPlugin -----------------------------------
 //---------------------------------------------------------------------------
 
 class ShaderPlugin : public Studio::Plugin
@@ -39,6 +39,5 @@ class ShaderPlugin : public Studio::Plugin
     bool build(Studio::Document *document, QString const &path);
 
     bool pack(Studio::PackerState &asset, std::ofstream &fout);
-
 };
 

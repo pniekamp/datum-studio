@@ -9,7 +9,7 @@
 
 #include "datumstudio.h"
 #include "dialogfactory.h"
-#include "ui_about.h"
+#include "forms/ui_about.h"
 #include <leap/pathstring.h>
 #include <QMessageBox>
 #include <QCloseEvent>
@@ -103,7 +103,7 @@ void DatumStudio::set_screen_geometry(std::string const &geometry)
   int w = screen->geometry().width();
   int h = screen->geometry().height();
 
-  QRegExp rx("(\\d+)x(\\d+)([+-]\\d+)*([+-]\\d+)*");
+  QRegExp rx(R"((\d+)x(\d+)([+-]\d+)*([+-]\d+)*)");
 
   if (rx.indexIn(geometry.c_str()) == 0)
   {

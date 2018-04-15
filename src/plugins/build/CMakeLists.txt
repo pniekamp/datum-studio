@@ -16,6 +16,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -27,11 +29,7 @@ set(SRCS ${SRCS} buildplugin.h buildplugin.cpp)
 set(SRCS ${SRCS} buildmanager.h buildmanager.cpp)
 set(SRCS ${SRCS} buildstatus.h buildstatus.cpp)
 
-qt5_wrap_ui(UIS_H ${FRMS})
-
-qt5_add_resources(QRCS_CXX ${QRCS})
-
-add_library(build SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
+add_library(build SHARED ${SRCS} ${QRCS} ${FRMS})
 
 set_target_properties(build PROPERTIES COMPILE_DEFINITIONS "BUILDPLUGIN")
 

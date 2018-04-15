@@ -13,6 +13,8 @@ endif(UNIX OR MINGW)
 add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -32,11 +34,7 @@ set(SRCS ${SRCS} datumstudio.h datumstudio.cpp)
 set(SRCS ${SRCS} platform.h platform.cpp)
 set(SRCS ${SRCS} common/commandbar.h common/commandbar.cpp)
 
-qt5_wrap_ui(UIS_H ${FRMS})
-
-qt5_add_resources(QRCS_CXX ${QRCS})
-
-add_executable(datumstudio ${SRCS} ${UIS_H} ${QRCS_CXX})
+add_executable(datumstudio ${SRCS} ${FRMS} ${QRCS})
 
 set_target_properties(datumstudio PROPERTIES ENABLE_EXPORTS on)
 set_target_properties(datumstudio PROPERTIES COMPILE_DEFINITIONS "DATUMSTUDIO")

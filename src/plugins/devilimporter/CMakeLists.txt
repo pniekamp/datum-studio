@@ -16,6 +16,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 set(DEVIL_LIBRARIES ${DEVIL_INSTALL}/lib/libIL.dll.a)
 
@@ -31,11 +33,7 @@ set(SRCS ${SRCS} devilimporter.h devilimporter.cpp)
 set(SRCS ${SRCS} ${COMMON}/assetfile.h ${COMMON}/assetfile.cpp)
 set(SRCS ${SRCS} ${DATUM_TOOLS}/assetpacker.h ${DATUM_TOOLS}/assetpacker.cpp ${DATUM_TOOLS}/bc3.cpp)
 
-qt5_wrap_ui(UIS_H ${FRMS})
-
-qt5_add_resources(QRCS_CXX ${QRCS})
-
-add_library(devilimporter SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
+add_library(devilimporter SHARED ${SRCS} ${QRCS} ${FRMS})
 
 set_target_properties(devilimporter PROPERTIES COMPILE_DEFINITIONS "DEVILIMPORTERPLUGIN")
 

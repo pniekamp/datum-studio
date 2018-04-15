@@ -1,7 +1,7 @@
 
 project(datumstudio)
 
-cmake_minimum_required(VERSION 3.3.1)
+cmake_minimum_required(VERSION 3.9.6)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build Type: Debug Release RelWithDebInfo MinSizeRel" FORCE)
@@ -72,6 +72,23 @@ endif(DATUM_INCLUDE AND DATUM_LIBRARIES)
 find_path(DATUM_TOOLS assetpacker.h PATHS ${PROJECT_SOURCE_DIR}/../datum/tools NO_DEFAULT_PATH)
 
 #
+# datum-ui
+#
+
+find_path(DATUMUIC_INCLUDE datum/ui.h PATHS ${PROJECT_SOURCE_DIR}/../datum-ui/include NO_DEFAULT_PATH)
+
+find_library(DATUMUIC_LIBRARIES NAMES datumuic PATHS ${PROJECT_SOURCE_DIR}/../datum-ui/lib)
+
+if(DATUMUIC_INCLUDE AND DATUMUIC_LIBRARIES)
+  add_library(datumuic STATIC IMPORTED)
+  set_property(TARGET datumuic PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${DATUMUIC_INCLUDE})
+  set_property(TARGET datumuic PROPERTY IMPORTED_LOCATION ${DATUMUIC_LIBRARIES})
+  set_property(TARGET datumuic PROPERTY INTERFACE_LINK_LIBRARIES leap)
+
+  message(STATUS "Found DatumUi: ${DATUMUIC_INCLUDE}")
+endif(DATUMUIC_INCLUDE AND DATUMUIC_LIBRARIES)
+
+#
 # vulkan
 #
 
@@ -93,8 +110,7 @@ add_library(vulkan STATIC IMPORTED)
 set_property(TARGET vulkan PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${VULKAN_INCLUDE})
 set_property(TARGET vulkan PROPERTY IMPORTED_LOCATION ${VULKAN_LIBRARIES})
 
-message(STATUS ${VULKAN_INCLUDE})
-message(STATUS ${VULKAN_LIBRARIES})
+message(STATUS "Found Vulkan: ${VULKAN_INCLUDE} ${VULKAN_LIBRARIES}")
 
 #
 # Qt
@@ -167,3 +183,12 @@ find_path(DEVIL_INSTALL lib/libIL.dll.a)
 if(DEVIL_INSTALL)
   add_subdirectory(src/plugins/devilimporter)
 endif(DEVIL_INSTALL)
+
+
+#
+# DatumUi
+#
+
+if(DATUMUIC_INCLUDE AND DATUMUIC_LIBRARIES)
+  add_subdirectory(src/plugins/datumui)
+endif(DATUMUIC_INCLUDE AND DATUMUIC_LIBRARIES)

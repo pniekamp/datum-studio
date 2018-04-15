@@ -10,7 +10,6 @@
 #include "contentapi.h"
 #include "buildapi.h"
 #include "assetfile.h"
-#include "atlaspacker.h"
 #include "glslang/Public/ShaderLang.h"
 #include "SPIRV/GlslangToSpv.h"
 #include "resourcelimits.h"
@@ -50,7 +49,7 @@ namespace
       {
         if (buffer.substr(0, 8) == "#include")
         {
-          auto path = string(buffer.begin() + buffer.find_first_of("\"") + 1, buffer.begin() + buffer.find_last_of("\"")) + ".asset";
+          auto path = string(buffer.begin() + buffer.find_first_of('"') + 1, buffer.begin() + buffer.find_last_of('"')) + ".asset";
 
           auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
 
@@ -106,7 +105,7 @@ namespace
 
         if (buffer.substr(0, 8) == "#include")
         {
-          auto path = string(buffer.begin() + buffer.find_first_of("\"") + 1, buffer.begin() + buffer.find_last_of("\"")) + ".asset";
+          auto path = string(buffer.begin() + buffer.find_first_of('"') + 1, buffer.begin() + buffer.find_last_of('"')) + ".asset";
 
           auto documentmanager = Studio::Core::instance()->find_object<Studio::DocumentManager>();
 
@@ -146,7 +145,7 @@ ShaderPlugin::~ShaderPlugin()
 }
 
 
-///////////////////////// ShaderPlugin::initialise /////////////////////////
+///////////////////////// ShaderPlugin::initialise //////////////////////////
 bool ShaderPlugin::initialise(QStringList const &arguments, QString *errormsg)
 {
   auto actionmanager = Studio::Core::instance()->find_object<Studio::ActionManager>();

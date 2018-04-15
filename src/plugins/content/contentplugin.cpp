@@ -254,7 +254,7 @@ void ContentPlugin::on_Create_triggered(QAction *action)
 
   QString path = ui.Folders->selected_path() + "/" + QString(type).remove("\\") + suffix;
 
-  for(int k = 1; k < 256 && QFileInfo(path).exists(); ++k)
+  for(int k = 1; k < 256 && QFileInfo::exists(path); ++k)
   {
     path = ui.Folders->selected_path() + "/" + QString(type).remove("\\") + "_" + QString::number(k) + suffix;
   }

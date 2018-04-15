@@ -16,6 +16,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 set(GLSLANG_LIBRARIES ${GLSLANG_INSTALL}/lib/libglslang.a ${GLSLANG_INSTALL}/lib/libOSDependent.a ${GLSLANG_INSTALL}/lib/libOGLCompiler.a ${GLSLANG_INSTALL}/lib/libHLSL.a ${GLSLANG_INSTALL}/lib/libSPIRV.a)
 
@@ -31,9 +33,7 @@ set(SRCS ${SRCS} shaderplugin.h shaderplugin.cpp)
 set(SRCS ${SRCS} ${COMMON}/assetfile.h ${COMMON}/assetfile.cpp)
 set(SRCS ${SRCS} ${DATUM_TOOLS}/assetpacker.h ${DATUM_TOOLS}/assetpacker.cpp ${DATUM_TOOLS}/bc3.cpp)
 
-qt5_add_resources(QRCS_CXX ${QRCS})
-
-add_library(shader SHARED ${SRCS} ${UIS_H} ${QRCS_CXX})
+add_library(shader SHARED ${SRCS} ${QRCS} ${FRMS})
 
 set_target_properties(shader PROPERTIES COMPILE_DEFINITIONS "SHADERPLUGIN")
 
