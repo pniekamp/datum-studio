@@ -429,18 +429,18 @@ void ModelView::mouseReleaseEvent(QMouseEvent *event)
       {
         vector<int> hits;
 
-        auto cameraposition = camera.position();
-        auto ray = normalise((inverse(camera.viewproj()) * Vec4((2.0f * m_mousepresspos.x()) / width() - 1.0f, (2.0f * m_mousepresspos.y()) / height() - 1.0f, 1.0f, 1.0f)).xyz);
+        auto origin = camera.position();
+        auto direction = normalise(camera.rotation() * (inverse(camera.proj()) * Vec4(2.0f * m_mousepresspos.x() / width() - 1.0f, 2.0f * m_mousepresspos.y() / height() - 1.0f, 1.0f, 1.0f)).xyz);
 
         for(auto &instance : m_instances)
         {
-          if (intersection(instance.bound, cameraposition, cameraposition + ray))
+          if (intersection(instance.bound, origin, origin + direction))
             hits.push_back(instance.index);
         }
 
         for(auto &instance : m_transparencies)
         {
-          if (intersection(instance.bound, cameraposition, cameraposition + ray))
+          if (intersection(instance.bound, origin, origin + direction))
             hits.push_back(instance.index);
         }
 

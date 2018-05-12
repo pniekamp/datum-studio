@@ -208,8 +208,6 @@ void SpriteView::paintEvent(QPaintEvent *event)
 
   if (viewport()->begin(sprites, buildstate))
   {
-    sprites.viewport(buildstate, Rect2(Vec2(0, 0), Vec2(width(), height())));
-
     for(int j = y % 32; j < height(); j += 32)
     {
       for(int i = x % 32; i < width(); i += 32)
