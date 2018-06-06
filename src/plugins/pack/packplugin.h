@@ -35,6 +35,8 @@ class PackPlugin : public Studio::Plugin
 
     void build_export();
 
+    void xport();
+
   protected:
 
     void on_project_changed(QString const &projectfile);
@@ -68,10 +70,13 @@ class PackPlugin : public Studio::Plugin
     PackModel *m_pack;
 
     QAction *m_build;
+    QAction *m_export;
 
     QAction *m_metamode;
 
     QMainWindow *m_container;
+
+    QString m_exportfile;
 
     Ui::PackPlugin ui;
 };

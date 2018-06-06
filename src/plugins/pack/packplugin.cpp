@@ -47,7 +47,7 @@ bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   Studio::Core::instance()->add_object(m_manager);
 
-//  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
+  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
 
   auto actionmanager = Studio::Core::instance()->find_object<Studio::ActionManager>();
 
@@ -78,6 +78,16 @@ bool PackPlugin::initialise(QStringList const &arguments, QString *errormsg)
   actionmanager->container("Studio.Meta.Box")->add_back(build);
 
   connect(m_build, &QAction::triggered, this, &PackPlugin::build);
+
+  m_export = new QAction(QIcon(":/packplugin/build.png"), "Export", this);
+  m_export->setToolTip("Export Pack\nctrl-shift-e");
+  m_export->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E));
+  m_export->setShortcutContext(Qt::ApplicationShortcut);
+  m_export->setEnabled(false);
+
+  mainwindow->handle()->addAction(m_export);
+
+  connect(m_export, &QAction::triggered, this, &PackPlugin::xport);
 
   m_pack = new PackModel(this);
 
@@ -170,7 +180,7 @@ void PackPlugin::build()
 ///////////////////////// PackPlugin::build_export //////////////////////////
 void PackPlugin::build_export()
 {
-  QString basepath = QSettings().value("packplugin/exportpath").toString();
+  QString basepath = QFileInfo(m_exportfile).path();
 
   auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
 
@@ -197,18 +207,74 @@ void PackPlugin::build_export()
       QMessageBox::information(mainwindow->handle(), "Export Error", e.what());
     }
 
-    QSettings().setValue("packplugin/exportpath", QFileInfo(exportfile).path());
+    m_exportfile = exportfile;
   }
 }
+
+
+///////////////////////// PackPlugin::xport /////////////////////////////////
+void PackPlugin::xport()
+{
+  m_build->setEnabled(false);
+
+  auto mainwindow = Studio::Core::instance()->find_object<Studio::MainWindow>();
+
+  auto projectmanager = Studio::Core::instance()->find_object<Studio::ProjectManager>();
+
+  DialogFactory<Ui::Build> dlg(mainwindow->handle());
+
+  try
+  {
+    m_manager->build(m_pack, QDir(projectmanager->basepath()).filePath("Build/asset.pack"), &dlg.ui);
+
+    if (dlg.ui.Export->isEnabled())
+    {
+      QString exportfile = m_exportfile;
+
+      if (exportfile != "")
+      {
+        QFile::remove(exportfile);
+
+        for(int k = 0; k < 5; ++k)
+        {
+          if (QFile::copy(QDir(projectmanager->basepath()).filePath("Build/asset.pack"), exportfile))
+            break;
+        }
+
+        QMessageBox::information(mainwindow->handle(), "Exported", "Exported Succeeded");
+      }
+    }
+  }
+  catch(exception &e)
+  {
+    QMessageBox::information(mainwindow->handle(), "Export Error", e.what());
+  }
+
+  m_build->setEnabled(true);
+}
+
 
 ///////////////////////// PackPlugin::project_changed ///////////////////////
 void PackPlugin::on_project_changed(QString const &projectfile)
 {
+  ifstream fin(projectfile.toUtf8());
+
+  string buffer;
+
+  while (getline(fin, buffer))
+  {
+    if (buffer.substr(0, 10) == "exportfile")
+      m_exportfile = QString::fromStdString(buffer.substr(13));
+  }
+
+  fin.close();
+
   m_pack->load(projectfile.toStdString());
 
   m_metamode->setEnabled(true);
 
   m_build->setEnabled(true);
+  m_export->setEnabled(true);
 
   ui.PackProperties->setEnabled(true);
 }
@@ -217,6 +283,14 @@ void PackPlugin::on_project_changed(QString const &projectfile)
 ///////////////////////// PackPlugin::project_saving ////////////////////////
 void PackPlugin::on_project_saving(QString const &projectfile)
 {
+  ofstream fout(projectfile.toUtf8(), ios::app);
+
+  fout << "[Export]" << '\n';
+  fout << "exportfile = " << m_exportfile.toUtf8().data() << '\n';
+  fout << '\n';
+
+  fout.close();
+
   m_pack->save(projectfile.toStdString());
 }
 

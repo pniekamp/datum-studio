@@ -7,8 +7,8 @@
 //
 
 #include "curveeditor.h"
-#include "leap/lml/interpolation.h"
-#include "leap/lml/geometry.h"
+#include <leap/lml/geometry.h>
+#include <leap/lml/interpolation.h>
 #include "qpointtraits.h"
 #include <QPainter>
 #include <QMouseEvent>

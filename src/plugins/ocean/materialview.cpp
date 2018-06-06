@@ -42,6 +42,8 @@ MaterialView::MaterialView(QWidget *parent)
 
   m_meshmaterial = resources.create<Material>(Color4(0.4f, 0.4f, 0.4f, 1.0f), 0.0f, 1.0f);
 
+  m_surface = resources.make_plane(256, 256, 50.0f);
+
   m_material = resources.create<Material>(Color4(0.4f, 0.4f, 0.4f, 1.0f), 0.0f, 1.0f);
 
   try
@@ -49,17 +51,6 @@ MaterialView::MaterialView(QWidget *parent)
     ifstream fin(pathstring("sphere.pack"), ios::binary);
 
     m_meshes.push_back({ Transform::identity(), resources.load<Mesh>(fin, 0) });
-  }
-  catch(exception &e)
-  {
-    qCritical() << "Error loading default mesh:" << e.what();
-  }
-
-  try
-  {
-    ifstream fin(pathstring("plane.pack"), ios::binary);
-
-    m_surface = resources.load<Mesh>(fin, 0);
   }
   catch(exception &e)
   {
@@ -384,7 +375,7 @@ void MaterialView::paintEvent(QPaintEvent *event)
 
     if (m_surface)
     {
-      geometry.push_ocean(buildstate, Transform::identity(), m_surface, m_material, m_time*Vec2(0.002), Vec3(16.0, 16.0, 0.2));
+      geometry.push_ocean(buildstate, Transform::rotation(Vec3(1, 0, 0), -pi<float>()/2), m_surface, m_material, m_time*Vec2(0.002), Vec3(16.0, 16.0, 0.2));
     }
 
     geometry.finalise(buildstate);

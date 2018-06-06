@@ -84,7 +84,7 @@ QWidget *OceanPlugin::create_view(QString const &type)
 ///////////////////////// OceanPlugin::create ///////////////////////////////
 bool OceanPlugin::create(QString const &type, QString const &path, QJsonObject metadata)
 {
-  OceanMaterialDocument::create(path.toStdString(), Color3(1.0f, 1.0f, 1.0f), 0.4f);
+  OceanMaterialDocument::create(path.toStdString(), Color3(1.0f, 1.0f, 1.0f), 0.32f);
 
   return true;
 }

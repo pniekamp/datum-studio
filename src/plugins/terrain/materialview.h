@@ -28,9 +28,7 @@ class MaterialView : public Viewport
 
     void view(Studio::Document *document);
 
-    void set_mesh(QString const &path);
     void set_skybox(QString const &path);
-    void set_blendmap(QString const &path);
 
     void set_exposure(float value);
 
@@ -70,20 +68,10 @@ class MaterialView : public Viewport
 
   private:
 
-    MeshDocument m_meshdocument;
+    unique_resource<Mesh> m_surface;
 
-    struct MeshInstance
-    {
-      lml::Transform transform;
-      unique_resource<Mesh> mesh;
-    };
-
-    std::vector<MeshInstance> m_meshes;
-
-  private:
-
-    ImageDocument m_blendmapdocument;
-
+    unique_resource<Texture> m_heightmap;
+    unique_resource<Texture> m_heightnormalmap;
     unique_resource<Texture> m_blendmap;
 
   private:

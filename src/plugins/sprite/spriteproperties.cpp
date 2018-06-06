@@ -7,7 +7,6 @@
 //
 
 #include "spriteproperties.h"
-#include "contentapi.h"
 #include "buildapi.h"
 #include "assetfile.h"
 

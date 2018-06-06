@@ -76,12 +76,10 @@ namespace
         read_asset_payload(fin, mhdr.dataoffset, lump->memory(mesh->vertexbuffer.verticesoffset), mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
         read_asset_payload(fin, mhdr.dataoffset + mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize, lump->memory(mesh->vertexbuffer.indicesoffset), mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
 
-        resources.update(mesh, lump);
+        resources.update(mesh, lump, Bound3(Vec3(mhdr.mincorner[0], mhdr.mincorner[1], mhdr.mincorner[2]), Vec3(mhdr.maxcorner[0], mhdr.maxcorner[1], mhdr.maxcorner[2])));
 
         resources.release_lump(lump);
       }
-
-      resources.update(mesh, Bound3(Vec3(mhdr.mincorner[0], mhdr.mincorner[1], mhdr.mincorner[2]), Vec3(mhdr.maxcorner[0], mhdr.maxcorner[1], mhdr.maxcorner[2])));
     }
 
     unlock(fin);
@@ -210,6 +208,13 @@ unique_resource<SkyBox> Viewport::ResourceProxy::load<SkyBox>(Studio::Document *
 }
 
 
+///////////////////////// Resource::make_plane //////////////////////////////
+unique_resource<Mesh> Viewport::ResourceProxy::make_plane(int sizex, int sizey, float scale, float tilex, float tiley)
+{
+  return { m_manager, ::make_plane(*m_manager, sizex, sizey, scale, tilex, tiley) };
+}
+
+
 //|---------------------- Viewport ------------------------------------------
 //|--------------------------------------------------------------------------
 
@@ -265,12 +270,9 @@ Viewport::~Viewport()
 ///////////////////////// Viewport::hideEvent ///////////////////////////////
 void Viewport::hideEvent(QHideEvent *event)
 {
-  if (m_rendercontext.ready)
-  {
-    swapchain = {};
+  swapchain = {};
 
-    release_render_pipeline(m_rendercontext);
-  }
+  release_render_pipeline(m_rendercontext);
 
   QWidget::hideEvent(event);
 }
@@ -280,6 +282,8 @@ void Viewport::hideEvent(QHideEvent *event)
 void Viewport::resizeEvent(QResizeEvent *event)
 {
   setUpdatesEnabled(false);
+
+  release_render_pipeline(m_rendercontext);
 
   m_resizetimer->start(250);
 

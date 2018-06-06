@@ -36,6 +36,8 @@ class QcApplication : public QApplication
       catch(exception &e)
       {
         qDebug() << "Exception:" << e.what();
+
+        QMessageBox::critical(NULL, "Exception", e.what());
       }
       catch(...)
       {

@@ -52,9 +52,7 @@ class SpriteSheetDocument : public QObject
   public:
 
     void add_layer(int position, QString const &path);
-
     void move_layer(int index, int position);
-
     void erase_layer(int index);
 
   signals:

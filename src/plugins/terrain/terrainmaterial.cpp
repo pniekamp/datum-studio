@@ -75,13 +75,13 @@ namespace
     return image;
   }
 
-  HDRImage scale_image(HDRImage const &image, Color4 const &scale)
+  HDRImage tint_image(HDRImage const &image, Color4 const &tint)
   {
     HDRImage result = image;
 
     for(size_t i = 0; i < result.bits.size(); ++i)
     {
-      result.bits[i] = hada(result.bits[i], scale);
+      result.bits[i] = hada(result.bits[i], tint);
     }
 
     return result;
@@ -253,8 +253,8 @@ void TerrainMaterialDocument::build(Studio::Document *document, string const &pa
       if (layerdocument.image(MaterialDocument::Image::NormalMap))
         normalmap = read_image(buildpath, 3);
 
-      albedomap = scale_image(albedomap, layerdocument.color());
-      surfacemap = scale_image(surfacemap, Color4(layerdocument.metalness(), layerdocument.reflectivity(), 1, layerdocument.roughness()));
+      albedomap = tint_image(albedomap, layerdocument.color());
+      surfacemap = tint_image(surfacemap, Color4(layerdocument.metalness(), layerdocument.reflectivity(), 1, layerdocument.roughness()));
     }
 
     albedomaps.push_back(albedomap);

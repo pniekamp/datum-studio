@@ -36,24 +36,59 @@ MaterialView::MaterialView(QWidget *parent)
   renderparams.ssaoscale = 0;
   renderparams.ssrstrength = 0;
 
-  camera.lookat(Vec3(0, 1, 2), m_focuspoint, Vec3(0, 1, 0));
+  camera.lookat(Vec3(0, 85, 0), m_focuspoint, Vec3(0, 1, 0));
 
   renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
 
+  m_surface = resources.make_plane(257, 257);
+
+  m_heightmap = resources.load<Texture>(CoreAsset::zero_depth, Texture::Format::HEIGHT);
+  m_heightnormalmap = resources.load<Texture>(CoreAsset::nominal_normal, Texture::Format::RGBA);
+
+  {
+    m_blendmap = resources.create<Texture>(1024, 1024, 4, 1, Texture::Format::RGBA);
+
+    if (auto lump = resources.acquire_lump(m_blendmap->width*m_blendmap->height*m_blendmap->layers*sizeof(uint32_t)))
+    {
+      uint32_t *bits = lump->memory<uint32_t>();
+
+      for(int layer = 0; layer < m_blendmap->layers; ++layer)
+      {
+        for(int y = 0; y < m_blendmap->height; ++y)
+        {
+          for(int x = 0; x < m_blendmap->width; ++x)
+          {
+            uint32_t color = 0;
+
+            int patch = (y / 256) * (m_blendmap->width / 256) + (x / 256);
+
+            if (patch / 4 == layer)
+            {
+              if (patch % 4 == 0)
+                color = 0x00FF0000;
+
+              if (patch % 4 == 1)
+                color = 0x0000FF00;
+
+              if (patch % 4 == 2)
+                color = 0x000000FF;
+
+              if (patch % 4 == 3)
+                color = 0xFF000000;
+            }
+
+            bits[layer * (m_blendmap->width * m_blendmap->height) + y * m_blendmap->width + x] = color;
+          }
+        }
+      }
+
+      resources.update(m_blendmap, lump);
+
+      resources.release_lump(lump);
+    }
+  }
+
   m_material = resources.create<Material>(Color4(0.4f, 0.4f, 0.4f, 1.0f), 0.0f, 1.0f);
-
-  m_blendmap = resources.load<Texture>(CoreAsset::white_diffuse, Texture::Format::RGBA);
-
-  try
-  {
-    ifstream fin(pathstring("plane.pack"), ios::binary);
-
-    m_meshes.push_back({ Transform::identity(), resources.load<Mesh>(fin, 0) });
-  }
-  catch(exception &e)
-  {
-    qCritical() << "Error loading default mesh:" << e.what();
-  }
 
   m_buildhash = 0;
 
@@ -133,31 +168,6 @@ void MaterialView::on_material_build_complete(Studio::Document *document, QStrin
 }
 
 
-///////////////////////// MaterialView::set_mesh ////////////////////////////
-void MaterialView::set_mesh(QString const &path)
-{
-  m_meshes.clear();
-
-  if (m_meshdocument = MeshDocument(path))
-  {
-    for(auto &instance : m_meshdocument.instances())
-    {
-      m_meshes.push_back({ instance.transform, resources.load<Mesh>(m_meshdocument, instance.index) });
-    }
-
-    connect(&m_meshdocument, &MeshDocument::document_changed, [=]() { set_mesh(path); });
-  }
-
-  m_focuspoint = Vec3(0, 0, 0);
-
-  camera.lookat(Vec3(0, 1, 10), m_focuspoint, Vec3(0, 1, 0));
-
-  renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
-
-  invalidate();
-}
-
-
 ///////////////////////// MaterialView::set_skybox //////////////////////////
 void MaterialView::set_skybox(QString const &path)
 {
@@ -170,51 +180,6 @@ void MaterialView::set_skybox(QString const &path)
     connect(&m_skyboxdocument, &SkyboxDocument::document_changed, [=]() { set_skybox(path); });
     connect(&m_skyboxdocument, &SkyboxDocument::dependant_changed, [=]() { set_skybox(path); });
   }
-}
-
-
-///////////////////////// MaterialView::set_blendmap ////////////////////////
-void MaterialView::set_blendmap(QString const &path)
-{
-  if (m_blendmapdocument = ImageDocument(path))
-  {
-    m_blendmapdocument->lock();
-
-    PackImageHeader imag;
-
-    if (read_asset_header(m_blendmapdocument, 1, &imag))
-    {
-      m_blendmap = resources.create<Texture>(imag.width, imag.height, imag.layers, imag.levels, Texture::Format::RGBA);
-
-      if (auto lump = resources.acquire_lump(imag.datasize))
-      {
-        read_asset_payload(m_blendmapdocument, imag.dataoffset, lump->memory(), imag.datasize);
-
-        uint32_t *bits = lump->memory<uint32_t>();
-
-        for(size_t layer = 0; layer < imag.layers; ++layer)
-        {
-          for(size_t y = 0; y < imag.height/2; ++y)
-          {
-            for(size_t x = 0; x < imag.width; ++x)
-            {
-              swap(bits[layer * (imag.width * imag.height) + y * imag.width + x], bits[layer * (imag.width * imag.height) + (imag.height - 1 - y) * imag.width + x]);
-            }
-          }
-        }
-
-        resources.update(m_blendmap, lump);
-
-        resources.release_lump(lump);
-      }
-    }
-
-    m_blendmapdocument->unlock();
-
-    connect(&m_blendmapdocument, &ImageDocument::document_changed, [=]() { set_blendmap(path); });
-  }
-
-  invalidate();
 }
 
 
@@ -252,7 +217,7 @@ void MaterialView::keyPressEvent(QKeyEvent *event)
   {
     m_focuspoint = Vec3(0, 0, 0);
 
-    camera.lookat(m_focuspoint, Vec3(0, 1, 0));
+    camera.lookat(Vec3(0, 85, 0), m_focuspoint, Vec3(0, 1, 0));
 
     renderparams.sundirection = normalise(camera.forward() - camera.right() - camera.up());
 
@@ -369,16 +334,6 @@ void MaterialView::dropEvent(QDropEvent *event)
   {
     if (auto document = documentmanager->open(url.toLocalFile()))
     {
-      if (document->type() == "Image")
-      {
-        set_blendmap(url.toLocalFile());
-      }
-
-      if (document->type() == "Mesh")
-      {
-        set_mesh(url.toLocalFile());
-      }
-
       if (document->type() == "SkyBox")
       {
         set_skybox(url.toLocalFile());
@@ -395,23 +350,23 @@ void MaterialView::paintEvent(QPaintEvent *event)
 {
   prepare();
 
-  if (m_material->albedomap && m_material->surfacemap && m_material->normalmap)
+  GeometryList geometry;
+  GeometryList::BuildState buildstate;
+
+  if (begin(geometry, buildstate))
   {
-    GeometryList geometry;
-    GeometryList::BuildState buildstate;
-
-    if (begin(geometry, buildstate))
+    if (m_surface)
     {
-      for(auto &instance : m_meshes)
+      if (m_material->albedomap && m_material->surfacemap && m_material->normalmap)
       {
-        geometry.push_terrain(buildstate, instance.transform, instance.mesh, m_material, m_blendmap, 4 * m_blendmap->layers, Vec2(16, 16));
+        geometry.push_terrain(buildstate, Transform::rotation(Vec3(1, 0, 0), -pi<float>()/2), m_surface, m_heightmap, m_heightnormalmap, Rect2(Vec2(0), Vec2(1)), 50.0f, 40.0f, 50.0f, 4.0f/256, m_material, m_blendmap, m_document.layers(), Vec2(16, 16));
       }
-
-      geometry.finalise(buildstate);
     }
 
-    push_geometry(geometry);
+    geometry.finalise(buildstate);
   }
+
+  push_geometry(geometry);
 
   render();
 }

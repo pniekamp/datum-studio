@@ -197,14 +197,14 @@ void MaterialWidget::on_NormalMap_itemDropped(QString const &path)
 void MaterialWidget::on_ResetAlbedo_clicked()
 {
   m_document.set_color(Color4(1.0f, 1.0f, 1.0f, 1.0f));
-  m_document.set_shallowcolor(Color3(1.0f, 1.0f, 1.0f));
-  m_document.set_deepcolor(Color3(1.0f, 1.0f, 1.0f));
-  m_document.set_fresnelcolor(Color3(1.0f, 1.0f, 1.0f));
+  m_document.set_shallowcolor(Color3(0.1f, 0.6f, 0.7f));
+  m_document.set_deepcolor(Color3(0.0f, 0.007f, 0.005f));
+  m_document.set_fresnelcolor(Color3(0.01f, 0.05f, 0.15f));
   m_document.set_depthscale(1);
 
   m_document.set_metalness(0);
-  m_document.set_roughness(0.4f);
-  m_document.set_reflectivity(0.5f);
+  m_document.set_roughness(0.32f);
+  m_document.set_reflectivity(0.02f);
   m_document.set_emissive(0);
 }
 

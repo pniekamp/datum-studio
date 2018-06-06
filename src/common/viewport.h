@@ -44,7 +44,9 @@ class Viewport : public QWidget
         unique_resource<Resource> load(std::istream &fin, size_t index, Args... args);
 
         template<typename Resource, typename ...Args>
-        unique_resource<Resource> load(Studio::Document *document, size_t index, Args... args);      
+        unique_resource<Resource> load(Studio::Document *document, size_t index, Args... args);
+
+        unique_resource<Mesh> make_plane(int sizex, int sizey, float scale = 1.0f, float tilex = 1.0f, float tiley = 1.0f);
 
       public:
 
@@ -53,6 +55,7 @@ class Viewport : public QWidget
         void release_lump(ResourceManager::TransferLump const *lump) { m_manager->release_lump(lump); }
 
       private:
+
         ResourceManager *m_manager;
     };
 
@@ -91,7 +94,7 @@ class Viewport : public QWidget
 
     QPaintEngine *paintEngine() const override;
 
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 
   protected slots:
 

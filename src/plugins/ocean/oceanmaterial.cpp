@@ -139,6 +139,18 @@ void OceanMaterialDocument::create(string const &path, Color4 const &color, floa
   definition["color.a"] = color.a;
   definition["roughness"] = roughness;
 
+  definition["shallowcolor.r"] = 0.1f;
+  definition["shallowcolor.g"] = 0.6f;
+  definition["shallowcolor.b"] = 0.7f;
+
+  definition["deepcolor.r"] = 0.0f;
+  definition["deepcolor.g"] = 0.007f;
+  definition["deepcolor.b"] = 0.005f;
+
+  definition["fresnelcolor.r"] = 0.01f;
+  definition["fresnelcolor.g"] = 0.05f;
+  definition["fresnelcolor.b"] = 0.15f;
+
   ofstream fout(path, ios::binary | ios::trunc);
 
   write_asset_header(fout, metadata);

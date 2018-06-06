@@ -87,9 +87,7 @@ class ModelDocument : public QObject
   public:
 
     void add_mesh(int position, QString const &path);
-
     void move_mesh(int index, int position);
-
     void erase_mesh(int index);
 
     void set_mesh_name(int index, QString const &name);

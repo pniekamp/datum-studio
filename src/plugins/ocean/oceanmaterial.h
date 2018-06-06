@@ -61,8 +61,8 @@ class OceanMaterialDocument : public QObject
     float depthscale() const { return m_definition["depthscale"].toDouble(1); }
 
     float metalness() const { return m_definition["metalness"].toDouble(0); }
-    float roughness() const { return m_definition["roughness"].toDouble(0.4); }
-    float reflectivity() const { return m_definition["reflectivity"].toDouble(0.5); }
+    float roughness() const { return m_definition["roughness"].toDouble(0.32f); }
+    float reflectivity() const { return m_definition["reflectivity"].toDouble(0.02f); }
     float emissive() const { return m_definition["emissive"].toDouble(0); }
 
     Studio::Document *image(int image) const { return m_images[image]; }

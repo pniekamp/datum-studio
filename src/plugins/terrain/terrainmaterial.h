@@ -67,9 +67,7 @@ class TerrainMaterialDocument : public QObject
     void set_emissive(float emissive);
 
     void add_layer(int position, QString const &path);
-
     void move_layer(int index, int position);
-
     void erase_layer(int index);
 
   signals:

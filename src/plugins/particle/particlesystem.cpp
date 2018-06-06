@@ -10,7 +10,7 @@
 #include "spritesheet.h"
 #include "assetfile.h"
 #include "atlaspacker.h"
-#include "leap/lml/interpolation.h"
+#include <leap/lml/interpolation.h>
 #include <functional>
 #include <cassert>
 #include <QJsonDocument>

@@ -30,6 +30,10 @@ class MaterialProperties : public QDockWidget
 
     void refresh();
 
+  protected:
+
+    void on_material_build_complete(Studio::Document *document, QString const &path);
+
   private:
 
     Ui::Properties ui;
