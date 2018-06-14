@@ -48,7 +48,7 @@ MaterialView::MaterialView(QWidget *parent)
   {
     m_blendmap = resources.create<Texture>(1024, 1024, 4, 1, Texture::Format::RGBA);
 
-    if (auto lump = resources.acquire_lump(m_blendmap->width*m_blendmap->height*m_blendmap->layers*sizeof(uint32_t)))
+    if (auto lump = resources.acquire_lump(m_blendmap->size()))
     {
       uint32_t *bits = lump->memory<uint32_t>();
 

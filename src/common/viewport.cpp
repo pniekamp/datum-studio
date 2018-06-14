@@ -71,10 +71,13 @@ namespace
     {
       mesh = resources.create<Mesh>(mhdr.vertexcount, mhdr.indexcount);
 
-      if (auto lump = resources.acquire_lump(mesh->vertexbuffer.size))
+      if (auto lump = resources.acquire_lump(mesh->size()))
       {
-        read_asset_payload(fin, mhdr.dataoffset, lump->memory(mesh->vertexbuffer.verticesoffset), mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize);
-        read_asset_payload(fin, mhdr.dataoffset + mesh->vertexbuffer.vertexcount*mesh->vertexbuffer.vertexsize, lump->memory(mesh->vertexbuffer.indicesoffset), mesh->vertexbuffer.indexcount*mesh->vertexbuffer.indexsize);
+        int verticessize = mesh->vertexbuffer.vertexcount * mesh->vertexbuffer.vertexsize;
+        int indicessize = mesh->vertexbuffer.indexcount * mesh->vertexbuffer.indexsize;
+
+        read_asset_payload(fin, mhdr.dataoffset, lump->memory(mesh->verticesoffset()), verticessize);
+        read_asset_payload(fin, mhdr.dataoffset + verticessize, lump->memory(mesh->indicesoffset()), indicessize);
 
         resources.update(mesh, lump, Bound3(Vec3(mhdr.mincorner[0], mhdr.mincorner[1], mhdr.mincorner[2]), Vec3(mhdr.maxcorner[0], mhdr.maxcorner[1], mhdr.maxcorner[2])));
 

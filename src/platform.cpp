@@ -80,10 +80,10 @@ size_t FileHandle::read(uint64_t position, void *buffer, size_t bytes)
 
   m_fio.read((char*)buffer, bytes);
 
-  if (!m_fio)
+  if (m_fio.bad())
     throw runtime_error("FileHandle Read Error");
 
-  return bytes;
+  return m_fio.gcount();
 }
 
 
