@@ -170,9 +170,54 @@ namespace
 
   void write_matl_asset(QString const &src, QString const &dst, QJsonObject metadata, PackMaterialHeader *matl)
   {
+    metadata["type"] = "Material";
+    metadata["icon"] = encode_icon(QIcon(":/packimporter/icon.png"));
+    metadata["build"] = buildtime();
 
+    QJsonObject definition;
+    definition["color.r"] = 0.4f;
+    definition["color.g"] = 0.4f;
+    definition["color.b"] = 0.4f;
+    definition["color.a"] = 1.0f;
+    definition["metalness"] = 0.0f;
+    definition["roughness"] = 1.0f;
+
+    ofstream fout(dst.toUtf8(), ios::binary | ios::trunc);
+
+    write_asset_header(fout, metadata);
+
+    write_asset_json(fout, 1, definition);
+
+    write_asset_footer(fout);
+
+    fout.close();
+  }
+
+  void write_font_asset(QString const &src, QString const &dst, QJsonObject metadata, PackFontHeader *font)
+  {
+    metadata["type"] = "Font";
+    metadata["icon"] = encode_icon(QIcon(":/packimporter/icon.png"));
+    metadata["build"] = buildtime();
+
+    QJsonObject definition;
+    definition["name"] = "Arial";
+    definition["size"] = 10;
+    definition["weight"] = 50;
+    definition["atlaswidth"] = 512;
+    definition["atlasheight"] = 256;
+
+    ofstream fout(dst.toUtf8(), ios::binary | ios::trunc);
+
+    write_asset_header(fout, metadata);
+
+    write_asset_json(fout, 1, definition);
+
+    write_asset_footer(fout);
+
+    fout.close();
   }
 }
+
 
 //|---------------------- PackImporter --------------------------------------
 //|--------------------------------------------------------------------------
@@ -253,6 +298,10 @@ bool PackImporter::try_import(QString const &src, QString const &dst, QJsonObjec
 
       case "MATL"_packchunktype:
         write_matl_asset(src, path.arg(id), metadata, reinterpret_cast<PackMaterialHeader*>(buffer.data()));
+        break;
+
+      case "FONT"_packchunktype:
+        write_font_asset(src, path.arg(id), metadata, reinterpret_cast<PackFontHeader*>(buffer.data()));
         break;
     }
 

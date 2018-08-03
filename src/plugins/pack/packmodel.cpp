@@ -325,8 +325,8 @@ void PackModel::load(string const &projectfile)
     {
       if (line.substr(1, 9) == "Parameter")
       {
-        auto name = line.substr(line.find_first_of("'") + 1, line.find_last_of("'")).to_string();
-        auto value = line.substr(name.size() + 19, line.size() - 12).to_string();
+        auto name = string(line.begin() + line.find_first_of('\'') + 1, line.begin() + line.find_last_of('\''));
+        auto value = string(line.begin() + name.size() + 19, line.begin() + line.size() - 12);
 
         set_parameter(name.c_str(), value.c_str());
       }

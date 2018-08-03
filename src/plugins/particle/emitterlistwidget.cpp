@@ -168,7 +168,7 @@ void EmitterListWidget::dragEnterEvent(QDragEnterEvent *event)
 ///////////////////////// EmitterListWidget::dropEvent //////////////////////
 void EmitterListWidget::dropEvent(QDropEvent *event)
 {
-  size_t position = 0;
+  int position = 0;
 
   switch(dropIndicatorPosition())
   {
@@ -200,6 +200,8 @@ void EmitterListWidget::dropEvent(QDropEvent *event)
       stream >> index;
 
       m_document.move_emitter(index, position);
+
+      position = (position <= index) ? position + 1 : position;
     }
   }
 

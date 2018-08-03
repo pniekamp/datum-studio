@@ -17,6 +17,7 @@
 #include <assimp/DefaultLogger.hpp>
 #include <QFileInfo>
 #include <QtPlugin>
+#include <cassert>
 
 #include <QDebug>
 
@@ -72,7 +73,7 @@ namespace
     auto offset = Vec3(m(0, 3), m(1, 3), m(2, 3));
 
     auto scale = Vec3(norm(xaxis), norm(yaxis), norm(zaxis));
-    auto rotation = Transform::rotation(Quaternion3f(normalise(xaxis), normalise(yaxis), normalise(zaxis)));
+    auto rotation = Transform::rotation(Quaternion3(normalise(xaxis), normalise(yaxis), normalise(zaxis)));
     auto translation = Transform::translation(offset);
 
     Transform world = translation * rotation;
@@ -212,7 +213,7 @@ namespace
           auto scale = Vec3(mesh.scale.x / norm(xaxis), mesh.scale.y / norm(yaxis), mesh.scale.z / norm(zaxis));
           auto offset = Vec3(m(0, 3), m(1, 3), m(2, 3));
 
-          auto transform = Transform::translation(hada(scale, offset)) * Transform::rotation(Quaternion3f(normalise(xaxis), normalise(yaxis), normalise(zaxis)));
+          auto transform = Transform::translation(hada(scale, offset)) * Transform::rotation(Quaternion3(normalise(xaxis), normalise(yaxis), normalise(zaxis)));
 
           memcpy(mesh.bones[k].name, scene->mMeshes[i]->mBones[k]->mName.C_Str(), min(sizeof(mesh.bones[k].name)-1, scene->mMeshes[i]->mBones[k]->mName.length));
           memcpy(mesh.bones[k].transform, &transform, sizeof(transform));

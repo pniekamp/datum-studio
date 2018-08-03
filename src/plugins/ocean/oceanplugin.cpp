@@ -61,7 +61,7 @@ bool OceanPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   packmanager->register_packer("Material\\Ocean", this);
   packmanager->register_packer("Material\\Ocean.AlbedoMap", this);
-  packmanager->register_packer("Material\\Ocean.SpecularMap", this);
+  packmanager->register_packer("Material\\Ocean.SurfaceMap", this);
   packmanager->register_packer("Material\\Ocean.NormalMap", this);
 
   return true;

@@ -308,7 +308,7 @@ void MaterialDocument::build(Studio::Document *document, string const &path)
     auto reflectivitymap = ImageDocument(materialdocument.image(MaterialDocument::Image::ReflectivityMap)).data(ImageDocument::raw);
 
     HDRImage surfacemap;
-    surfacemap.width = max({ metalnessmap.width, roughnessmap.width, reflectivitymap.width });;
+    surfacemap.width = max({ metalnessmap.width, roughnessmap.width, reflectivitymap.width });
     surfacemap.height = max({ metalnessmap.height, roughnessmap.height, reflectivitymap.height });
     surfacemap.bits = vector<Color4>(surfacemap.width * surfacemap.height, Color4(1, 1, 1, 1));
 
@@ -541,7 +541,7 @@ void MaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
     if (read_asset_header(fin, 1, &imag))
     {
-      vector<char> payload(pack_payload_size(imag));
+      vector<char> payload(max(pack_payload_size(imag), image_datasize_bc3(imag.width, imag.height, imag.layers, imag.levels)));
 
       read_asset_payload(fin, imag.dataoffset, payload.data(), payload.size());
 
@@ -557,7 +557,7 @@ void MaterialDocument::pack(Studio::PackerState &asset, ofstream &fout)
 
     if (read_asset_header(fin, 2, &imag))
     {
-      vector<char> payload(pack_payload_size(imag));
+      vector<char> payload(max(pack_payload_size(imag), image_datasize_bc3(imag.width, imag.height, imag.layers, imag.levels)));
 
       read_asset_payload(fin, imag.dataoffset, payload.data(), payload.size());
 

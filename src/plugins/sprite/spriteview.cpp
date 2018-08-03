@@ -27,6 +27,8 @@ SpriteView::SpriteView(QWidget *parent)
 {
   m_layer = 0;
   m_scale = 1.0f;
+  m_width = 0;
+  m_height = 0;
 
   m_border = 4;
 

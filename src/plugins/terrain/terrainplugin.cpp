@@ -61,7 +61,7 @@ bool TerrainPlugin::initialise(QStringList const &arguments, QString *errormsg)
 
   packmanager->register_packer("Material\\Terrain", this);
   packmanager->register_packer("Material\\Terrain.AlbedoMap", this);
-  packmanager->register_packer("Material\\Terrain.SpecularMap", this);
+  packmanager->register_packer("Material\\Terrain.SurfaceMap", this);
   packmanager->register_packer("Material\\Terrain.NormalMap", this);
 
   return true;

@@ -81,7 +81,7 @@ namespace
 
     for(size_t i = 0; i < result.bits.size(); ++i)
     {
-      result.bits[i] = hada(result.bits[i], tint);
+      result.bits[i] = result.bits[i] * tint;
     }
 
     return result;
@@ -99,7 +99,7 @@ namespace
     int width = max_element(images.begin(), images.end(), [](auto &lhs, auto &rhs) { return lhs.width < rhs.width; })->width;
     int height = max_element(images.begin(), images.end(), [](auto &lhs, auto &rhs) { return lhs.height < rhs.height; })->height;
     int layers = images.size();
-    int levels = min(4, image_maxlevels(width, height));
+    int levels = min(16, image_maxlevels(width, height));
 
     vector<char> payload(image_datasize(width, height, layers, levels));
 
@@ -233,9 +233,9 @@ void TerrainMaterialDocument::build(Studio::Document *document, string const &pa
 
   for(int i = 0; i < materialdocument.layers(); ++i)
   {
-    HDRImage albedomap(1, 1, Color4(1, 1, 1, 1));
-    HDRImage surfacemap(1, 1, Color4(1, 1, 1, 1));
-    HDRImage normalmap(1, 1, Color4(0.5, 0.5, 1, 1));
+    HDRImage albedomap(4, 4, Color4(1, 1, 1, 1));
+    HDRImage surfacemap(4, 4, Color4(1, 1, 1, 1));
+    HDRImage normalmap(4, 4, Color4(0.5, 0.5, 1, 1));
 
     if (auto layerdocument = MaterialDocument(materialdocument.layer(i)))
     {
@@ -254,6 +254,7 @@ void TerrainMaterialDocument::build(Studio::Document *document, string const &pa
         normalmap = read_image(buildpath, 3);
 
       albedomap = tint_image(albedomap, layerdocument.color());
+
       surfacemap = tint_image(surfacemap, Color4(layerdocument.metalness(), layerdocument.reflectivity(), 1, layerdocument.roughness()));
     }
 

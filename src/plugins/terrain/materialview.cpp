@@ -359,7 +359,7 @@ void MaterialView::paintEvent(QPaintEvent *event)
     {
       if (m_material->albedomap && m_material->surfacemap && m_material->normalmap)
       {
-        geometry.push_terrain(buildstate, Transform::rotation(Vec3(1, 0, 0), -pi<float>()/2), m_surface, m_heightmap, m_heightnormalmap, Rect2(Vec2(0), Vec2(1)), 50.0f, 40.0f, 50.0f, 4.0f/256, m_material, m_blendmap, m_document.layers(), Vec2(16, 16));
+        geometry.push_terrain(buildstate, Transform::rotation(Vec3(1, 0, 0), -pi<float>()/2), m_surface, m_heightmap, m_heightnormalmap, Rect2(Vec2(0), Vec2(1)), Vec4(50.0f), 40.0f, 50.0f, 4.0f/256, m_material, m_blendmap, m_document.layers(), Vec2(16, 16));
       }
     }
 

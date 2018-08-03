@@ -32,7 +32,7 @@ ImageView::ImageView(QWidget *parent)
 
   setViewport(new Viewport);
 
-  m_image = viewport()->resources.create<Texture>(1, 1, 1, 1, Texture::Format::SRGBA);
+  m_image = nullptr;
 }
 
 
@@ -87,16 +87,20 @@ void ImageView::refresh()
         break;
 
       default:
-        assert(false);
+        m_image = nullptr;
+        break;
     }
 
-    if (auto lump = viewport()->resources.acquire_lump(imag.datasize))
-    { 
-      read_asset_payload(m_document, imag.dataoffset, lump->memory(), imag.datasize);
+    if (m_image)
+    {
+      if (auto lump = viewport()->resources.acquire_lump(imag.datasize))
+      {
+        read_asset_payload(m_document, imag.dataoffset, lump->memory(), imag.datasize);
 
-      viewport()->resources.update(m_image, lump);
+        viewport()->resources.update(m_image, lump);
 
-      viewport()->resources.release_lump(lump);
+        viewport()->resources.release_lump(lump);
+      }
     }
   }
 
@@ -220,8 +224,6 @@ void ImageView::paintEvent(QPaintEvent *event)
   SpriteList sprites;
   SpriteList::BuildState buildstate;
 
-  auto sprite = viewport()->resources.create<Sprite>(*m_image, Rect2(Vec2(0, 0), Vec2(1, 1)), Vec2(0,0));
-
   if (viewport()->begin(sprites, buildstate))
   {
     for(int j = y % 32; j < height(); j += 32)
@@ -235,7 +237,12 @@ void ImageView::paintEvent(QPaintEvent *event)
       }
     }
 
-    sprites.push_sprite(buildstate, Vec2(x + m_border, y + m_border), m_scale*m_height, sprite, m_layer, Color4(m_exposure, m_exposure, m_exposure, 1));
+    if (m_image)
+    {
+      auto sprite = viewport()->resources.create<Sprite>(*m_image, Rect2(Vec2(0, 0), Vec2(1, 1)), Vec2(0,0));
+
+      sprites.push_sprite(buildstate, Vec2(x + m_border, y + m_border), m_scale*m_height, sprite, m_layer, Color4(m_exposure, m_exposure, m_exposure, 1));
+    }
 
     sprites.finalise(buildstate);
   }

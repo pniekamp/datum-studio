@@ -182,7 +182,7 @@ void MeshListWidget::dragEnterEvent(QDragEnterEvent *event)
 ///////////////////////// MeshListWidget::dropEvent /////////////////////////
 void MeshListWidget::dropEvent(QDropEvent *event)
 {
-  size_t position = 0;
+  int position = 0;
 
   switch(dropIndicatorPosition())
   {
@@ -214,6 +214,8 @@ void MeshListWidget::dropEvent(QDropEvent *event)
       stream >> index;
 
       m_document->move_mesh(index, position);
+
+      position = (position <= index) ? position + 1 : position;
     }
   }
 
@@ -224,6 +226,8 @@ void MeshListWidget::dropEvent(QDropEvent *event)
       QString src = url.toLocalFile();
 
       m_document->add_mesh(position, src);
+
+      position += 1;
     }
   }
 

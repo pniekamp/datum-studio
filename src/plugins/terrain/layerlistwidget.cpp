@@ -140,7 +140,7 @@ void LayerListWidget::dragEnterEvent(QDragEnterEvent *event)
 ///////////////////////// LayerListWidget::dropEvent ////////////////////////
 void LayerListWidget::dropEvent(QDropEvent *event)
 {
-  size_t position = 0;
+  int position = 0;
 
   switch(dropIndicatorPosition())
   {
@@ -172,6 +172,8 @@ void LayerListWidget::dropEvent(QDropEvent *event)
       stream >> index;
 
       m_document.move_layer(index, position);
+
+      position = (position <= index) ? position + 1 : position;
     }
   }
 
@@ -182,6 +184,8 @@ void LayerListWidget::dropEvent(QDropEvent *event)
       QString src = url.toLocalFile();
 
       m_document.add_layer(position, src);
+
+      position += 1;
     }
   }
 

@@ -166,7 +166,7 @@ Material const *ModelView::find_or_create_material(Studio::Document *document, C
 
     if (auto materialdocument = MaterialDocument(document))
     {
-      color = hada(tint, materialdocument.color());
+      color = materialdocument.color() * tint;
       metalness = materialdocument.metalness();
       roughness = materialdocument.roughness();
       reflectivity = materialdocument.reflectivity();
@@ -201,7 +201,7 @@ void ModelView::on_material_build_complete(Studio::Document *document, QString c
 
     for(auto &tintdata : materialdata.tints)
     {
-      resources.update(tintdata.material, hada(tintdata.tint, color), metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.surfacemap, *materialdata.normalmap);
+      resources.update(tintdata.material, color * tintdata.tint, metalness, roughness, reflectivity, emissive, *materialdata.albedomap, *materialdata.surfacemap, *materialdata.normalmap);
     }
   }
 

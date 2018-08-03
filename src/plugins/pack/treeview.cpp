@@ -293,7 +293,7 @@ Qt::DropActions TreeModel::supportedDropActions() const
 ///////////////////////// TreeModel::dropMimeData ///////////////////////////
 bool TreeModel::dropMimeData(QMimeData const *data, Qt::DropAction action, int row, int column, QModelIndex const &parent)
 {
-  size_t position = row;
+  int position = row;
   PackModel::Node *group = node(parent);
 
   if (row == -1)
@@ -312,7 +312,9 @@ bool TreeModel::dropMimeData(QMimeData const *data, Qt::DropAction action, int r
       int column; stream >> column;
       quintptr node; stream >> node;
 
-      m_model->move(reinterpret_cast<PackModel::Node*>(node), group, position++);
+      m_model->move(reinterpret_cast<PackModel::Node*>(node), group, position);
+
+      position = (position <= row) ? position + 1 : position;
     }
   }
 
@@ -324,12 +326,14 @@ bool TreeModel::dropMimeData(QMimeData const *data, Qt::DropAction action, int r
 
       if (QFileInfo(src).isDir())
       {
-        add_folder_contents(m_model, group, position++, src);
+        add_folder_contents(m_model, group, position, src);
       }
       else
       {
-        m_model->add_asset(group, position++, src);
+        m_model->add_asset(group, position, src);
       }
+
+      position += 1;
     }
   }
 
