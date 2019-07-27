@@ -69,7 +69,7 @@ namespace
     int width = image.width;
     int height = image.height;
     int layers = 1;
-    int levels = min(4, image_maxlevels(width, height));
+    int levels = image_maxlevels(width, height);
 
     if (image.bits.size() == 0)
       throw runtime_error("SurfaceMap build failed - null image");
@@ -98,7 +98,7 @@ namespace
     int width = image.width;
     int height = image.height;
     int layers = 1;
-    int levels = min(4, image_maxlevels(width, height));
+    int levels = image_maxlevels(width, height);
 
     if (image.bits.size() == 0)
       throw runtime_error("NormalMap build failed - null image");

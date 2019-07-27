@@ -76,7 +76,7 @@ namespace
 
     auto name = QFileInfo(documentmanager->path(document)).completeBaseName().toStdString();
 
-    string shader = "#line " + to_string(line) + "\"" + name + "\"\n";
+    string shader = "#line " + to_string(line) + " \"" + name + "\"\n";
 
     document->lock();
 
@@ -100,7 +100,7 @@ namespace
         {
           shader = "";
           buffer += "\n#extension GL_GOOGLE_cpp_style_line_directive : enable\n";
-          buffer += "\n#line " + to_string(line) + "\"" + name + "\"";
+          buffer += "\n#line " + to_string(line) + " \"" + name + "\"";
         }
 
         if (buffer.substr(0, 8) == "#include")
@@ -113,7 +113,7 @@ namespace
           {
             buffer = load_shader(includedocument);
 
-            buffer += "\n#line " + to_string(line) + "\"" + name + "\"";
+            buffer += "\n#line " + to_string(line) + " \"" + name + "\"";
 
             documentmanager->close(includedocument);
           }

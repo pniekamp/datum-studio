@@ -348,7 +348,7 @@ void PackModel::load(string const &projectfile)
       continue;
     }
 
-    add_asset(groupstack.back(), groupstack.back()->children(), base.filePath(buffer.c_str()));
+    add_asset(groupstack.back(), groupstack.back()->children(), base.filePath(QString::fromUtf8(line.data(), line.size())));
   }
 
   m_modified = false;

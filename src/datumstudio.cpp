@@ -70,17 +70,6 @@ DatumStudio::DatumStudio()
 ///////////////////////// DatumStudio::Destructor ///////////////////////////
 DatumStudio::~DatumStudio()
 {
-  QSettings settings;
-
-  if (!(windowFlags() & Qt::FramelessWindowHint) && !isMaximized())
-  {
-    settings.setValue("mainwindow/pos", pos());
-    settings.setValue("mainwindow/size", size());
-  }
-
-  settings.setValue("mainwindow/state", saveState());
-
-  settings.setValue("mainwindow/splitter", ui.Splitter->saveState());
 }
 
 
@@ -133,7 +122,20 @@ void DatumStudio::closeEvent(QCloseEvent *event)
 {
   auto mainwindow = Studio::Core::instance()->find_object<MainWindow>();
 
-  if (!mainwindow->close())
+  if (mainwindow->close())
+  {
+    QSettings settings;
+
+    if (!(windowFlags() & Qt::FramelessWindowHint) && !isMaximized())
+    {
+      settings.setValue("mainwindow/pos", pos());
+      settings.setValue("mainwindow/size", size());
+    }
+
+    settings.setValue("mainwindow/state", saveState());
+    settings.setValue("mainwindow/splitter", ui.Splitter->saveState());
+  }
+  else
   {
     event->ignore();
   }

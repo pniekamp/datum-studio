@@ -74,7 +74,7 @@ namespace
 
     auto name = QFileInfo(documentmanager->path(document)).completeBaseName().toStdString();
 
-    string ui = "#line " + to_string(line) + "\"" + name + "\"\n";
+    string ui = "#line " + to_string(line) + " \"" + name + "\"\n";
 
     document->lock();
 
@@ -104,7 +104,7 @@ namespace
           {
             buffer = load_datumui(includedocument);
 
-            buffer += "\n#line " + to_string(line) + "\"" + name + "\"";
+            buffer += "\n#line " + to_string(line) + " \"" + name + "\"";
 
             documentmanager->close(includedocument);
           }

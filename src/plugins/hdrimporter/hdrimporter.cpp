@@ -22,24 +22,6 @@ using namespace lml;
 
 namespace
 {
-  QImage rgba(QImage const &img)
-  {
-    QImage result(img.width(), img.height(), QImage::Format_ARGB32);
-
-    uint32_t *src = (uint32_t*)img.bits();
-    uint32_t *dst = (uint32_t*)result.bits();
-
-    for(int j = 0; j < result.height(); ++j)
-    {
-      for(int i = 0; i < result.width(); ++i)
-      {
-        *dst++ = rgba(gamma(clamp(rgbe(*src++), 0.0f, 1.0f)));
-      }
-    }
-
-    return result;
-  }
-
   QIcon generate_icon(QImage const &img)
   {
     QImage icon(48, 48, QImage::Format_ARGB32);
@@ -57,6 +39,23 @@ namespace
     painter.end();
 
     return QPixmap::fromImage(icon);
+  }
+
+  QIcon generate_icon(HDRImage const &hdr)
+  {
+    QImage img(hdr.width, hdr.height, QImage::Format_ARGB32);
+
+    uint32_t *dst = (uint32_t*)img.bits();
+
+    for(int j = 0; j < img.height(); ++j)
+    {
+      for(int i = 0; i < img.width(); ++i)
+      {
+        *dst++ = srgba(clamp(hdr.sample(i, j), 0.0f, 1.0f));
+      }
+    }
+
+    return generate_icon(img);
   }
 }
 
@@ -127,7 +126,7 @@ bool HdrImporter::try_import(QString const &src, QString const &dst, QJsonObject
 
   metadata["src"] = src;
   metadata["type"] = "Image";
-  metadata["icon"] = encode_icon(generate_icon(rgba(image)));
+  metadata["icon"] = encode_icon(generate_icon(hdr));
   metadata["build"] = buildtime();
 
   progress.setValue(80);

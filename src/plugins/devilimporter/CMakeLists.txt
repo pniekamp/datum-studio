@@ -31,7 +31,7 @@ set(QRCS ${QRCS} devilimporter.qrc)
 
 set(SRCS ${SRCS} devilimporter.h devilimporter.cpp)
 set(SRCS ${SRCS} ${COMMON}/assetfile.h ${COMMON}/assetfile.cpp)
-set(SRCS ${SRCS} ${DATUM_TOOLS}/assetpacker.h ${DATUM_TOOLS}/assetpacker.cpp ${DATUM_TOOLS}/bc3.cpp)
+set(SRCS ${SRCS} ${DATUM_TOOLS}/assetpacker.h ${DATUM_TOOLS}/assetpacker.cpp ${DATUM_TOOLS}/bc3.cpp ${DATUM_TOOLS}/hdr.cpp)
 
 add_library(devilimporter SHARED ${SRCS} ${QRCS} ${FRMS})
 

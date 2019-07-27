@@ -99,7 +99,7 @@ namespace
     int width = max_element(images.begin(), images.end(), [](auto &lhs, auto &rhs) { return lhs.width < rhs.width; })->width;
     int height = max_element(images.begin(), images.end(), [](auto &lhs, auto &rhs) { return lhs.height < rhs.height; })->height;
     int layers = images.size();
-    int levels = min(16, image_maxlevels(width, height));
+    int levels = image_maxlevels(width, height);
 
     vector<char> payload(image_datasize(width, height, layers, levels));
 
