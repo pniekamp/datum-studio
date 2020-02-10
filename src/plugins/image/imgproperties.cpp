@@ -9,6 +9,7 @@
 #include "imgproperties.h"
 #include "contentapi.h"
 #include "assetfile.h"
+#include <QIntValidator>
 
 #include <QDebug>
 

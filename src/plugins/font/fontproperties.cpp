@@ -8,6 +8,7 @@
 
 #include "fontproperties.h"
 #include <QFontDialog>
+#include <QIntValidator>
 
 #include <QDebug>
 

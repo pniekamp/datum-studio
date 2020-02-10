@@ -9,6 +9,7 @@
 #include "meshproperties.h"
 #include "contentapi.h"
 #include "assetfile.h"
+#include <QDoubleValidator>
 
 #include <QDebug>
 

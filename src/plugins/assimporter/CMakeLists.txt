@@ -23,8 +23,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${DATUM_TOOLS})
 include_directories(${COMMON})
-
 include_directories(${ASSIMP_INCLUDE_DIRS})
+
 link_directories(${ASSIMP_LIBRARY_DIRS})
 
 set(QRCS ${QRCS} assimporter.qrc)

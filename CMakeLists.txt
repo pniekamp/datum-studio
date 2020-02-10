@@ -31,7 +31,6 @@ find_package(Threads REQUIRED)
 #
 
 find_path(LEAP_INCLUDE leap.h PATHS ${PROJECT_SOURCE_DIR}/../leap/include NO_DEFAULT_PATH)
-
 find_library(LEAP_LIBRARIES NAMES leap PATHS ${PROJECT_SOURCE_DIR}/../leap/lib)
 
 if(LEAP_INCLUDE AND LEAP_LIBRARIES)
@@ -55,7 +54,7 @@ endif(LEAP_INCLUDE AND LEAP_LIBRARIES)
 #
 
 find_path(DATUM_INCLUDE datum.h PATHS ${PROJECT_SOURCE_DIR}/../datum/include NO_DEFAULT_PATH)
-
+find_path(DATUM_TOOLS assetpacker.h PATHS ${PROJECT_SOURCE_DIR}/../datum/tools NO_DEFAULT_PATH)
 find_library(DATUM_LIBRARIES NAMES datum PATHS ${PROJECT_SOURCE_DIR}/../datum/lib)
 
 if(DATUM_INCLUDE AND DATUM_LIBRARIES)
@@ -63,20 +62,16 @@ if(DATUM_INCLUDE AND DATUM_LIBRARIES)
   set_property(TARGET datum PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${DATUM_INCLUDE})
   set_property(TARGET datum PROPERTY IMPORTED_LOCATION ${DATUM_LIBRARIES})
   set_property(TARGET datum PROPERTY INTERFACE_LINK_LIBRARIES leap)
-
   message(STATUS "Found Datum: ${DATUM_INCLUDE}")
 else(DATUM_INCLUDE AND DATUM_LIBRARIES)
   message(FATAL_ERROR "Could not find Datum Library")
 endif(DATUM_INCLUDE AND DATUM_LIBRARIES)
-
-find_path(DATUM_TOOLS assetpacker.h PATHS ${PROJECT_SOURCE_DIR}/../datum/tools NO_DEFAULT_PATH)
 
 #
 # datum-ui
 #
 
 find_path(DATUMUIC_INCLUDE datum/ui.h PATHS ${PROJECT_SOURCE_DIR}/../datum-ui/include NO_DEFAULT_PATH)
-
 find_library(DATUMUIC_LIBRARIES NAMES datumuic PATHS ${PROJECT_SOURCE_DIR}/../datum-ui/lib)
 
 if(DATUMUIC_INCLUDE AND DATUMUIC_LIBRARIES)
@@ -84,7 +79,6 @@ if(DATUMUIC_INCLUDE AND DATUMUIC_LIBRARIES)
   set_property(TARGET datumuic PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${DATUMUIC_INCLUDE})
   set_property(TARGET datumuic PROPERTY IMPORTED_LOCATION ${DATUMUIC_LIBRARIES})
   set_property(TARGET datumuic PROPERTY INTERFACE_LINK_LIBRARIES leap)
-
   message(STATUS "Found DatumUi: ${DATUMUIC_INCLUDE}")
 endif(DATUMUIC_INCLUDE AND DATUMUIC_LIBRARIES)
 
@@ -158,17 +152,28 @@ add_subdirectory(src/plugins/objimporter)
 # glslang
 #
 
-find_path(GLSLANG_INSTALL lib/libglslang.a)
+find_path(GLSLANG_ROOT_DIR lib/libglslang.dll.a HINTS "$ENV{GLSLANG_DIR}")
 
-if(GLSLANG_INSTALL)
+if(GLSLANG_ROOT_DIR)
+  set(GLSLANG_INCLUDE_DIR ${GLSLANG_ROOT_DIR}/include)
+  set(GLSLANG_LIBRARY_DIR ${GLSLANG_ROOT_DIR}/lib)
+  set(GLSLANG_LIBRARIES glslang.dll SPIRV.dll)
+  message(STATUS "Found Glslang: ${GLSLANG_ROOT_DIR}")
+endif(GLSLANG_ROOT_DIR)
+
+if(GLSLANG_ROOT_DIR)
   add_subdirectory(src/plugins/shader)
-endif(GLSLANG_INSTALL)
+endif(GLSLANG_ROOT_DIR)
 
 #
 # assimp
 #
 
 find_package(assimp QUIET)
+
+if(assimp_FOUND)
+  message(STATUS "Found Assimp: ${ASSIMP_ROOT_DIR}")
+endif(assimp_FOUND)
 
 if(assimp_FOUND)
   add_subdirectory(src/plugins/assimporter)
@@ -178,12 +183,18 @@ endif(assimp_FOUND)
 # DevIL
 #
 
-find_path(DEVIL_INSTALL lib/libIL.dll.a)
+find_path(DEVIL_ROOT_DIR lib/libIL.dll.a HINTS "$ENV{DEVIL_DIR}")
 
-if(DEVIL_INSTALL)
+if(DEVIL_ROOT_DIR)
+  set(DEVIL_INCLUDE_DIR ${DEVIL_ROOT_DIR}/include)
+  set(DEVIL_LIBRARY_DIR ${DEVIL_ROOT_DIR}/lib)
+  set(DEVIL_LIBRARIES IL.dll)
+  message(STATUS "Found DevIL: ${DEVIL_ROOT_DIR}")
+endif(DEVIL_ROOT_DIR)
+
+if(DEVIL_ROOT_DIR)
   add_subdirectory(src/plugins/devilimporter)
-endif(DEVIL_INSTALL)
-
+endif(DEVIL_ROOT_DIR)
 
 #
 # DatumUi

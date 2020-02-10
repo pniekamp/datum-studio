@@ -19,13 +19,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set(DEVIL_LIBRARIES ${DEVIL_INSTALL}/lib/libIL.dll.a)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${DATUM_TOOLS})
 include_directories(${COMMON})
-include_directories(${DEVIL_INSTALL}/include)
+include_directories(${DEVIL_INCLUDE_DIR})
+
+link_directories(${DEVIL_LIBRARY_DIR})
 
 set(QRCS ${QRCS} devilimporter.qrc)
 

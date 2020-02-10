@@ -19,13 +19,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set(GLSLANG_LIBRARIES ${GLSLANG_INSTALL}/lib/libglslang.a ${GLSLANG_INSTALL}/lib/libOSDependent.a ${GLSLANG_INSTALL}/lib/libOGLCompiler.a ${GLSLANG_INSTALL}/lib/libHLSL.a ${GLSLANG_INSTALL}/lib/libSPIRV.a)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${DATUM_TOOLS})
 include_directories(${COMMON})
-include_directories(${GLSLANG_INSTALL})
+include_directories(${GLSLANG_INCLUDE_DIR})
+
+link_directories(${GLSLANG_LIBRARY_DIR})
 
 set(QRCS ${QRCS} shaderplugin.qrc)
 
